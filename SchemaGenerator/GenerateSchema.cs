@@ -25,6 +25,7 @@ namespace SharpPulsar.SchemaGenerator
             }
             schema.Add("fields", propertiesCollections);
             return JsonSerializer.Serialize(schema);
+
         }
         private static List<Dictionary<string, object>> GetClassProperties(PropertyInfo property)
         {
