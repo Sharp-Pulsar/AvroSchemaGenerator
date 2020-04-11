@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.0.2</Version>
+    <Version>0.1.0</Version>
     <Description>Generate Avro Schema</Description>
     <PackageProjectUrl>https://github.com/eaba/SchemaGenerator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/eaba/SchemaGenerator</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>SharpPulsar.SchemaGenerator</PackageId>
+    <PackageId>AvroSchemaGenerator</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
