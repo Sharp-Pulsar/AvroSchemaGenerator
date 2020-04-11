@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using SharpPulsar.SchemaGenerator;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 
-namespace SharpPulsar.SchemaGenerator
+namespace AvroSchemaGenerator
 {//https://docs.oracle.com/database/nosql-12.1.3.0/GettingStartedGuide/avroschemas.html
     public static class GenerateSchema
     {
