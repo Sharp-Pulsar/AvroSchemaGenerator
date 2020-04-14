@@ -82,9 +82,9 @@ namespace AvroSchemaGenerator
                     };
                     var prop = GetClassProperties(v.GetProperties());
                     schema2.Add("fields", prop);
-                    return new Dictionary<string, object> { { "type", "array" }, { "items", schema2 } };
+                    return new Dictionary<string, object> { { "name", p.Name }, { "type", "array" }, { "items", schema2 } };
                 }
-                return new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } };
+                return new Dictionary<string, object> { { "name", p.Name }, { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } };
             }
 
             if (p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)))
@@ -98,10 +98,10 @@ namespace AvroSchemaGenerator
                     };
                     var prop = GetClassProperties(v.GetProperties());
                     schema2.Add("fields", prop);
-                    return new Dictionary<string, object> { { "type", "map" }, { "values", schema2 } };
+                    return new Dictionary<string, object> { { "name", p.Name }, { "type", "map" }, { "values", schema2 } };
 
                 }
-                return new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } };
+                return new Dictionary<string, object> { { "name", p.Name }, { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } };
 
             }
 
