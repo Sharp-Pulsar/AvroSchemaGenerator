@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
@@ -12,7 +13,7 @@ namespace AvroSchemaGenerator
         {
             var schema = new Dictionary<string, object>
             {
-                {"type", "record"}, {"namespace", type.Namespace}, {"name", type.Namespace + "." + type.Name}
+                {"type", "record"}, {"namespace", type.Namespace}, {"name", type.Name}
             };
             var propertiesCollections = new List<Dictionary<string, object>>();
             var properties = type.GetProperties();
@@ -63,7 +64,7 @@ namespace AvroSchemaGenerator
             {
                 var schema2 = new Dictionary<string, object>
                     {
-                        {"type", "record"}, {"namespace", p.PropertyType.Namespace}, {"name", p.PropertyType.Namespace + "." + p.PropertyType.Name}
+                        {"type", "record"}, {"namespace", p.PropertyType.Namespace}, {"name", p.PropertyType.Name}
                     };
                 var prop = GetClassProperties(p);
                 schema2.Add("fields", prop);
@@ -78,7 +79,7 @@ namespace AvroSchemaGenerator
                 {
                     var schema2 = new Dictionary<string, object>
                     {
-                        {"type", "record"}, {"namespace", v.Namespace}, {"name", v.Namespace + "." + v.Name}
+                        {"type", "record"}, {"namespace", v.Namespace}, {"name", v.Name}
                     };
                     var prop = GetClassProperties(v.GetProperties());
                     schema2.Add("fields", prop);
@@ -94,7 +95,7 @@ namespace AvroSchemaGenerator
                 {
                     var schema2 = new Dictionary<string, object>
                     {
-                        {"type", "record"}, {"namespace", v.Namespace}, {"name", v.Namespace + "." + v.Name}
+                        {"type", "record"}, {"namespace", v.Namespace}, {"name", v.Name}
                     };
                     var prop = GetClassProperties(v.GetProperties());
                     schema2.Add("fields", prop);
@@ -107,7 +108,7 @@ namespace AvroSchemaGenerator
 
             if (p.PropertyType.IsEnum)
             {
-                var dp = new Dictionary<string, object> { { "type", "enum" }, { "name", p.PropertyType.Namespace + "." + p.PropertyType.Name }, { "namespace", p.PropertyType.Namespace }, { "symbols", GetEnumValues(p.PropertyType) } };
+                var dp = new Dictionary<string, object> { { "type", "enum" }, { "name", p.PropertyType.Name }, { "namespace", p.PropertyType.Namespace }, { "symbols", GetEnumValues(p.PropertyType) } };
                 return new Dictionary<string, object> { { "name", p.PropertyType.Name }, { "type", dp } };
 
             }
