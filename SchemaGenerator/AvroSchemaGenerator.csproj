@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.1.1</Version>
+    <Version>1.1.0</Version>
     <Description>Generate Avro Schema</Description>
     <PackageProjectUrl>https://github.com/eaba/SchemaGenerator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/eaba/SchemaGenerator</RepositoryUrl>
@@ -10,7 +10,7 @@
     <PackageId>AvroSchemaGenerator</PackageId>
     <PackageReleaseNotes>Fixes to array and map name issues
 DefaultValue
-Make compactible with Pulsar Function generated schema</PackageReleaseNotes>
+Allow null in array and map</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
