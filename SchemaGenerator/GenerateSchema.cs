@@ -114,7 +114,7 @@ namespace AvroSchemaGenerator
             }
 
             var dT = ToAvroDataType(p.PropertyType.Name);
-            return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<string> { dT, "null" } } };
+            return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<string> { "null", dT } }, { "default" , p.GetDefaultValueForProperty()} };
         }
         private static List<string> GetEnumValues(Type type)
         {

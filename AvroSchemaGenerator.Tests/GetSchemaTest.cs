@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -63,8 +64,10 @@ namespace AvroSchemaGenerator.Tests
 
     public class Course
     {
+        [DefaultValue("200")]
         public string Level { get; set; }
-        public int Year { get; set; }
+        [DefaultValue(2020)]
+        public int Year { get; set; } 
     }
 
     public class Lecturers
