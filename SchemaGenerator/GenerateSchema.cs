@@ -83,9 +83,9 @@ namespace AvroSchemaGenerator
                     };
                     var prop = GetClassProperties(v.GetProperties());
                     schema2.Add("fields", prop);
-                    return new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object>{ { "type", "array" }, { "items", schema2 } } } };
+                    return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object> { { "type", "array" }, { "items", schema2 } } } } };
                 }
-                return new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } }};
+                return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } }};
             }
 
             if (p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)))
@@ -99,10 +99,10 @@ namespace AvroSchemaGenerator
                     };
                     var prop = GetClassProperties(v.GetProperties());
                     schema2.Add("fields", prop);
-                    return new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object>{{"type", "map"}, { "values", schema2 } } } };
+                    return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object>{{"type", "map"}, { "values", schema2 } } }} };
 
                 }
-                return new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } };
+                return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } }} } };
 
             }
 
@@ -114,7 +114,17 @@ namespace AvroSchemaGenerator
             }
 
             var dT = ToAvroDataType(p.PropertyType.Name);
-            return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<string> { "null", dT } }, { "default" , p.GetDefaultValueForProperty()} };
+            switch (dT)
+            {
+                case "int":
+                case "long":
+                case "double":
+                case "float":
+                    return new Dictionary<string, object> { { "name", p.Name }, { "type", dT} };
+                default:
+                    return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<string> { "null", dT } }, { "default", p.GetDefaultValueForProperty() } };
+            }
+            
         }
         private static List<string> GetEnumValues(Type type)
         {
