@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Text;
 
@@ -8,14 +9,20 @@ namespace AvroSchemaGenerator
 {
     public static class DefaultValue
     {
-        public static object GetDefaultValueForProperty(this PropertyInfo property)
+        public static (bool required, bool hasDefault, object defaultValue) GetCustomAttributes(this PropertyInfo property)
         {
-            var defaultAttr = property.GetCustomAttribute(typeof(DefaultValueAttribute));
-            if (defaultAttr != null)
-                return (defaultAttr as DefaultValueAttribute)?.Value;
-
-            var propertyType = property.PropertyType;
-            return propertyType.IsValueType ? Activator.CreateInstance(propertyType) : null;
+            var required = IsRequiredProperty(property);
+            var dv = GetDefaultValueForProperty(property);
+            return (required, dv.hasDefault, dv.defaultValue);
+        }
+        private static (bool hasDefault, object defaultValue) GetDefaultValueForProperty(PropertyInfo property)
+        {
+            var defaultAttr = (DefaultValueAttribute)property.GetCustomAttribute(typeof(DefaultValueAttribute));
+            return defaultAttr != null ? (true, defaultAttr.Value) : (false, null);
+        }
+        private static bool IsRequiredProperty(PropertyInfo property)
+        {
+            return property.GetCustomAttribute(typeof(RequiredAttribute)) != null;
         }
     }
 }

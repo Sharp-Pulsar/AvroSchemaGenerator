@@ -74,6 +74,7 @@ namespace AvroSchemaGenerator
 
             if (p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)))
             {
+                var required = p.GetCustomAttributes().required;
                 var v = p.PropertyType.GetGenericArguments()[0];
                 if (v.Namespace != null && (v.IsClass && !v.Namespace.StartsWith("System")))
                 {
@@ -83,13 +84,14 @@ namespace AvroSchemaGenerator
                     };
                     var prop = GetClassProperties(v.GetProperties());
                     schema2.Add("fields", prop);
-                    return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object> { { "type", "array" }, { "items", schema2 } } } } };
+                    return required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", schema2 } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object> { { "type", "array" }, { "items", schema2 } } } } };
                 }
-                return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } }};
+                return required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } }};
             }
 
             if (p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)))
             {
+                var required = p.GetCustomAttributes().required;
                 var v = p.PropertyType.GetGenericArguments()[1];
                 if (v.Namespace != null && (v.IsClass && !v.Namespace.StartsWith("System")))
                 {
@@ -99,11 +101,9 @@ namespace AvroSchemaGenerator
                     };
                     var prop = GetClassProperties(v.GetProperties());
                     schema2.Add("fields", prop);
-                    return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object>{{"type", "map"}, { "values", schema2 } } }} };
-
+                    return required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object>{{"type", "map"}, { "values", schema2 } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object>{{"type", "map"}, { "values", schema2 } } }} };
                 }
-                return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } }} } };
-
+                return required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } }}  } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } }} } };
             }
 
             if (p.PropertyType.IsEnum)
@@ -113,18 +113,32 @@ namespace AvroSchemaGenerator
 
             }
 
+            return GetField(p);
+        }
+
+        private static Dictionary<string, object> GetField(PropertyInfo p)
+        {
             var dT = ToAvroDataType(p.PropertyType.Name);
-            switch (dT)
+            var customAttributes = p.GetCustomAttributes();
+            if (customAttributes.required && customAttributes.hasDefault)
             {
-                case "int":
-                case "long":
-                case "double":
-                case "float":
-                    return new Dictionary<string, object> { { "name", p.Name }, { "type", dT} };
-                default:
-                    return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<string> { "null", dT } }, { "default", p.GetDefaultValueForProperty() } };
+                //required and does have default value
+                return new Dictionary<string, object> { { "name", p.Name }, { "type", dT }, { "default", customAttributes.defaultValue } };
             }
-            
+
+            if (customAttributes.required && !customAttributes.hasDefault)
+            {
+                //required and does not have default value
+                return new Dictionary<string, object> { { "name", p.Name }, { "type", dT } };
+            }
+            if (!customAttributes.required && customAttributes.hasDefault)
+            {
+                //not required and does have default value
+                return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<string> { "null", dT } }, { "default", customAttributes.defaultValue } };
+            }
+            //not required and does not have default value
+            return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<string> { "null", dT } } };
+
         }
         private static List<string> GetEnumValues(Type type)
         {

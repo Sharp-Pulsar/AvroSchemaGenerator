@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -40,7 +41,9 @@ namespace AvroSchemaGenerator.Tests
 
     public class SimpleFoo
     {
+        [Required]
         public int Age { get; set; }
+        [Required]
         public string Name { get; set; }
         public long FactTime { get; set; }
         public double Point { get; set; }
@@ -51,7 +54,9 @@ namespace AvroSchemaGenerator.Tests
     public class Foo
     {
         public SimpleFoo Fo { get; set; }
+        [Required]
         public List<string> Courses { get; set; }
+        [Required]
         public Dictionary<string, string> Normal { get; set; }
 
     }
@@ -65,9 +70,16 @@ namespace AvroSchemaGenerator.Tests
     public class Course
     {
         [DefaultValue("200")]
+        [Required]
         public string Level { get; set; }
-        [DefaultValue(2020)]
-        public int Year { get; set; } 
+
+        [Required]
+        public int Year { get; set; }
+
+        [DefaultValue("Closed")]
+        public string State { get; set; }
+
+        public string Gender { get; set; }
     }
 
     public class Lecturers
