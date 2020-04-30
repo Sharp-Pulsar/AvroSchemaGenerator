@@ -27,10 +27,10 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestInt()
         {
-            var intTest = typeof(IntTest).GetSchema();
-            _output.WriteLine(intTest);
+            var actualSchema = typeof(IntTest).GetSchema();
+            _output.WriteLine(actualSchema);
             var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}";
-            Assert.Equal(expectedSchema, intTest);
+            Assert.Equal(expectedSchema, actualSchema);
         }
 
         class IntNullableTest
@@ -41,10 +41,10 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestIntNullable()
         {
-            var intTest = typeof(IntNullableTest).GetSchema();
-            _output.WriteLine(intTest);
+            var actualSchema = typeof(IntNullableTest).GetSchema();
+            _output.WriteLine(actualSchema);
             var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntNullableTest\",\"fields\":[{\"name\":\"Age\",\"type\":[\"null\",\"int\"],\"default\":null}]}";
-            Assert.Equal(expectedSchema, intTest);
+            Assert.Equal(expectedSchema, actualSchema);
         }
 
         class IntDefaultTest
@@ -56,10 +56,10 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestIntDefault()
         {
-            var intTest = typeof(IntDefaultTest).GetSchema();
-            _output.WriteLine(intTest);
+            var actualSchema = typeof(IntDefaultTest).GetSchema();
+            _output.WriteLine(actualSchema);
             var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntDefaultTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\",\"default\":100}]}";
-            Assert.Equal(expectedSchema, intTest);
+            Assert.Equal(expectedSchema, actualSchema);
         }
 
         class StringTest
@@ -70,10 +70,10 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestString()
         {
-            var intTest = typeof(StringTest).GetSchema();
-            _output.WriteLine(intTest);
+            var actualSchema = typeof(StringTest).GetSchema();
+            _output.WriteLine(actualSchema);
             var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StringTest\",\"fields\":[{\"name\":\"Age\",\"type\":[\"null\",\"string\"],\"default\":null}]}";
-            Assert.Equal(expectedSchema, intTest);
+            Assert.Equal(expectedSchema, actualSchema);
         }
 
         class StringRequiredTest
@@ -85,10 +85,10 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestStringRequired()
         {
-            var intTest = typeof(StringRequiredTest).GetSchema();
-            _output.WriteLine(intTest);
+            var actualSchema = typeof(StringRequiredTest).GetSchema();
+            _output.WriteLine(actualSchema);
             var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StringRequiredTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"string\"}]}";
-            Assert.Equal(expectedSchema, intTest);
+            Assert.Equal(expectedSchema, actualSchema);
         }
 
         class StringRequiredDefaultTest
@@ -101,10 +101,10 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestStringRequiredDefault()
         {
-            var intTest = typeof(StringRequiredDefaultTest).GetSchema();
-            _output.WriteLine(intTest);
+            var actualSchema = typeof(StringRequiredDefaultTest).GetSchema();
+            _output.WriteLine(actualSchema);
             var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StringRequiredDefaultTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"string\",\"default\":\"100\"}]}";
-            Assert.Equal(expectedSchema, intTest);
+            Assert.Equal(expectedSchema, actualSchema);
         }
     }
 }
