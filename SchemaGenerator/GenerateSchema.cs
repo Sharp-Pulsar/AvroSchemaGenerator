@@ -118,7 +118,17 @@ namespace AvroSchemaGenerator
 
         private static Dictionary<string, object> GetField(PropertyInfo p)
         {
-            var dT = ToAvroDataType(p.PropertyType.Name);
+            (bool isNullable, string name) dt;
+            if (p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                var t = p.PropertyType.GetGenericArguments()[0];
+                dt = (true, t.Name);
+            }
+            else
+            {
+                dt = (false, p.PropertyType.Name);
+            }
+            var dT = ToAvroDataType(dt.name);
             var customAttributes = p.GetCustomAttributes();
             if (customAttributes.required && customAttributes.hasDefault)
             {
@@ -134,11 +144,13 @@ namespace AvroSchemaGenerator
             if (!customAttributes.required && customAttributes.hasDefault)
             {
                 //not required and does have default value
-                return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<string> { "null", dT } }, { "default", customAttributes.defaultValue } };
+                return dt.isNullable ? new Dictionary<string, object> { { "name", p.Name }, { "type", new List<string> { "null", dT } }, { "default", customAttributes.defaultValue } } : new Dictionary<string, object> { { "name", p.Name }, { "type", dT }, { "default", customAttributes.defaultValue } };
             }
             //not required and does not have default value
-            return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<string> { "null", dT } } };
+            if(dt.isNullable)
+               return new Dictionary<string, object> { { "name", p.Name }, { "type", new List<string> { "null", dT } }, { "default", null } };
 
+            return dT == "string" ? new Dictionary<string, object> { { "name", p.Name }, { "type", new List<string> { "null", dT } }, { "default", null } } : new Dictionary<string, object> { { "name", p.Name }, { "type", dT }  };
         }
         private static List<string> GetEnumValues(Type type)
         {
