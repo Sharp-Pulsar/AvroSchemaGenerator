@@ -8,7 +8,6 @@ using Xunit.Abstractions;
 
 namespace AvroSchemaGenerator.Tests
 {
-
     public class FullSchemaTest
     {
 
@@ -104,6 +103,77 @@ namespace AvroSchemaGenerator.Tests
             var actualSchema = typeof(StringRequiredDefaultTest).GetSchema();
             _output.WriteLine(actualSchema);
             var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StringRequiredDefaultTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"string\",\"default\":\"100\"}]}";
+            Assert.Equal(expectedSchema, actualSchema);
+        }
+
+        struct StructTest
+        {
+            public int Age { get; set; }
+        }
+
+        [Fact]
+        public void TestStructTest()
+        {
+            var actualSchema = typeof(StructTest).GetSchema();
+            _output.WriteLine(actualSchema);
+            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StructTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}";
+            Assert.Equal(expectedSchema, actualSchema);
+        }
+
+        class ClassFieldTest
+        {
+            public IntTest Age { get; set; }
+        }
+
+        [Fact]
+        public void TestClassField()
+        {
+            var actualSchema = typeof(ClassFieldTest).GetSchema();
+            _output.WriteLine(actualSchema);
+            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassFieldTest\",\"fields\":[{\"name\":\"Age\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}],\"default\":null}]}";
+            Assert.Equal(expectedSchema, actualSchema);
+        }
+
+        class ClassFieldRequiredTest
+        {
+            [Required]
+            public IntTest Age { get; set; }
+        }
+
+        [Fact]
+        public void TestClassFieldRequired()
+        {
+            var actualSchema = typeof(ClassFieldRequiredTest).GetSchema();
+            _output.WriteLine(actualSchema);
+            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassFieldRequiredTest\",\"fields\":[{\"name\":\"Age\",\"type\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}}]}";
+            Assert.Equal(expectedSchema, actualSchema);
+        }
+
+        class StructFieldTest
+        {
+            public StructTest Age { get; set; }
+        }
+
+        [Fact]
+        public void TestStructField()
+        {
+            var actualSchema = typeof(StructFieldTest).GetSchema();
+            _output.WriteLine(actualSchema);
+            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StructFieldTest\",\"fields\":[{\"name\":\"Age\",\"type\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StructTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}}]}";
+            Assert.Equal(expectedSchema, actualSchema);
+        }
+
+        class RecType
+        {
+            public RecType Child { get; set; }
+        }
+
+        [Fact]
+        public void TestRecType()
+        {
+            var actualSchema = typeof(RecType).GetSchema();
+            _output.WriteLine(actualSchema);
+            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"RecType\",\"fields\":[{\"name\":\"Child\",\"type\":[\"null\",\"RecType\"],\"default\":null}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
     }
