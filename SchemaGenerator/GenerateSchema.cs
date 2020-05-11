@@ -7,6 +7,7 @@ using System.Text.Json;
 
 namespace AvroSchemaGenerator
 {//https://docs.oracle.com/database/nosql-12.1.3.0/GettingStartedGuide/avroschemas.html
+    //https://www.jsonschemavalidator.net/
     public static class GenerateSchema
     {
         private static Dictionary<string, Dictionary<string, object>> _recursor = new Dictionary<string, Dictionary<string, object>>();
