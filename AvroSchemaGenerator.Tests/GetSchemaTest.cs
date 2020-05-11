@@ -38,6 +38,15 @@ namespace AvroSchemaGenerator.Tests
             Assert.Contains("EntryYear", simplecu);
             Assert.Contains("Level", simplecu);
         }
+        [Fact]
+        public void TestRecursiveArray()
+        {
+            var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Family\",\"fields\":[{\"name\":\"Members\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Person\",\"fields\":[{\"name\":\"FirstName\",\"type\":\"string\"},{\"name\":\"LastName\",\"type\":\"string\"},{\"name\":\"Children\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Person\",\"fields\":[{\"name\":\"FirstName\",\"type\":\"string\"},{\"name\":\"LastName\",\"type\":\"string\"}]}}}]}}}]}";
+            var actual = typeof(Family).GetSchema();
+            _output.WriteLine(actual);
+
+            Assert.Equal(expectSchema, actual);
+        }
     }
 
     public class SimpleFoo
@@ -87,5 +96,20 @@ namespace AvroSchemaGenerator.Tests
     {
         public int EntryYear { get; set; }
         public string Name { get; set; }
+    }
+    public class Family
+    {
+        [Required]
+        public List<Person> Members { get; set; }
+    }
+
+    public class Person
+    {
+        [Required]
+        public string FirstName { get; set; }
+        [Required]
+        public string LastName { get; set; }
+        [Required]
+        public List<Person> Children { get; set; }
     }
 }

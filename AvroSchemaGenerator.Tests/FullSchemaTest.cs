@@ -176,7 +176,7 @@ namespace AvroSchemaGenerator.Tests
             {
                 typeof(RecType).GetSchema();
             });
-            Assert.Equal("'RecType' is recursive, please fix it or use an array of 'RecType' if that was your intention. More info: https://stackoverflow.com/questions/58757131/avro-schema-and-arrays", ex.Message);
+            Assert.Equal("'RecType' is recursive, please fix it or use 'List<RecType>' if that was your intention. More info: https://stackoverflow.com/questions/58757131/avro-schema-and-arrays", ex.Message);
             _output.WriteLine(ex.Message);
         }
     }

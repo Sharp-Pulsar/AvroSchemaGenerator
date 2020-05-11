@@ -9,7 +9,7 @@ namespace AvroSchemaGenerator
 {//https://docs.oracle.com/database/nosql-12.1.3.0/GettingStartedGuide/avroschemas.html
     public static class GenerateSchema
     {
-        private static List<string> _recursor = new List<string>();
+        private static Dictionary<string, Dictionary<string, object>> _recursor = new Dictionary<string, Dictionary<string, object>>();
         public static string GetSchema(this Type type)
         {
             _recursor.Clear();//need to clear this on each call
@@ -65,34 +65,42 @@ namespace AvroSchemaGenerator
             if (p.PropertyType.Namespace != null && ((p.PropertyType.IsClass || p.PropertyType.IsValueType) && !p.PropertyType.Namespace.StartsWith("System")))
             {
                 var t= p.PropertyType.Name;
-                if (!_recursor.Contains(t))
+                var dt = p.DeclaringType?.Name;
+                var recursive = t.Equals(dt);
+                if (recursive) throw new StackOverflowException($"'{t}' is recursive, please fix it or use 'List<{t}>' if that was your intention. More info: https://stackoverflow.com/questions/58757131/avro-schema-and-arrays");
+                var required = p.GetCustomAttributes().required;
+                var schema2 = new Dictionary<string, object>
                 {
-                    _recursor.Add(t);
-                    var required = p.GetCustomAttributes().required;
-                    var schema2 = new Dictionary<string, object>
-                    {
-                        {"type", "record"}, {"namespace", p.PropertyType.Namespace}, {"name", p.PropertyType.Name}
-                    };
-                    var prop = GetClassProperties(p);
-                    schema2.Add("fields", prop);
-                    return required ? new Dictionary<string, object> { { "name", p.Name }, { "type", schema2 } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", schema2 } }, { "default", null } };
-                }
-                throw new StackOverflowException($"'{t}' is recursive, please fix it or use an array of '{t}' if that was your intention. More info: https://stackoverflow.com/questions/58757131/avro-schema-and-arrays");
+                    {"type", "record"}, {"namespace", p.PropertyType.Namespace}, {"name", p.PropertyType.Name}
+                };
+                var prop = GetClassProperties(p);
+                schema2.Add("fields", prop);
+                var row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", schema2 } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", schema2 } }, { "default", null } };
+                return row;
             }
 
             if (p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)))
             {
                 var required = p.GetCustomAttributes().required;
                 var v = p.PropertyType.GetGenericArguments()[0];
+                var dt = p.DeclaringType?.Name;
                 if (v.Namespace != null && (v.IsClass && !v.Namespace.StartsWith("System")))
                 {
-                    var schema2 = new Dictionary<string, object>
+                    if (!_recursor.ContainsKey(v.Name))
                     {
-                        {"type", "record"}, {"namespace", v.Namespace}, {"name", v.Name}
-                    };
-                    var prop = GetClassProperties(v.GetProperties());
-                    schema2.Add("fields", prop);
-                    return required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", schema2 } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object> { { "type", "array" }, { "items", schema2 } } } } };
+                        var recursive = v.Name.Equals(dt);
+                        if (recursive) _recursor.Add(v.Name, new Dictionary<string, object>());
+                        var schema2 = new Dictionary<string, object>
+                        {
+                            {"type", "record"}, {"namespace", v.Namespace}, {"name", v.Name}
+                        };
+                        var prop = GetClassProperties(v.GetProperties());
+                        schema2.Add("fields", prop);
+                        var row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", schema2 } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", schema2 } } } } };
+                        if (recursive) _recursor[v.Name] = row;
+                        return row;
+                    }
+                    return _recursor[v.Name];
                 }
                 return required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } }};
             }
@@ -101,6 +109,10 @@ namespace AvroSchemaGenerator
             {
                 var required = p.GetCustomAttributes().required;
                 var v = p.PropertyType.GetGenericArguments()[1];
+                var dt = p.DeclaringType?.Name;
+                var recursive = v.Name.Equals(dt);
+                if (recursive) throw new StackOverflowException($"'{v.Name}' is recursive, please fix it or use 'List<{v.Name}>' if that was your intention. More info: https://stackoverflow.com/questions/58757131/avro-schema-and-arrays");
+
                 if (v.Namespace != null && (v.IsClass && !v.Namespace.StartsWith("System")))
                 {
                     var schema2 = new Dictionary<string, object>
