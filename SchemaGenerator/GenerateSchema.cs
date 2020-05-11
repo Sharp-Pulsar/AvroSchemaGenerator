@@ -77,7 +77,7 @@ namespace AvroSchemaGenerator
                     schema2.Add("fields", prop);
                     return required ? new Dictionary<string, object> { { "name", p.Name }, { "type", schema2 } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", schema2 } }, { "default", null } };
                 }
-                throw new StackOverflowException($"'{t}' is recursive, please fix it or use an array of '{t}' if that was your intention");
+                throw new StackOverflowException($"'{t}' is recursive, please fix it or use an array of '{t}' if that was your intention. More info: https://stackoverflow.com/questions/58757131/avro-schema-and-arrays");
             }
 
             if (p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)))
