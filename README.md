@@ -67,3 +67,21 @@ var avroSchema = typeof(Course).GetSchema();
 ### Known issue
 Recursive fields! 
 `AvroSchemaGenerator` handles that by throwing `StackOverflowException` early!
+However should you insist on carrying out your "evil" thoughts, you could do this as seen [HERE](https://stackoverflow.com/questions/58757131/avro-schema-and-arrays)
+```
+public class Family
+    {
+        [Required]
+        public List<Person> Members { get; set; }
+    }
+
+    public class Person
+    {
+        [Required]
+        public string FirstName { get; set; }
+        [Required]
+        public string LastName { get; set; }
+        [Required]
+        public List<Person> Children { get; set; }
+    }
+```
