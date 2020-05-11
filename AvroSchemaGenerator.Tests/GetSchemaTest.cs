@@ -6,6 +6,7 @@ using Xunit.Abstractions;
 
 namespace AvroSchemaGenerator.Tests
 {
+    [Collection("etSchemaTest")]
     public class GetSchemaTest
     {
         private readonly ITestOutputHelper _output;
@@ -32,10 +33,10 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestFooCustom()
         {
-            var simple = typeof(FooCustom).GetSchema();
-            _output.WriteLine(simple);
-            Assert.Contains("EntryYear", simple);
-            Assert.Contains("Level", simple);
+            var simplecu = typeof(FooCustom).GetSchema();
+            _output.WriteLine(simplecu);
+            Assert.Contains("EntryYear", simplecu);
+            Assert.Contains("Level", simplecu);
         }
     }
 

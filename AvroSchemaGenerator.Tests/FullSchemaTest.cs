@@ -144,13 +144,14 @@ namespace AvroSchemaGenerator.Tests
         public void TestClassFieldRequired()
         {
             var actualSchema = typeof(ClassFieldRequiredTest).GetSchema();
-            _output.WriteLine(actualSchema);
+           _output.WriteLine(actualSchema);
             var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassFieldRequiredTest\",\"fields\":[{\"name\":\"Age\",\"type\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
         class StructFieldTest
         {
+            [Required]
             public StructTest Age { get; set; }
         }
 
@@ -171,10 +172,12 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestRecType()
         {
-            var actualSchema = typeof(RecType).GetSchema();
-            _output.WriteLine(actualSchema);
-            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"RecType\",\"fields\":[{\"name\":\"Child\",\"type\":[\"null\",\"RecType\"],\"default\":null}]}";
-            Assert.Equal(expectedSchema, actualSchema);
+            var ex = Assert.Throws<StackOverflowException>( ()=>
+            {
+                typeof(RecType).GetSchema();
+            });
+            Assert.Equal("'RecType' is recursive, please fix it or use an array of 'RecType' if that was your intention", ex.Message);
+            _output.WriteLine(ex.Message);
         }
     }
 }

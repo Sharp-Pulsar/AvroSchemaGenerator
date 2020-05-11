@@ -9,8 +9,10 @@ namespace AvroSchemaGenerator
 {//https://docs.oracle.com/database/nosql-12.1.3.0/GettingStartedGuide/avroschemas.html
     public static class GenerateSchema
     {
+        private static List<string> _recursor = new List<string>();
         public static string GetSchema(this Type type)
         {
+            _recursor.Clear();//need to clear this on each call
             var schema = new Dictionary<string, object>
             {
                 {"type", "record"}, {"namespace", type.Namespace}, {"name", type.Name}
@@ -60,16 +62,22 @@ namespace AvroSchemaGenerator
         private static Dictionary<string, object> Parse(PropertyInfo property)
         {
             var p = property;
-            if (p.PropertyType.Namespace != null && (p.PropertyType.IsClass && !p.PropertyType.Namespace.StartsWith("System")))
+            if (p.PropertyType.Namespace != null && ((p.PropertyType.IsClass || p.PropertyType.IsValueType) && !p.PropertyType.Namespace.StartsWith("System")))
             {
-                var schema2 = new Dictionary<string, object>
+                var t= p.PropertyType.Name;
+                if (!_recursor.Contains(t))
+                {
+                    _recursor.Add(t);
+                    var required = p.GetCustomAttributes().required;
+                    var schema2 = new Dictionary<string, object>
                     {
                         {"type", "record"}, {"namespace", p.PropertyType.Namespace}, {"name", p.PropertyType.Name}
                     };
-                var prop = GetClassProperties(p);
-                schema2.Add("fields", prop);
-                return new Dictionary<string, object> { { "name", p.Name }, { "type", schema2 } };
-
+                    var prop = GetClassProperties(p);
+                    schema2.Add("fields", prop);
+                    return required ? new Dictionary<string, object> { { "name", p.Name }, { "type", schema2 } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", schema2 } }, { "default", null } };
+                }
+                throw new StackOverflowException($"'{t}' is recursive, please fix it or use an array of '{t}' if that was your intention");
             }
 
             if (p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)))
