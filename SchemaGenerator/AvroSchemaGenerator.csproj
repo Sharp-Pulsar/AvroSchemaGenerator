@@ -2,15 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.3.0</Version>
+    <Version>1.4.0</Version>
     <Description>Generate Avro Schema</Description>
     <PackageProjectUrl>https://github.com/eaba/SchemaGenerator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/eaba/SchemaGenerator</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>AvroSchemaGenerator</PackageId>
-    <PackageReleaseNotes>Fixes to array and map name issues
-Handle Required and Default Attribute
-Handle nullables</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixes</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
