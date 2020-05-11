@@ -17,7 +17,7 @@ public class Course
     }
 ```
 
-By default, `AvroSchemaGenerator` generates schema with optional fields. The code below is an example of to mark fields as required
+By default, `AvroSchemaGenerator` generates schema with optional fields. The code below is an example of how to mark fields as required
 
 ```csharp
 using System.ComponentModel;
