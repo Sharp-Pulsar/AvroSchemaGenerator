@@ -9,7 +9,7 @@ namespace AvroSchemaGenerator
 {
     public static class DefaultValue
     {
-        public static (bool required, bool hasDefault, object defaultValue) GetCustomAttributes(this PropertyInfo property)
+        public static (bool required, bool hasDefault, object defaultValue) GetSchemaCustomAttributes(this PropertyInfo property)
         {
             var required = IsRequiredProperty(property);
             var dv = GetDefaultValueForProperty(property);
@@ -24,5 +24,6 @@ namespace AvroSchemaGenerator
         {
             return property.GetCustomAttribute(typeof(RequiredAttribute)) != null;
         }
+        
     }
 }

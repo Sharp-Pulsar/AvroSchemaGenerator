@@ -131,6 +131,7 @@ namespace AvroSchemaGenerator.Tests
             var actualSchema = typeof(ClassFieldTest).GetSchema();
             _output.WriteLine(actualSchema);
             var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassFieldTest\",\"fields\":[{\"name\":\"Age\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}],\"default\":null}]}";
+                                //"{"type":"record","namespace":"AvroSchemaGenerator.Tests","name":"ClassFieldTest","fields":[{"name":"Age","type":["null",{"type":"record","namespace":"AvroSchemaGenerator.Tests","name":"Age","fields":[{"name":"Age","type":"int"}]}],"default":null}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
@@ -166,18 +167,17 @@ namespace AvroSchemaGenerator.Tests
 
         class RecType
         {
+            public string Name { get; set; }
             public RecType Child { get; set; }
         }
 
         [Fact]
         public void TestRecType()
         {
-            var ex = Assert.Throws<StackOverflowException>( ()=>
-            {
-                typeof(RecType).GetSchema();
-            });
-            Assert.Equal("'RecType' is recursive, please fix it or use 'List<RecType>' if that was your intention. More info: https://stackoverflow.com/questions/58757131/avro-schema-and-arrays", ex.Message);
-            _output.WriteLine(ex.Message);
+            var expected = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassFieldRequiredTest\",\"fields\":[{\"name\":\"IntTest\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}],\"default\":null}]}";
+            var actual = typeof(RecType).GetSchema();
+            _output.WriteLine(actual);
+            Assert.Equal(expected, actual);
         }
     }
 }

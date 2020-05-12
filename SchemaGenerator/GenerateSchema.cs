@@ -10,133 +10,145 @@ namespace AvroSchemaGenerator
     //https://www.jsonschemavalidator.net/
     public static class GenerateSchema
     {
-        private static Dictionary<string, Dictionary<string, object>> _recursor = new Dictionary<string, Dictionary<string, object>>();
+        private static List<string> _recursor = new List<string>();
+        private static Dictionary<string, object> _schema = new Dictionary<string, object>();
+        private static object _lockObj = new object();
         public static string GetSchema(this Type type)
         {
-            _recursor.Clear();//need to clear this on each call
-            var schema = new Dictionary<string, object>
+            lock (_lockObj)
             {
-                {"type", "record"}, {"namespace", type.Namespace}, {"name", type.Name}
-            };
-            var propertiesCollections = new List<Dictionary<string, object>>();
-            var properties = type.GetProperties();
-            foreach (var p in properties)
-            {
-                var parsed = Parse(p);
-                if (!parsed.Any())
-                    continue;
-                propertiesCollections.Add(parsed);
+                _schema.Clear(); 
+                _schema = new Dictionary<string, object>
+                {
+                    {"type", "record"}, 
+                    {"namespace", type.Namespace}, 
+                    {"name", type.Name},
+                    {"fields", new List<Dictionary<string, object>>() }
+                };
+                var properties = type.GetProperties();
+                foreach (var p in properties)
+                {
+                    Parse(p);
+                }
+                return JsonSerializer.Serialize(_schema);
             }
-            schema.Add("fields", propertiesCollections);
-            return JsonSerializer.Serialize(schema);
-
         }
-        private static List<Dictionary<string, object>> GetClassProperties(PropertyInfo property)
-        {
-            var t = property.PropertyType.GetProperties();
-            var propertiesCollections = new List<Dictionary<string, object>>();
-            var properties = property.PropertyType.GetProperties();
-            foreach (var p in properties)
-            {
-                var parsed = Parse(p);
-                if (!parsed.Any())
-                    continue;
-                propertiesCollections.Add(parsed);
-            }
-
-            return propertiesCollections;
-        }
-        private static List<Dictionary<string, object>> GetClassProperties(PropertyInfo[] properties)
-        {
-            var propertiesCollections = new List<Dictionary<string, object>>();
-            foreach (var p in properties)
-            {
-                var parsed = Parse(p);
-                if (!parsed.Any())
-                    continue;
-                propertiesCollections.Add(parsed);
-            }
-
-            return propertiesCollections;
-        }
-
-        private static Dictionary<string, object> Parse(PropertyInfo property)
+        
+        private static void Parse(PropertyInfo property, int cyclCount = 0)
         {
             var p = property;
-            if (p.PropertyType.Namespace != null && ((p.PropertyType.IsClass || p.PropertyType.IsValueType) && !p.PropertyType.Namespace.StartsWith("System")))
+            if (IsUserDefined(p))
             {
                 var t= p.PropertyType.Name;
                 var dt = p.DeclaringType?.Name;
                 var recursive = t.Equals(dt);
-                if (recursive) throw new StackOverflowException($"'{t}' is recursive, please fix it or use 'List<{t}>' if that was your intention. More info: https://stackoverflow.com/questions/58757131/avro-schema-and-arrays");
-                var required = p.GetCustomAttributes().required;
-                var schema2 = new Dictionary<string, object>
-                {
-                    {"type", "record"}, {"namespace", p.PropertyType.Namespace}, {"name", p.PropertyType.Name}
-                };
-                var prop = GetClassProperties(p);
-                schema2.Add("fields", prop);
-                var row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", schema2 } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", schema2 } }, { "default", null } };
-                return row;
+                GetUserDefinedProperties(p, cyclCount, t, recursive);
+                return;
             }
 
-            if (p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)))
+            if (IsList(p))
             {
-                var required = p.GetCustomAttributes().required;
+                var required = p.GetSchemaCustomAttributes().required;
                 var v = p.PropertyType.GetGenericArguments()[0];
                 var dt = p.DeclaringType?.Name;
-                if (v.Namespace != null && (v.IsClass && !v.Namespace.StartsWith("System")))
+                if (IsUserDefined(v))
                 {
-                    if (!_recursor.ContainsKey(v.Name))
-                    {
-                        var recursive = v.Name.Equals(dt);
-                        if (recursive) _recursor.Add(v.Name, new Dictionary<string, object>());
-                        var schema2 = new Dictionary<string, object>
-                        {
-                            {"type", "record"}, {"namespace", v.Namespace}, {"name", v.Name}
-                        };
-                        var prop = GetClassProperties(v.GetProperties());
-                        schema2.Add("fields", prop);
-                        var row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", schema2 } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", schema2 } } } } };
-                        if (recursive) _recursor[v.Name] = row;
-                        return row;
-                    }
-                    return _recursor[v.Name];
-                }
-                return required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } }};
-            }
-
-            if (p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)))
-            {
-                var required = p.GetCustomAttributes().required;
-                var v = p.PropertyType.GetGenericArguments()[1];
-                var dt = p.DeclaringType?.Name;
-                var recursive = v.Name.Equals(dt);
-                if (recursive) throw new StackOverflowException($"'{v.Name}' is recursive, please fix it or use 'List<{v.Name}>' if that was your intention. More info: https://stackoverflow.com/questions/58757131/avro-schema-and-arrays");
-
-                if (v.Namespace != null && (v.IsClass && !v.Namespace.StartsWith("System")))
-                {
-                    var schema2 = new Dictionary<string, object>
+                    var recursive = v.Name.Equals(dt);
+                    var schema = new Dictionary<string, object>
                     {
                         {"type", "record"}, {"namespace", v.Namespace}, {"name", v.Name}
                     };
-                    var prop = GetClassProperties(v.GetProperties());
-                    schema2.Add("fields", prop);
-                    return required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object>{{"type", "map"}, { "values", schema2 } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object>{{"type", "map"}, { "values", schema2 } } }} };
+
+                    schema["fields"] = GetGenericUserDefinedProperties(v, cyclCount, p.Name, recursive, required);
+                    var row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", schema } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", schema } } } } };
+                    var field = (List<Dictionary<string, object>>)_schema["fields"];
+                    field.Add(row);
+                    _schema["fields"] = field;
                 }
-                return required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } }}  } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object>{"null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } }} } };
+                else
+                {
+                    var rw = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } };
+                    var fd = (List<Dictionary<string, object>>)_schema["fields"];
+                    fd.Add(rw);
+                    _schema["fields"] = fd;
+                }
+                return;
+            }
+
+            if (IsDictionary(p))
+            {
+                var required = p.GetSchemaCustomAttributes().required;
+                var v = p.PropertyType.GetGenericArguments()[1];
+                var dt = p.DeclaringType?.Name;
+                var recursive = v.Name.Equals(dt);
+                if (IsUserDefined(v))
+                {
+                    var schema = new Dictionary<string, object>
+                    {
+                        {"type", "record"}, {"namespace", v.Namespace}, {"name", v.Name}
+                    };
+
+                    schema["fields"] = GetGenericUserDefinedProperties(v, cyclCount, p.Name, recursive, required);
+                    var row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", schema } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "map" }, { "values", schema } } } } };
+                    var field = (List<Dictionary<string, object>>)_schema["fields"];
+                    field.Add(row);
+                    _schema["fields"] = field;
+                }
+                else
+                {
+                    var rw = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } } };
+                    var fd = (List<Dictionary<string, object>>)_schema["fields"];
+                    fd.Add(rw);
+                    _schema["fields"] = fd;
+                }
+                return;
             }
 
             if (p.PropertyType.IsEnum)
             {
                 var dp = new Dictionary<string, object> { { "type", "enum" }, { "name", p.PropertyType.Name }, { "namespace", p.PropertyType.Namespace }, { "symbols", GetEnumValues(p.PropertyType) } };
-                return new Dictionary<string, object> { { "name", p.PropertyType.Name }, { "type", dp } };
-
+                var row = new Dictionary<string, object> { { "name", p.PropertyType.Name }, { "type", dp } };
+                var fd = (List<Dictionary<string, object>>)_schema["fields"];
+                fd.Add(row);
+                _schema["fields"] = fd;
+                return;
             }
 
-            return GetField(p);
+            GetProperties(p);
         }
 
+        private static Dictionary<string, object> ParseList(PropertyInfo property, int cyclCount = 0)
+        {
+            var p = property;
+            var required = p.GetSchemaCustomAttributes().required;
+            var v = p.PropertyType.GetGenericArguments()[0];
+            var dt = p.DeclaringType?.Name;
+            var recursive = v.Name.Equals(dt);
+            if (IsUserDefined(v))
+            {
+                var schema = new Dictionary<string, object>
+                {
+                    {"type", "record"}, {"namespace", v.Namespace}, {"name", v.Name}
+                };
+
+                schema["fields"] = GetGenericUserDefinedProperties(v, cyclCount, p.Name, recursive, required);
+                return required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", schema } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", schema } } } } };
+            }
+            return required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } };
+
+        }
+
+        private static void GetProperties(PropertyInfo p)
+        {
+            var row = GetField(p);
+            var field = (List<Dictionary<string, object>>)_schema["fields"];
+            field.Add(row);
+            _schema["fields"] = field;
+        }
+        private static Dictionary<string, object> GetProperty(PropertyInfo p)
+        {
+            return GetField(p);
+        }
         private static Dictionary<string, object> GetField(PropertyInfo p)
         {
             (bool isNullable, string name) dt;
@@ -150,7 +162,7 @@ namespace AvroSchemaGenerator
                 dt = (false, p.PropertyType.Name);
             }
             var dT = ToAvroDataType(dt.name);
-            var customAttributes = p.GetCustomAttributes();
+            var customAttributes = p.GetSchemaCustomAttributes();
             if (customAttributes.required && customAttributes.hasDefault)
             {
                 //required and does have default value
@@ -182,6 +194,92 @@ namespace AvroSchemaGenerator
                 list.Add(v.ToString());
             }
             return list;
+        }
+
+        private static bool IsUserDefined(PropertyInfo p)
+        {
+            return p.PropertyType.Namespace != null && ((p.PropertyType.IsClass || p.PropertyType.IsValueType) &&
+                                                        !p.PropertyType.Namespace.StartsWith("System"));
+        }
+        private static bool IsUserDefined(Type p)
+        {
+            return p.Namespace != null && ((p.IsClass || p.IsValueType) && !p.Namespace.StartsWith("System"));
+        }
+
+        private static void GetUserDefinedProperties(PropertyInfo property, int cycleCount, string propertyName, bool isRecursive)
+        {
+            var schema = new Dictionary<string, object>
+            {
+                {"type", "record"}, {"namespace", property.PropertyType.Namespace}, {"name", property.PropertyType.Name}
+            };
+
+            var properties = property.PropertyType.GetProperties();
+            var fieldProperties = new List<Dictionary<string, object>>();
+            foreach (var p in properties)
+            {
+                if (IsUserDefined(p))
+                {
+                    if (!isRecursive && !propertyName.Equals(p.Name) && cycleCount < 2)
+                        Parse(p, cycleCount++);
+                }
+                else
+                {
+                    fieldProperties.Add(GetProperty(p));
+                }
+            }
+            var required = property.GetSchemaCustomAttributes().required;
+            schema["fields"] = fieldProperties;
+            var row = required ? new Dictionary<string, object> { { "name", property.Name }, { "type", schema } } : new Dictionary<string, object> { { "name", property.Name }, { "type", new List<object> { "null", schema } }, { "default", null } };
+
+            var field = (List<Dictionary<string, object>>)_schema["fields"];
+            field.Add(row);
+            _schema["fields"] = field;
+        }
+        private static Dictionary<string, object> GetGenericUserDefinedProperties(Type property, int cycleCount, string propertyName, bool isRecursive, bool required)
+        {
+            var schema = new Dictionary<string, object>
+            {
+                {"type", "record"}, {"namespace", property.Namespace}, {"name", property.Name}
+            };
+
+            var properties = property.GetProperties();
+            var fieldProperties = new List<Dictionary<string, object>>();
+            foreach (var p in properties)
+            {
+                if (IsUserDefined(p) || IsList(p) || IsDictionary(p))
+                {
+                    if (!isRecursive && !_recursor.Contains(p.Name))
+                    {
+                        _recursor.Add(p.Name);
+                        fieldProperties.Add(ParseList(p, cycleCount++));
+                    }
+                    else
+                    {
+                        if (!propertyName.Equals(p.Name) && cycleCount < 2 && !_recursor.Contains(p.Name))
+                        {
+                            _recursor.Add(p.Name);
+                            fieldProperties.Add(ParseList(p, cycleCount++));
+                        }
+                    }
+                }
+                else
+                {
+                    fieldProperties.Add(GetProperty(p));
+                }
+            }
+            schema["fields"] = fieldProperties;
+            return required ? new Dictionary<string, object> { { "name", property.Name }, { "type", schema } } : new Dictionary<string, object> { { "name", property.Name }, { "type", new List<object> { "null", schema } }, { "default", null } };
+
+        }
+        private static bool IsList(PropertyInfo p)
+        {
+            return p.PropertyType.IsGenericType &&
+                   p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+        }
+        private static bool IsDictionary(PropertyInfo p)
+        {
+           return p.PropertyType.IsGenericType &&
+                p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
         }
         private static string ToAvroDataType(string type)
         {
