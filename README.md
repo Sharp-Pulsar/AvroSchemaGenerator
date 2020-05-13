@@ -1,5 +1,5 @@
 # AvroSchemaGenerator
-Use to generate Avro Schema with support for ##RECURSIVE SCHEMA
+Use to generate Avro Schema with support for **RECURSIVE SCHEMA**
 
 ## Getting Started
 Install the NuGet package [AvroSchemaGenerator](https://www.nuget.org/packages/AvroSchemaGenerator/) and copy/paste the code below 
