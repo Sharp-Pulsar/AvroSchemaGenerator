@@ -170,12 +170,27 @@ namespace AvroSchemaGenerator.Tests
             public string Name { get; set; }
             public RecType Child { get; set; }
         }
+        class RecTypeRequired
+        {
+            [Required]
+            public string Name { get; set; }
+            [Required]
+            public RecTypeRequired Child { get; set; }
+        }
 
         [Fact]
         public void TestRecType()
         {
-            var expected = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassFieldRequiredTest\",\"fields\":[{\"name\":\"IntTest\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}],\"default\":null}]}";
+            var expected = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"RecType\",\"fields\":[{\"name\":\"Name\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Child\",\"type\":[\"null\",\"RecType\"],\"default\":null}]}";
             var actual = typeof(RecType).GetSchema();
+            _output.WriteLine(actual);
+            Assert.Equal(expected, actual);
+        }
+        [Fact]
+        public void TestRecTypeRequired()
+        {
+            var expected = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"RecTypeRequired\",\"fields\":[{\"name\":\"Name\",\"type\":\"string\"},{\"name\":\"Child\",\"type\":\"RecTypeRequired\"}]}";
+            var actual = typeof(RecTypeRequired).GetSchema();
             _output.WriteLine(actual);
             Assert.Equal(expected, actual);
         }

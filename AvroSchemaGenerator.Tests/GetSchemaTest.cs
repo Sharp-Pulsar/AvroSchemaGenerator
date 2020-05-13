@@ -41,8 +41,17 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestRecursiveArray()
         {
-            var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Family\",\"fields\":[{\"name\":\"Members\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Person\",\"fields\":[{\"name\":\"FirstName\",\"type\":\"string\"},{\"name\":\"LastName\",\"type\":\"string\"},{\"name\":\"Children\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Person\",\"fields\":[{\"name\":\"FirstName\",\"type\":\"string\"},{\"name\":\"LastName\",\"type\":\"string\"}]}}}]}}}]}";
+            var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Family\",\"fields\":[{\"name\":\"Members\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Person\",\"fields\":[{\"name\":\"FirstName\",\"type\":\"string\"},{\"name\":\"LastName\",\"type\":\"string\"},{\"name\":\"Schools\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"School\",\"fields\":[{\"name\":\"State\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Year\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Schools\",\"type\":[\"null\",\"School\"],\"default\":null}]}],\"default\":null},{\"name\":\"Books\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Book\",\"fields\":[{\"name\":\"Author\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null}]}}},{\"name\":\"Children\",\"type\":\"Person\"}]}}}]}";
             var actual = typeof(Family).GetSchema();
+            _output.WriteLine(actual);
+
+            Assert.Equal(expectSchema, actual);
+        }
+        [Fact]
+        public void TestDictionaryRecursiveArray()
+        {
+            var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Dictionary\",\"fields\":[{\"name\":\"Fo\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"SimpleFoo\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"},{\"name\":\"Name\",\"type\":\"string\"},{\"name\":\"FactTime\",\"type\":\"long\"},{\"name\":\"Point\",\"type\":\"double\"},{\"name\":\"Precision\",\"type\":\"float\"},{\"name\":\"Attending\",\"type\":\"boolean\"},{\"name\":\"Id\",\"type\":[\"null\",\"bytes\"],\"default\":null}]}],\"default\":null},{\"name\":\"Courses\",\"type\":{\"type\":\"array\",\"items\":\"string\"}},{\"name\":\"Families\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Family\",\"fields\":[{\"name\":\"Members\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Person\",\"fields\":[{\"name\":\"FirstName\",\"type\":\"string\"},{\"name\":\"LastName\",\"type\":\"string\"},{\"name\":\"Schools\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"School\",\"fields\":[{\"name\":\"State\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Year\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Schools\",\"type\":[\"null\",\"School\"],\"default\":null}]}],\"default\":null},{\"name\":\"Books\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Book\",\"fields\":[{\"name\":\"Author\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null}]}}},{\"name\":\"Children\",\"type\":\"Person\"}]}}}]}}}]}";
+            var actual = typeof(Dictionary).GetSchema();
             _output.WriteLine(actual);
 
             Assert.Equal(expectSchema, actual);
@@ -70,6 +79,15 @@ namespace AvroSchemaGenerator.Tests
         public Dictionary<string, string> Normal { get; set; }
 
     }
+    public class Dictionary
+    {
+        public SimpleFoo Fo { get; set; }
+        [Required]
+        public List<string> Courses { get; set; }
+        [Required]
+        public Dictionary<string, Family> Families { get; set; }
+
+    }
     public class FooCustom
     {
         public SimpleFoo Fo { get; set; }
@@ -92,10 +110,22 @@ namespace AvroSchemaGenerator.Tests
         public string Gender { get; set; }
     }
 
+    public class School
+    {
+        public string State { get; set; }
+        public string Year { get; set; }
+        public List<School> Schools { get; set; }
+    }
     public class Lecturers
     {
         public int EntryYear { get; set; }
         public string Name { get; set; }
+    }
+
+    public class Book
+    {
+        public string Author { get; set; }
+        public string Title { get; set; }
     }
     public class Family
     {
@@ -109,6 +139,8 @@ namespace AvroSchemaGenerator.Tests
         public string FirstName { get; set; }
         [Required]
         public string LastName { get; set; }
+        public School Schools { get; set; }
+        public List<Book> Books { get; set; }
         [Required]
         public List<Person> Children { get; set; }
     }
