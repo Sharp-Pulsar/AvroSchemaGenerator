@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.5.0</Version>
-    <Description>Generate Avro Schema</Description>
+    <Version>1.5.1</Version>
+    <Description>Generate Avro Schema with support for RECURSIVE SCHEMA</Description>
     <PackageProjectUrl>https://github.com/eaba/SchemaGenerator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/eaba/SchemaGenerator</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>AvroSchemaGenerator</PackageId>
-    <PackageReleaseNotes>Added support for Recursive Schema</PackageReleaseNotes>
+    <PackageReleaseNotes>Removed lock to allow concurrency</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
