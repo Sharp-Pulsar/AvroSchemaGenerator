@@ -56,6 +56,15 @@ namespace AvroSchemaGenerator.Tests
 
             Assert.Equal(expectSchema, actual);
         }
+        [Fact]
+        public void TestDictionaryRecursive()
+        {
+            var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"DictionaryRecursive\",\"fields\":[{\"name\":\"Fo\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"SimpleFoo\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"},{\"name\":\"Name\",\"type\":\"string\"},{\"name\":\"FactTime\",\"type\":\"long\"},{\"name\":\"Point\",\"type\":\"double\"},{\"name\":\"Precision\",\"type\":\"float\"},{\"name\":\"Attending\",\"type\":\"boolean\"},{\"name\":\"Id\",\"type\":[\"null\",\"bytes\"],\"default\":null}]}],\"default\":null},{\"name\":\"Courses\",\"type\":{\"type\":\"array\",\"items\":\"string\"}},{\"name\":\"Diction\",\"type\":\"DictionaryRecursive\"}]}";
+            var actual = typeof(DictionaryRecursive).GetSchema();
+            _output.WriteLine(actual);
+
+            Assert.Equal(expectSchema, actual);
+        }
     }
 
     public class SimpleFoo
@@ -86,6 +95,15 @@ namespace AvroSchemaGenerator.Tests
         public List<string> Courses { get; set; }
         [Required]
         public Dictionary<string, Family> Families { get; set; }
+
+    }
+    public class DictionaryRecursive
+    {
+        public SimpleFoo Fo { get; set; }
+        [Required]
+        public List<string> Courses { get; set; }
+        [Required]
+        public Dictionary<string, DictionaryRecursive> Diction { get; set; }
 
     }
     public class FooCustom
