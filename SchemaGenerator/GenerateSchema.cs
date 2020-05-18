@@ -22,12 +22,12 @@ namespace AvroSchemaGenerator
             var properties = type.GetProperties();
             foreach (var p in properties)
             {
-                Parse(p, schema);
+                PropertyInfo(p, schema);
             }
             return JsonSerializer.Serialize(schema);
         }
         
-        private static void Parse(PropertyInfo property, Dictionary<string, object> finalSchema)
+        private static void PropertyInfo(PropertyInfo property, Dictionary<string, object> finalSchema)
         {
             var p = property;
             if (IsUserDefined(p))
@@ -36,20 +36,20 @@ namespace AvroSchemaGenerator
                 var dt = p.DeclaringType?.Name;
                 var recursive = t.Equals(dt);
                 if(recursive)
-                    GetResuseProperties(p, finalSchema);
+                    AddReuseType(p, finalSchema);
                 else
                     GetUserDefinedProperties(p, finalSchema);
                 return;
             }
 
-            if (IsList(p))
+            if (IsFieldListType(p))
             {
                 var required = p.GetSchemaCustomAttributes().required;
                 var v = p.PropertyType.GetGenericArguments()[0];
                 var dt = p.DeclaringType?.Name;
                 var recursive = v.Name.Equals(dt);
                 if (recursive)
-                    GetResuseProperties(p, finalSchema);
+                    AddReuseType(p, finalSchema);
                 else if (IsUserDefined(v))
                 {
                     var schema = GetGenericUserDefinedProperties(v, required);
@@ -68,14 +68,14 @@ namespace AvroSchemaGenerator
                 return;
             }
 
-            if (IsDictionary(p))
+            if (IsFieldDictionaryType(p))
             {
                 var required = p.GetSchemaCustomAttributes().required;
                 var v = p.PropertyType.GetGenericArguments()[1];
                 var dt = p.DeclaringType?.Name;
                 var recursive = v.Name.Equals(dt);
                 if (recursive)
-                    GetResuseProperties(p, finalSchema, v.Name);
+                    AddReuseType(p, finalSchema, v.Name);
                 else if (IsUserDefined(v))
                 {
                     var schema = GetGenericUserDefinedProperties(v, required);
@@ -104,10 +104,10 @@ namespace AvroSchemaGenerator
                 return;
             }
 
-            GetProperties(p, finalSchema);
+            AddFields(p, finalSchema);
         }
         
-        private static Dictionary<string, object> GetParse(PropertyInfo property)
+        private static Dictionary<string, object> GetPropertyInfo(PropertyInfo property)
         {
             var p = property;
             if (IsUserDefined(p))
@@ -115,17 +115,17 @@ namespace AvroSchemaGenerator
                 var t = p.PropertyType.Name;
                 var dt = p.DeclaringType?.Name;
                 var recursive = t.Equals(dt);
-                return recursive ? ResuseProperties(p) : UserDefinedProperties(p);
+                return recursive ? ReuseType(p) : UserDefinedProperties(p);
             }
 
-            if (IsList(p))
+            if (IsFieldListType(p))
             {
                 var required = p.GetSchemaCustomAttributes().required;
                 var v = p.PropertyType.GetGenericArguments()[0];
                 var dt = p.DeclaringType?.Name;
                 var recursive = v.Name.Equals(dt);
                 if (recursive)
-                    return ResuseProperties(p);
+                    return ReuseType(p);
                 if (IsUserDefined(v))
                 {
                     var schema = GetGenericUserDefinedProperties(v, required);
@@ -136,14 +136,14 @@ namespace AvroSchemaGenerator
                 
             }
 
-            if (IsDictionary(p))
+            if (IsFieldDictionaryType(p))
             {
                 var required = p.GetSchemaCustomAttributes().required;
                 var v = p.PropertyType.GetGenericArguments()[1];
                 var dt = p.DeclaringType?.Name;
                 var recursive = v.Name.Equals(dt);
                 if (recursive)
-                    return ResuseProperties(p);
+                    return ReuseType(p);
                 if (IsUserDefined(v))
                 {
                     var schema = new Dictionary<string, object>
@@ -166,34 +166,34 @@ namespace AvroSchemaGenerator
                 return row;
             }
 
-            return GetProperty(p);
+            return GetFields(p);
         }
 
-        private static void GetProperties(PropertyInfo p, Dictionary<string, object> finalSchema)
+        private static void AddFields(PropertyInfo p, Dictionary<string, object> finalSchema)
         {
             var row = GetField(p);
             var field = (List<Dictionary<string, object>>)finalSchema["fields"];
             field.Add(row);
             finalSchema["fields"] = field;
         }
-        private static void GetResuseProperties(PropertyInfo p, Dictionary<string, object> finalSchema, string dt = "")
+        private static void AddReuseType(PropertyInfo p, Dictionary<string, object> finalSchema, string dt = "")
         {
-            var row = ReUseSchema(p, dt);
+            var row = Reuse(p, dt);
             var field = (List<Dictionary<string, object>>)finalSchema["fields"];
             field.Add(row);
             finalSchema["fields"] = field;
         }
         
-        private static Dictionary<string, object> ResuseProperties(PropertyInfo p)
+        private static Dictionary<string, object> ReuseType(PropertyInfo p)
         {
-            return ReUseSchema(p);
+            return Reuse(p);
         }
-        private static Dictionary<string, object> GetProperty(PropertyInfo p)
+        private static Dictionary<string, object> GetFields(PropertyInfo p)
         {
             return GetField(p);
         }
 
-        private static Dictionary<string, object> ReUseSchema(PropertyInfo p, string type = "")
+        private static Dictionary<string, object> Reuse(PropertyInfo p, string type = "")
         {
             (bool isNullable, string name) dt;
             if (p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -209,12 +209,7 @@ namespace AvroSchemaGenerator
             var field= Field(string.IsNullOrWhiteSpace(type)? dt.name: type, p.Name, customAttributes.required, customAttributes.hasDefault, customAttributes.defaultValue, dt.isNullable);
             return field;
         }
-        private static Dictionary<string, object> ReUseSchema(PropertyInfo p, bool isnullable)
-        {
-            var customAttributes = p.GetSchemaCustomAttributes();
-            var field = Field(p.Name, p.Name, customAttributes.required, customAttributes.hasDefault, customAttributes.defaultValue, isnullable);
-            return field;
-        }
+        
         private static Dictionary<string, object> ReUseSchema(string name, string type, bool required, bool hasDefault, object defaultValue, bool isNullable)
         {
             var field = Field(type, name, required, hasDefault, defaultValue, isNullable);
@@ -256,10 +251,10 @@ namespace AvroSchemaGenerator
                 return nullable ? new Dictionary<string, object> { { "name", name }, { "type", new List<string> { "null", type } }, { "default", dfault } } : new Dictionary<string, object> { { "name", name }, { "type", type }, { "default", dfault } };
             }
             //not required and does not have default value
-            return nullable ? new Dictionary<string, object> { { "name", name }, { "type", new List<string> { "null", type } }, { "default", null } } : ReturnField(type, name);
+            return nullable ? new Dictionary<string, object> { { "name", name }, { "type", new List<string> { "null", type } }, { "default", null } } : RequiredOrNullableField(type, name);
         }
 
-        private static Dictionary<string, object> ReturnField(string type, string name)
+        private static Dictionary<string, object> RequiredOrNullableField(string type, string name)
         {
             switch (type)
             {
@@ -311,18 +306,18 @@ namespace AvroSchemaGenerator
                     var dt = p.DeclaringType?.Name;
                     var recursive = t.Equals(dt);
                     if (recursive)
-                        fieldProperties.Add(ReUseSchema(p));
-                    else
-                      Parse(p, finalSchema);
+                        fieldProperties.Add(Reuse(p));
+                    else 
+                        PropertyInfo(p, finalSchema);
                 }
-                else if (IsList(p))
+                else if (IsFieldListType(p))
                 {
                     var require = p.GetSchemaCustomAttributes().required;
                     var v = p.PropertyType.GetGenericArguments()[0];
                     var dt = p.DeclaringType?.Name;
                     var recursive = v.Name.Equals(dt);
                     if (recursive)
-                        GetResuseProperties(p, finalSchema);
+                        AddReuseType(p, finalSchema);
                     else if (IsUserDefined(v))
                     {
                         var schem = GetGenericUserDefinedProperties(v, require);
@@ -337,7 +332,7 @@ namespace AvroSchemaGenerator
                 }
                 else
                 {
-                    fieldProperties.Add(GetProperty(p));
+                    fieldProperties.Add(GetFields(p));
                 }
             }
             var required = property.GetSchemaCustomAttributes().required;
@@ -363,9 +358,9 @@ namespace AvroSchemaGenerator
                     var t = p.PropertyType.Name;
                     var dt = p.DeclaringType?.Name;
                     var recursive = t.Equals(dt);
-                    fieldProperties.Add(recursive ? ReUseSchema(p) : GetParse(p));
+                    fieldProperties.Add(recursive ? Reuse(p) : GetPropertyInfo(p));
                 }
-                else if (IsList(p))
+                else if (IsFieldListType(p))
                 {
                     var require = p.GetSchemaCustomAttributes().required;
                     var v = p.PropertyType.GetGenericArguments()[0];
@@ -391,7 +386,7 @@ namespace AvroSchemaGenerator
                 }
                 else
                 {
-                    fieldProperties.Add(GetProperty(p));
+                    fieldProperties.Add(GetFields(p));
                 }
             }
             var required = property.GetSchemaCustomAttributes().required;
@@ -417,11 +412,11 @@ namespace AvroSchemaGenerator
                     var dt = p.DeclaringType?.Name;
                     var recursive = t.Equals(dt);
                     if (recursive)
-                        fieldProperties.Add(ReUseSchema(p));
+                        fieldProperties.Add(Reuse(p));
                     else
-                        fieldProperties.Add(GetParse(p));
+                        fieldProperties.Add(GetPropertyInfo(p));
                 }
-                else if (IsList(p))
+                else if (IsFieldListType(p))
                 {
                     var require = p.GetSchemaCustomAttributes().required;
                     var v = p.PropertyType.GetGenericArguments()[0];
@@ -445,7 +440,7 @@ namespace AvroSchemaGenerator
                         fieldProperties.Add(rw);
                     }
                 }
-                else if (IsDictionary(p))
+                else if (IsFieldDictionaryType(p))
                 {
                     var require = p.GetSchemaCustomAttributes().required;
                     var v = p.PropertyType.GetGenericArguments()[1];
@@ -470,28 +465,24 @@ namespace AvroSchemaGenerator
                 }
                 else
                 {
-                    fieldProperties.Add(GetProperty(p));
+                    fieldProperties.Add(GetFields(p));
                 }
             }
             schema["fields"] = fieldProperties;
             return schema; 
 
         }
-        private static bool IsList(PropertyInfo p)
+        private static bool IsFieldListType(PropertyInfo p)
         {
             return p.PropertyType.IsGenericType &&
                    p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
         }
-        private static bool IsDictionary(PropertyInfo p)
+        private static bool IsFieldDictionaryType(PropertyInfo p)
         {
            return p.PropertyType.IsGenericType &&
                 p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
         }
-        private static bool IsDictionary(Type p)
-        {
-            return p.IsGenericType &&
-                   p.GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
-        }
+        
         private static string ToAvroDataType(string type)
         {
             switch (type)
