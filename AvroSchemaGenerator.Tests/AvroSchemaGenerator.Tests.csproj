@@ -23,4 +23,10 @@
     <ProjectReference Include="..\SchemaGenerator\AvroSchemaGenerator.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="NBench">
+      <HintPath>NBench.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

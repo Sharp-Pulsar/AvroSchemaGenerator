@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace AvroSchemaGenerator.Tests
 {
-    [Collection("etSchemaTest")]
+    [Collection("GetSchemaTest")]
     public class GetSchemaTest
     {
         private readonly ITestOutputHelper _output;
