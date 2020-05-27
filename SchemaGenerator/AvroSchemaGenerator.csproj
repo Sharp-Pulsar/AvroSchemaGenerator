@@ -2,21 +2,32 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.5.2</Version>
+    <Version>1.5.3</Version>
     <Description>Generate Avro Schema with support for RECURSIVE SCHEMA</Description>
     <PackageProjectUrl>https://github.com/eaba/SchemaGenerator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/eaba/SchemaGenerator</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>AvroSchemaGenerator</PackageId>
-    <PackageReleaseNotes>Removed lock to allow concurrency
-Recursive check for Dictionary GenericArgument[1]</PackageReleaseNotes>
+    <PackageReleaseNotes>Maintenance</PackageReleaseNotes>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <PackageTags>Avro Schema</PackageTags>
+    <PackageTags>Apache Avro, Avro Schema</PackageTags>
+    <PackageIcon>avro-schema.png</PackageIcon>
+    <PackageIconUrl />
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
     <PackageReference Include="System.Text.Json" Version="4.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="avro-schema.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="avro-schema.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
