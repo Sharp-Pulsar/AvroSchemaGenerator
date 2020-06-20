@@ -65,6 +65,15 @@ namespace AvroSchemaGenerator.Tests
 
             Assert.Equal(expectSchema, actual);
         }
+        [Fact]
+        public void TestEnums()
+        {
+            var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MediaStream\",\"fields\":[{\"name\":\"Id\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"MediaType\",\"type\":{\"type\":\"enum\",\"name\":\"MediaType\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Video\",\"Audio\"]}},{\"name\":\"MediaContainer\",\"type\":{\"type\":\"enum\",\"name\":\"MediaContainer\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Flv\",\"Mp3\",\"Avi\",\"Mp4\"]}},{\"name\":\"Media\",\"type\":[\"null\",\"bytes\"],\"default\":null}]}";
+            var actual = typeof(MediaStream).GetSchema();
+            _output.WriteLine(actual);
+
+            Assert.Equal(expectSchema, actual);
+        }
     }
 
     public class SimpleFoo
@@ -161,5 +170,29 @@ namespace AvroSchemaGenerator.Tests
         public List<Book> Books { get; set; }
         [Required]
         public List<Person> Children { get; set; }
+    }
+    public class MediaStream
+    {
+        public string Id { get; set; }
+
+        public string Title { get; set; }
+        public MediaType Type { get; set; }
+        public MediaContainer Container { get; set; }
+        public byte[] Media { get; set; }
+
+    }
+
+    public enum MediaType
+    {
+        Video,
+        Audio
+    }
+
+    public enum MediaContainer
+    {
+        Flv,
+        Mp3,
+        Avi,
+        Mp4
     }
 }
