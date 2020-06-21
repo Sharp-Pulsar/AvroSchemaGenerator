@@ -35,7 +35,7 @@ namespace AvroSchemaGenerator
                 if (p.PropertyType.IsEnum)
                 {
                     var dp = new Dictionary<string, object> { { "type", "enum" }, { "name", p.PropertyType.Name }, { "namespace", p.PropertyType.Namespace }, { "symbols", GetEnumValues(p.PropertyType) } };
-                    var row = new Dictionary<string, object> { { "name", p.PropertyType.Name }, { "type", dp } };
+                    var row = new Dictionary<string, object> { { "name", p.Name }, { "type", dp } };
                     var fd = (List<Dictionary<string, object>>)finalSchema["fields"];
                     fd.Add(row);
                     finalSchema["fields"] = fd;

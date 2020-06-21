@@ -68,7 +68,7 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestEnums()
         {
-            var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MediaStream\",\"fields\":[{\"name\":\"Id\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"MediaType\",\"type\":{\"type\":\"enum\",\"name\":\"MediaType\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Video\",\"Audio\"]}},{\"name\":\"MediaContainer\",\"type\":{\"type\":\"enum\",\"name\":\"MediaContainer\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Flv\",\"Mp3\",\"Avi\",\"Mp4\"]}},{\"name\":\"Media\",\"type\":[\"null\",\"bytes\"],\"default\":null}]}";
+            var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MediaStream\",\"fields\":[{\"name\":\"Id\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Type\",\"type\":{\"type\":\"enum\",\"name\":\"MediaType\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Video\",\"Audio\"]}},{\"name\":\"Container\",\"type\":{\"type\":\"enum\",\"name\":\"MediaContainer\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Flv\",\"Mp3\",\"Avi\",\"Mp4\"]}},{\"name\":\"Media\",\"type\":[\"null\",\"bytes\"],\"default\":null}]}";
             var actual = typeof(MediaStream).GetSchema();
             _output.WriteLine(actual);
 
