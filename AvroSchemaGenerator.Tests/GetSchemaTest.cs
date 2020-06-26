@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using AvroSchemaGenerator.Attributes;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -70,6 +72,15 @@ namespace AvroSchemaGenerator.Tests
         {
             var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MediaStream\",\"fields\":[{\"name\":\"Id\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Type\",\"type\":{\"type\":\"enum\",\"name\":\"MediaType\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Video\",\"Audio\"]}},{\"name\":\"Container\",\"type\":{\"type\":\"enum\",\"name\":\"MediaContainer\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Flv\",\"Mp3\",\"Avi\",\"Mp4\"]}},{\"name\":\"Media\",\"type\":[\"null\",\"bytes\"],\"default\":null}]}";
             var actual = typeof(MediaStream).GetSchema();
+            _output.WriteLine(actual);
+
+            Assert.Equal(expectSchema, actual);
+        }
+        [Fact]
+        public void TestAliases()
+        {
+            var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassWithAliases\",\"aliases\":[\"InterLives\",\"CountrySide\"],\"fields\":[{\"name\":\"City\",\"aliases\":[\"TownHall\",\"Province\"],\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"State\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Movie\",\"aliases\":[\"PopularMovie\"],\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"InnerAliases\",\"fields\":[{\"name\":\"Container\",\"aliases\":[\"Media\"],\"type\":{\"type\":\"enum\",\"name\":\"MediaContainer\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Flv\",\"Mp3\",\"Avi\",\"Mp4\"]}},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null}]}],\"default\":null},{\"name\":\"Popular\",\"aliases\":[\"PopularMediaType\"],\"type\":{\"type\":\"enum\",\"name\":\"MediaType\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Video\",\"Audio\"]}},{\"name\":\"Movies\",\"aliases\":[\"MovieCollection\"],\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MovieAliase\",\"aliases\":[\"Movies_Aliase\"],\"fields\":[{\"name\":\"Dated\",\"aliases\":[\"DateCreated\"],\"type\":\"long\"},{\"name\":\"Year\",\"aliases\":[\"ReleaseYear\"],\"type\":\"int\"},{\"name\":\"Month\",\"aliases\":[\"ReleaseMonth\"],\"type\":{\"type\":\"enum\",\"name\":\"Month\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"January\",\"February\",\"March\",\"April\",\"June\",\"July\"]}}]}}]},{\"name\":\"YearlyMovies\",\"aliases\":[\"MoviesByYear\"],\"type\":[\"null\",{\"type\":\"map\",\"values\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MovieAliase\",\"aliases\":[\"Movies_Aliase\"],\"fields\":[{\"name\":\"Dated\",\"aliases\":[\"DateCreated\"],\"type\":\"long\"},{\"name\":\"Year\",\"aliases\":[\"ReleaseYear\"],\"type\":\"int\"},{\"name\":\"Month\",\"aliases\":[\"ReleaseMonth\"],\"type\":{\"type\":\"enum\",\"name\":\"Month\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"January\",\"February\",\"March\",\"April\",\"June\",\"July\"]}}]}}]}]}";
+            var actual = typeof(ClassWithAliases).GetSchema();
             _output.WriteLine(actual);
 
             Assert.Equal(expectSchema, actual);
@@ -171,6 +182,43 @@ namespace AvroSchemaGenerator.Tests
         [Required]
         public List<Person> Children { get; set; }
     }
+
+    [Aliases("InterLives", "CountrySide")]
+    public sealed class ClassWithAliases
+    {
+        [Aliases("TownHall", "Province")]
+        public string City { get; set; }
+        public string State { get; set; }
+        [Aliases("PopularMovie")]
+        public InnerAliases Movie { get; set; }
+
+        [Aliases("PopularMediaType")]
+        public MediaType Popular { get; set; }
+
+        [Aliases("MovieCollection")]
+        public List<MovieAliase> Movies { get; set; }
+
+        [Aliases("MoviesByYear")]
+        public Dictionary<int, MovieAliase> YearlyMovies { get; set; }
+    }
+
+    public sealed class InnerAliases
+    {
+        [Aliases("Media")]
+        public MediaContainer Container { get; set; }
+        public string Title { get; set; }
+    }
+
+    [Aliases("Movies_Aliase")]
+    public sealed class MovieAliase
+    {
+        [Aliases("DateCreated")]
+        public long Dated { get; set; }
+        [Aliases("ReleaseYear")]
+        public int Year { get; set; }
+        [Aliases("ReleaseMonth")]
+        public Month Month { get; set; }
+    }
     public class MediaStream
     {
         public string Id { get; set; }
@@ -180,6 +228,16 @@ namespace AvroSchemaGenerator.Tests
         public MediaContainer Container { get; set; }
         public byte[] Media { get; set; }
 
+    }
+
+    public enum Month
+    {
+        January,
+        February,
+        March, 
+        April,
+        June, 
+        July
     }
 
     public enum MediaType
