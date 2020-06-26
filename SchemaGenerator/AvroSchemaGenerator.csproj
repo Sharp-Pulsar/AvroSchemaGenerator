@@ -2,13 +2,21 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.5.4</Version>
+    <Version>1.6.0</Version>
     <Description>Generate Avro Schema with support for RECURSIVE SCHEMA</Description>
     <PackageProjectUrl>https://github.com/eaba/SchemaGenerator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/eaba/SchemaGenerator</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>AvroSchemaGenerator</PackageId>
-    <PackageReleaseNotes>User Defined Enums</PackageReleaseNotes>
+    <PackageReleaseNotes>Aliases
+```
+[Aliases("OldCourse")]
+public class Course
+ {
+     [Aliases("Level")]
+     public string NewLevel { get; set; }
+ }
+```</PackageReleaseNotes>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageTags>Apache Avro, Avro Schema</PackageTags>
     <PackageIcon>avro-schema.png</PackageIcon>
