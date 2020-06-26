@@ -7,15 +7,15 @@ Install the NuGet package [AvroSchemaGenerator](https://www.nuget.org/packages/A
 ```csharp
 using AvroSchemaGenerator;
 public class Course
-    {
-        public string Level { get; set; }
+{
+    public string Level { get; set; }
         
-        public int Year { get; set; }
+    public int Year { get; set; }
         
-        public string State { get; set; }
+    public string State { get; set; }
         
-        public string Gender { get; set; }
-    }
+    public string Gender { get; set; }
+}
 var avroSchema = typeof(Course).GetSchema();
 ```
 
@@ -26,40 +26,49 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using AvroSchemaGenerator;
 public class Course
-    {
-        [Required]
-        public string Level { get; set; }
+{
+    [Required]
+    public string Level { get; set; }
 
-        [Required]
-        public int Year { get; set; }
+    [Required]
+    public int Year { get; set; }
 
-        [Required]
-        public string State { get; set; }
+    [Required]
+    public string State { get; set; }
         
-        [Required]
-        public string Gender { get; set; }
-    }
+    [Required]
+    public string Gender { get; set; }
+}
 var avroSchema = typeof(Course).GetSchema();
 ```
 
-You can assign a  default value as well
+You can assign a default value as well
 ```csharp
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using AvroSchemaGenerator;
 public class Course
-    {
-        [DefaultValue("200")]
-        [Required]
-        public string Level { get; set; }
+{
+    [DefaultValue("200")]
+    [Required]
+    public string Level { get; set; }
 
-        [Required]
-        public int Year { get; set; }
+    [Required]
+    public int Year { get; set; }
 
-        [DefaultValue("Closed")]
-        public string State { get; set; }
+    [DefaultValue("Closed")]
+    public string State { get; set; }
 
-        public string Gender { get; set; }
-    }
+    public string Gender { get; set; }
+}
 var avroSchema = typeof(Course).GetSchema();
+```
+## Aliases
+```csharp
+[Aliases("OldCourse")]
+public class Course
+{
+    [Aliases("Level")]
+    public string NewLevel { get; set; }
+}
 ```
