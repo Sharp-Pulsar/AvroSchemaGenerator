@@ -29,7 +29,8 @@ namespace AvroSchemaGenerator
             var properties = type.GetProperties();
             foreach (var p in properties)
             {
-                PropertyInfo(p, schema);
+                if(!ShouldIgnore(p))
+                  PropertyInfo(p, schema);
             }
             return JsonSerializer.Serialize(schema);
         }
@@ -374,6 +375,11 @@ namespace AvroSchemaGenerator
             var aliases = (AliasesAttribute)type.GetCustomAttribute(typeof(AliasesAttribute));
             return aliases?.Values;
         }
+        private static bool ShouldIgnore(MemberInfo property)
+        {
+            var ignore = (IgnoreAttribute)property.GetCustomAttribute(typeof(IgnoreAttribute));
+            return ignore != null;
+        }
         private static List<string> GetAliases(MemberInfo property)
         {
             var aliases = (AliasesAttribute)property.GetCustomAttribute(typeof(AliasesAttribute));
@@ -400,6 +406,8 @@ namespace AvroSchemaGenerator
             var fieldProperties = new List<Dictionary<string, object>>();
             foreach (var p in properties)
             {
+                if (ShouldIgnore(p))
+                    continue;
                 if (IsUserDefined(p))
                 {
                     var t = p.PropertyType.Name;
@@ -469,6 +477,8 @@ namespace AvroSchemaGenerator
             var fieldProperties = new List<Dictionary<string, object>>();
             foreach (var p in properties)
             {
+                if (ShouldIgnore(p))
+                    continue;
                 if (IsUserDefined(p))
                 {
                     var t = p.PropertyType.Name;
@@ -544,6 +554,8 @@ namespace AvroSchemaGenerator
             var fieldProperties = new List<Dictionary<string, object>>();
             foreach (var p in properties)
             {
+                if (ShouldIgnore(p))
+                    continue;
                 if (IsUserDefined(p))
                 {
                     var t = p.PropertyType.Name;

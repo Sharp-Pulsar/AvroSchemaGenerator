@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AvroSchemaGenerator.Attributes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -79,6 +80,8 @@ namespace AvroSchemaGenerator.Tests
         {
             [Required]
             public string Age { get; set; }
+            [Ignore]
+            public bool IsTrue => Age == "45";
         }
 
         [Fact]
@@ -95,6 +98,9 @@ namespace AvroSchemaGenerator.Tests
             [Required]
             [DefaultValue("100")]
             public string Age { get; set; }
+
+            [Ignore]
+            public bool IsTrue => Age == "45";
         }
 
         [Fact]
@@ -123,6 +129,8 @@ namespace AvroSchemaGenerator.Tests
         class ClassFieldTest
         {
             public IntTest Age { get; set; }
+            [Ignore]
+            public IntTest AgeIgnore { get; set; }
         }
 
         [Fact]
