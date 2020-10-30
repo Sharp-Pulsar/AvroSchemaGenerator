@@ -22,6 +22,8 @@ namespace AvroSchemaGenerator.Tests
         class IntTest
         {
             public int Age { get; set; }
+            [Ignore]
+            public bool IsTrue => Age > 40;
         }
 
         [Fact]
@@ -147,6 +149,8 @@ namespace AvroSchemaGenerator.Tests
         {
             [Required]
             public IntTest Age { get; set; }
+            [Ignore]
+            public DateTime TimestampAsDateTime => DateTime.FromBinary(long.MaxValue);
         }
 
         [Fact]
