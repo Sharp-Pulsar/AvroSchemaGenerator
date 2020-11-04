@@ -2,18 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.6.0</Version>
+    <Version>1.7.0</Version>
     <Description>Generate Avro Schema with support for RECURSIVE SCHEMA</Description>
     <PackageProjectUrl>https://github.com/eaba/SchemaGenerator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/eaba/SchemaGenerator</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>AvroSchemaGenerator</PackageId>
-    <PackageReleaseNotes>Aliases
+    <PackageReleaseNotes>Ability to ignore certain properties
 ```
-[Aliases("OldCourse")]
 public class Course
  {
-     [Aliases("Level")]
+     [Ignore]
      public string NewLevel { get; set; }
  }
 ```</PackageReleaseNotes>
