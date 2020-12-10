@@ -26,7 +26,7 @@ namespace AvroSchemaGenerator
                 schema["aliases"] = aliases;
             }
             schema["fields"] = new List<Dictionary<string, object>>();
-            var properties = type.GetProperties();
+            var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public) ;
             foreach (var p in properties)
             {
                 if(!ShouldIgnore(p))
@@ -402,7 +402,7 @@ namespace AvroSchemaGenerator
                 {"type", "record"}, {"namespace", property.PropertyType.Namespace}, {"name", property.PropertyType.Name}
             };
             var aliases = GetAliases(property);
-            var properties = property.PropertyType.GetProperties();
+            var properties = property.PropertyType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
             var fieldProperties = new List<Dictionary<string, object>>();
             foreach (var p in properties)
             {
@@ -473,7 +473,7 @@ namespace AvroSchemaGenerator
             {
                 {"type", "record"}, {"namespace", property.PropertyType.Namespace}, {"name", property.PropertyType.Name}
             };
-            var properties = property.PropertyType.GetProperties();
+            var properties = property.PropertyType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
             var fieldProperties = new List<Dictionary<string, object>>();
             foreach (var p in properties)
             {
@@ -550,7 +550,7 @@ namespace AvroSchemaGenerator
             var aliases = GetAliases(property);
             if (aliases != null)
                 schema["aliases"] = aliases;
-            var properties = property.GetProperties();
+            var properties = property.GetProperties(BindingFlags.Instance | BindingFlags.Public);
             var fieldProperties = new List<Dictionary<string, object>>();
             foreach (var p in properties)
             {

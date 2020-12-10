@@ -94,6 +94,15 @@ namespace AvroSchemaGenerator.Tests
 
             Assert.Equal(expectSchema, actual);
         }
+        [Fact]
+        public void TestStaticFieldsAreIgnored()
+        {
+            var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"SimpleWithStaticFieldsAndNestedClass\",\"fields\":[{\"name\":\"FactTime\",\"type\":\"long\"},{\"name\":\"SimpleStaticInner\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"SimpleWithStaticFields\",\"fields\":[{\"name\":\"Name\",\"type\":[\"null\",\"string\"],\"default\":null}]}],\"default\":null}]}";
+            var actual = typeof(SimpleWithStaticFieldsAndNestedClass).GetSchema();
+            _output.WriteLine(actual);
+
+            Assert.Equal(expectSchema, actual);
+        }
     }
 
     public class SimpleFoo
@@ -275,4 +284,23 @@ namespace AvroSchemaGenerator.Tests
         Avi,
         Mp4
     }
+
+    public class SimpleWithStaticFields
+    {
+        private static readonly string _staticFieldOnInner = "a field";
+        public static string StaticFieldOnInner => _staticFieldOnInner;
+
+        public string Name { get; set; }
+    }
+
+    public class SimpleWithStaticFieldsAndNestedClass
+    {
+        private static readonly string _staticField = "a field";
+        public static string StaticField => _staticField;
+
+        public long FactTime { get; set; }
+
+        public SimpleWithStaticFields SimpleStaticInner { get; set; }
+    }
+
 }
