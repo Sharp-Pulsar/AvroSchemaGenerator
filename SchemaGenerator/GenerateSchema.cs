@@ -10,6 +10,7 @@ namespace AvroSchemaGenerator
     //https://docs.oracle.com/database/nosql-12.1.3.0/GettingStartedGuide/avroschemas.html
     //https://www.jsonschemavalidator.net/
     //https://json-schema-validator.herokuapp.com/avro.jsp
+    //https://stackoverflow.com/questions/13522132/how-to-exclude-static-property-when-using-getproperties-method
     public static class GenerateSchema
     {
         public static string GetSchema(this Type type)
