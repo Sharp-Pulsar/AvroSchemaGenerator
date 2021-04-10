@@ -7,12 +7,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroSchemaGenerator", "Sche
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvroSchemaGenerator.Tests", "AvroSchemaGenerator.Tests\AvroSchemaGenerator.Tests.csproj", "{30808D11-0F77-4CCD-82C0-10946CA397D4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{DF485363-E6D3-47E3-9A82-EC2D0E50C491}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DF485363-E6D3-47E3-9A82-EC2D0E50C491}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF485363-E6D3-47E3-9A82-EC2D0E50C491}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F13C8E45-F5C8-48EB-B879-63DD464FEFF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F13C8E45-F5C8-48EB-B879-63DD464FEFF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F13C8E45-F5C8-48EB-B879-63DD464FEFF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
