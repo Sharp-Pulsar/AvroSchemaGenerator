@@ -2,13 +2,9 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
-    <Version>1.8.0</Version>
-    <Description>Generate Avro Schema with support for RECURSIVE SCHEMA</Description>
     <PackageProjectUrl>https://github.com/eaba/SchemaGenerator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/eaba/SchemaGenerator</RepositoryUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>AvroSchemaGenerator</PackageId>
-    <PackageReleaseNotes>Exclude static fields from generated Avro Schema</PackageReleaseNotes>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageTags>Apache Avro, Avro Schema</PackageTags>
     <PackageIcon>avro-schema.png</PackageIcon>
@@ -17,8 +13,8 @@
 
   <ItemGroup>
     <PackageReference Include="Apache.Avro" Version="1.10.2" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
-    <PackageReference Include="System.Text.Json" Version="4.7.2" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="System.Text.Json" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>
