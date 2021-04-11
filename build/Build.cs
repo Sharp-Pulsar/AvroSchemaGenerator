@@ -10,9 +10,8 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
+using Nuke.Common.Utilities;
 using Nuke.Common.Utilities.Collections;
-using static Nuke.Common.EnvironmentInfo;
-using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
@@ -34,6 +33,19 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     OnPushBranches = new[] { "master", "dev" },
     OnPullRequestBranches = new[] { "master", "dev" },
     InvokedTargets = new[] { nameof(Test) })]
+
+
+[GitHubActions("PublishBeta",
+    GitHubActionsImage.UbuntuLatest,
+    AutoGenerate = true,
+    OnPushBranches = new[] { "dev" },
+    InvokedTargets = new[] { nameof(PushBeta) })]
+
+[GitHubActions("Publish",
+    GitHubActionsImage.UbuntuLatest,
+    AutoGenerate = true,
+    OnPushBranches = new[] { "master" },
+    InvokedTargets = new[] { nameof(Push) })]
 class Build : NukeBuild
 {
     /// Support plugins are available for:
@@ -51,6 +63,18 @@ class Build : NukeBuild
     [GitRepository] readonly GitRepository GitRepository;
     [GitVersion(Framework = "net5.0")] readonly GitVersion GitVersion;
 
+    [Parameter] string NugetApiUrl = "https://api.nuget.org/v3/index.json";
+    [Parameter] string GithubSource = "https://nuget.pkg.github.com/OWNER/index.json";
+
+    //[Parameter] string NugetApiKey = Environment.GetEnvironmentVariable("SHARP_PULSAR_NUGET_API_KEY");
+    [Parameter("NuGet API Key", Name = "NUGET_API_KEY")]
+    readonly string NugetApiKey;
+
+    [Parameter("GitHub Build Number", Name = "BUILD_NUMBER")]
+    readonly string BuildNumber;
+
+    [Parameter("GitHub Access Token for Packages", Name = "GH_API_KEY")]
+    readonly string GitHubApiKey;
     AbsolutePath TestsDirectory => RootDirectory;
     AbsolutePath OutputDirectory => RootDirectory / "output";
     AbsolutePath TestSourceDirectory => RootDirectory / "AvroSchemaGenerator.Tests";
@@ -110,6 +134,102 @@ class Build : NukeBuild
                 }
             }
         });
+
+    Target Pack => _ => _
+      .DependsOn(Test)
+      .Executes(() =>
+      {
+          var project = Solution.GetProject("AvroSchemaGenerator");
+          DotNetPack(s => s
+              .SetProject(project)
+              .SetConfiguration(Configuration)
+              .EnableNoBuild()
+              .EnableNoRestore()
+              .SetVersionPrefix("1.9.0")
+              .SetPackageReleaseNotes("Support Avro DateTime and Decimal Logical Types")
+              .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
+              .SetPackageTags("Avro", "Schema Generator")
+              .AddAuthors("Ebere Abanonu (@mestical)")
+              .SetPackageProjectUrl("https://github.com/eaba/AvroSchemaGenerator")
+              .SetOutputDirectory(ArtifactsDirectory / "nuget")); ;
+
+      });
+    Target PackBeta => _ => _
+      .DependsOn(Test)
+      .Executes(() =>
+      {
+          var project = Solution.GetProject("AvroSchemaGenerator");
+          DotNetPack(s => s
+              .SetProject(project)
+              .SetConfiguration(Configuration)
+              .EnableNoBuild()
+              .EnableNoRestore()
+              .SetVersionPrefix("1.9.0")
+              .SetPackageReleaseNotes("Support Avro DateTime and Decimal Logical Types")
+              .SetVersionSuffix($"beta.{BuildNumber}")
+              .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
+              .SetPackageTags("Avro", "Schema Generator")
+              .AddAuthors("Ebere Abanonu (@mestical)")
+              .SetPackageProjectUrl("https://github.com/eaba/AvroSchemaGenerator")
+              .SetOutputDirectory(ArtifactsDirectory / "nuget")); ;
+
+      });
+    Target Push => _ => _
+      .DependsOn(Pack)
+      .Requires(() => NugetApiUrl)
+      .Requires(() => !NugetApiKey.IsNullOrEmpty())
+      .Requires(() => !GitHubApiKey.IsNullOrEmpty())
+      .Requires(() => !BuildNumber.IsNullOrEmpty())
+      .Requires(() => Configuration.Equals(Configuration.Release))
+      .Executes(() =>
+      {
+          GlobFiles(ArtifactsDirectory / "nuget", "*.nupkg")
+              .NotEmpty()
+              .Where(x => !x.EndsWith("symbols.nupkg"))
+              .ForEach(x =>
+              {
+                  DotNetNuGetPush(s => s
+                      .SetTargetPath(x)
+                      .SetSource(NugetApiUrl)
+                      .SetApiKey(NugetApiKey)
+                  );
+
+                  DotNetNuGetPush(s => s
+                      .SetApiKey(GitHubApiKey)
+                      .SetSymbolApiKey(GitHubApiKey)
+                      .SetTargetPath(x)
+                      .SetSource(GithubSource)
+                      .SetSymbolSource(GithubSource));
+              });
+      });
+    Target PushBeta => _ => _
+      .DependsOn(PackBeta)
+      .Requires(() => NugetApiUrl)
+      .Requires(() => !NugetApiKey.IsNullOrEmpty())
+      .Requires(() => !GitHubApiKey.IsNullOrEmpty())
+      .Requires(() => !BuildNumber.IsNullOrEmpty())
+      .Requires(() => Configuration.Equals(Configuration.Release))
+      .Executes(() =>
+      {
+          GlobFiles(ArtifactsDirectory / "nuget", "*.nupkg")
+              .NotEmpty()
+              .Where(x => !x.EndsWith("symbols.nupkg"))
+              .ForEach(x =>
+              {
+                  DotNetNuGetPush(s => s
+                      .SetTargetPath(x)
+                      .SetSource(NugetApiUrl)
+                      .SetApiKey(NugetApiKey)
+                  );
+
+                  DotNetNuGetPush(s => s
+                      .SetApiKey(GitHubApiKey)
+                      .SetSymbolApiKey(GitHubApiKey)
+                      .SetTargetPath(x)
+                      .SetSource(GithubSource)
+                      .SetSymbolSource(GithubSource));
+              });
+      });
 
     static void Information(string info)
     {
