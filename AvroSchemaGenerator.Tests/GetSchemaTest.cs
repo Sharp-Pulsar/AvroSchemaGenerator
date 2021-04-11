@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Avro;
+using Avro.Reflect;
 using AvroSchemaGenerator.Attributes;
 using Xunit;
 using Xunit.Abstractions;
@@ -61,17 +63,28 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestDictionaryRecursive()
         {
-            var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"DictionaryRecursive\",\"fields\":[{\"name\":\"Fo\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"SimpleFoo\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"},{\"name\":\"Name\",\"type\":\"string\"},{\"name\":\"FactTime\",\"type\":\"long\"},{\"name\":\"Point\",\"type\":\"double\"},{\"name\":\"Precision\",\"type\":\"float\"},{\"name\":\"Attending\",\"type\":\"boolean\"},{\"name\":\"Id\",\"type\":[\"null\",\"bytes\"],\"default\":null}]}],\"default\":null},{\"name\":\"Courses\",\"type\":{\"type\":\"array\",\"items\":\"string\"}},{\"name\":\"Diction\",\"type\":\"DictionaryRecursive\"}]}";
-            var actual = typeof(DictionaryRecursive).GetSchema();
-            _output.WriteLine(actual);
-
-            Assert.Equal(expectSchema, actual);
+            try
+            {
+                var actual = typeof(DictionaryRecursive).GetSchema();
+                var schema = Schema.Parse(actual);
+                //NOTE: dont use same declaring type as dictionary value
+                //NOTE: dont use same declaring type as list argument
+                var writer = new ReflectWriter<DictionaryRecursive>(schema);
+                _output.WriteLine(actual);
+            }
+            catch(Exception ex)
+            {
+                _output.WriteLine(ex.ToString());
+                Assert.True(false);
+            }
         }
         [Fact]
         public void TestEnums()
         {
             var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MediaStream\",\"fields\":[{\"name\":\"Id\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Type\",\"type\":{\"type\":\"enum\",\"name\":\"MediaType\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Video\",\"Audio\"]}},{\"name\":\"Container\",\"type\":{\"type\":\"enum\",\"name\":\"MediaContainer\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Flv\",\"Mp3\",\"Avi\",\"Mp4\"]}},{\"name\":\"Media\",\"type\":[\"null\",\"bytes\"],\"default\":null}]}";
             var actual = typeof(MediaStream).GetSchema();
+            var schema = Schema.Parse(actual);
+            var writer = new ReflectWriter<MediaStream>(schema);
             _output.WriteLine(actual);
 
             Assert.Equal(expectSchema, actual);
@@ -82,6 +95,8 @@ namespace AvroSchemaGenerator.Tests
             var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassWithAliasesWithList\",\"aliases\":[\"InterLives\",\"CountrySide\"],\"fields\":[{\"name\":\"City\",\"aliases\":[\"TownHall\",\"Province\"],\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"State\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Movie\",\"aliases\":[\"PopularMovie\"],\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"InnerAliases\",\"fields\":[{\"name\":\"Container\",\"aliases\":[\"Media\"],\"type\":{\"type\":\"enum\",\"name\":\"MediaContainer\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Flv\",\"Mp3\",\"Avi\",\"Mp4\"]}},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null}]}],\"default\":null},{\"name\":\"Popular\",\"aliases\":[\"PopularMediaType\"],\"type\":{\"type\":\"enum\",\"name\":\"MediaType\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Video\",\"Audio\"]}},{\"name\":\"Movies\",\"aliases\":[\"MovieCollection\"],\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MovieAliase\",\"aliases\":[\"Movies_Aliase\"],\"fields\":[{\"name\":\"Dated\",\"aliases\":[\"DateCreated\"],\"type\":\"long\"},{\"name\":\"Year\",\"aliases\":[\"ReleaseYear\"],\"type\":\"int\"},{\"name\":\"Month\",\"aliases\":[\"ReleaseMonth\"],\"type\":{\"type\":\"enum\",\"name\":\"Month\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"January\",\"February\",\"March\",\"April\",\"June\",\"July\"]}}]}}]}]}";
             var actual = typeof(ClassWithAliasesWithList).GetSchema();
             _output.WriteLine(actual);
+            var schema = Schema.Parse(actual);
+            var writer = new ReflectWriter<ClassWithAliasesWithList>(schema);
 
             Assert.Equal(expectSchema, actual);
         }
@@ -91,6 +106,8 @@ namespace AvroSchemaGenerator.Tests
             var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassWithAliasesWithDictionary\",\"aliases\":[\"InterLives\",\"CountrySide\"],\"fields\":[{\"name\":\"City\",\"aliases\":[\"TownHall\",\"Province\"],\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"State\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Movie\",\"aliases\":[\"PopularMovie\"],\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"InnerAliases\",\"fields\":[{\"name\":\"Container\",\"aliases\":[\"Media\"],\"type\":{\"type\":\"enum\",\"name\":\"MediaContainer\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Flv\",\"Mp3\",\"Avi\",\"Mp4\"]}},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null}]}],\"default\":null},{\"name\":\"Popular\",\"aliases\":[\"PopularMediaType\"],\"type\":{\"type\":\"enum\",\"name\":\"MediaType\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"Video\",\"Audio\"]}},{\"name\":\"YearlyMovies\",\"aliases\":[\"MoviesByYear\"],\"type\":[\"null\",{\"type\":\"map\",\"values\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MovieAliase\",\"aliases\":[\"Movies_Aliase\"],\"fields\":[{\"name\":\"Dated\",\"aliases\":[\"DateCreated\"],\"type\":\"long\"},{\"name\":\"Year\",\"aliases\":[\"ReleaseYear\"],\"type\":\"int\"},{\"name\":\"Month\",\"aliases\":[\"ReleaseMonth\"],\"type\":{\"type\":\"enum\",\"name\":\"Month\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"symbols\":[\"January\",\"February\",\"March\",\"April\",\"June\",\"July\"]}}]}}]}]}";
             var actual = typeof(ClassWithAliasesWithDictionary).GetSchema();
             _output.WriteLine(actual);
+            var schema = Schema.Parse(actual);
+            var writer = new ReflectWriter<ClassWithAliasesWithDictionary>(schema);
 
             Assert.Equal(expectSchema, actual);
         }
@@ -100,6 +117,8 @@ namespace AvroSchemaGenerator.Tests
             var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"SimpleWithStaticFieldsAndNestedClass\",\"fields\":[{\"name\":\"FactTime\",\"type\":\"long\"},{\"name\":\"SimpleStaticInner\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"SimpleWithStaticFields\",\"fields\":[{\"name\":\"Name\",\"type\":[\"null\",\"string\"],\"default\":null}]}],\"default\":null}]}";
             var actual = typeof(SimpleWithStaticFieldsAndNestedClass).GetSchema();
             _output.WriteLine(actual);
+            var schema = Schema.Parse(actual);
+            var writer = new ReflectWriter<SimpleWithStaticFieldsAndNestedClass>(schema);
 
             Assert.Equal(expectSchema, actual);
         }
@@ -141,7 +160,7 @@ namespace AvroSchemaGenerator.Tests
         [Required]
         public List<string> Courses { get; set; }
         [Required]
-        public Dictionary<string, DictionaryRecursive> Diction { get; set; }
+        public Dictionary<string, Family> Diction { get; set; }
 
     }
     public class FooCustom
@@ -170,7 +189,7 @@ namespace AvroSchemaGenerator.Tests
     {
         public string State { get; set; }
         public string Year { get; set; }
-        public List<School> Schools { get; set; }
+        public List<string> Schools { get; set; }
     }
     public class Lecturers
     {
@@ -198,7 +217,7 @@ namespace AvroSchemaGenerator.Tests
         public School Schools { get; set; }
         public List<Book> Books { get; set; }
         [Required]
-        public List<Person> Children { get; set; }
+        public List<string> Children { get; set; }
     }
 
     [Aliases("InterLives", "CountrySide")]

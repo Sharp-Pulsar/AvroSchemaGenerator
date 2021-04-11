@@ -1,8 +1,13 @@
-﻿using AvroSchemaGenerator.Attributes;
+﻿using Avro;
+using Avro.IO;
+using Avro.Reflect;
+using Avro.Specific;
+using AvroSchemaGenerator.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Text;
 using Xunit;
 using Xunit.Abstractions;
@@ -17,6 +22,7 @@ namespace AvroSchemaGenerator.Tests
         public FullSchemaTest(ITestOutputHelper output)
         {
             this._output = output;
+
         }
 
         class IntTest
@@ -177,10 +183,20 @@ namespace AvroSchemaGenerator.Tests
             Assert.Equal(expectedSchema, actualSchema);
         }
 
-        class RecType
+        public class RecType
         {
             public string Name { get; set; }
             public RecType Child { get; set; }
+        }
+        public class RecTypeNonRecursive
+        {
+            public string Name { get; set; }
+        }
+
+        public class NestedSchema
+        {
+            public RecTypeNonRecursive Foo { get; set; }
+            public RecTypeNonRecursive Bar { get; set; }
         }
         class RecTypeRequired
         {
@@ -190,6 +206,38 @@ namespace AvroSchemaGenerator.Tests
             public RecTypeRequired Child { get; set; }
         }
 
+        [Fact]
+        public void NestedTypesProduceValidAvroSchema()
+        {
+            try
+            {
+                var simple = typeof(NestedSchema).GetSchema();
+                _output.WriteLine(simple);
+                var schema = Schema.Parse(simple);
+                var data = new NestedSchema
+                {
+                    Foo = new RecTypeNonRecursive
+                    {
+                        Name = "Foo-Name"
+                    },
+                    Bar = new RecTypeNonRecursive
+                    {
+                        Name = "Bar-Name"
+                    }
+                };
+                var reader = new ReflectReader<NestedSchema>(schema, schema);
+                var writer = new ReflectWriter<NestedSchema>(schema);
+                var msgBytes = Write(data, writer);
+                using var stream = new MemoryStream((byte[])(object)msgBytes);
+                var msg = Read(stream, reader);
+                Assert.NotNull(msg);
+                Assert.True(msg.Foo.Name == "Foo-Name");
+            }
+            catch(Exception ex)
+            {
+                _output.WriteLine(ex.ToString());
+            }
+        }
         [Fact]
         public void TestRecType()
         {
@@ -205,6 +253,21 @@ namespace AvroSchemaGenerator.Tests
             var actual = typeof(RecTypeRequired).GetSchema();
             _output.WriteLine(actual);
             Assert.Equal(expected, actual);
+        }
+        private sbyte[] Write(NestedSchema message, ReflectWriter<NestedSchema> writer)
+        {
+            var ms = new MemoryStream();
+            Avro.IO.Encoder e = new BinaryEncoder(ms);
+            writer.Write(message, e);
+            ms.Flush();
+            ms.Position = 0;
+            var b = ms.ToArray();
+            return (sbyte[])(object)b;
+        }
+        public NestedSchema Read(Stream stream, ReflectReader<NestedSchema> reader)
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+            return reader.Read(null, new BinaryDecoder(stream));
         }
     }
 }

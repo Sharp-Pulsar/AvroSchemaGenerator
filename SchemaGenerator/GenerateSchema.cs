@@ -28,17 +28,18 @@ namespace AvroSchemaGenerator
                 schema["aliases"] = aliases;
             }
             schema["fields"] = new List<Dictionary<string, object>>();
+            var existingTypes = new List<string>();
             var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public) ;
             foreach (var p in properties)
             {
                 
                 if (!ShouldIgnore(p))
-                  PropertyInfo(p, schema);
+                  PropertyInfo(p, schema, existingTypes);
             }
             return JsonSerializer.Serialize(schema);
         }
         
-        private static void PropertyInfo(PropertyInfo property, Dictionary<string, object> finalSchema)
+        private static void PropertyInfo(PropertyInfo property, Dictionary<string, object> finalSchema, List<string> existingTypes)
         {
             var p = property;
             if(p.PropertyType.FullName.StartsWith("Avro."))
@@ -67,10 +68,21 @@ namespace AvroSchemaGenerator
                     var t = p.PropertyType.Name;
                     var dt = p.DeclaringType?.Name;
                     var recursive = t.Equals(dt);
+
+                    if (existingTypes.Contains(t))
+                    {
+                        var row = new Dictionary<string, object> { { "name", p.Name }, { "type", t } };
+                        var fd = (List<Dictionary<string, object>>)finalSchema["fields"];
+                        fd.Add(row);
+                        finalSchema["fields"] = fd;
+                        return;
+                    }
                     if (recursive)
                         AddReuseType(p, finalSchema);
                     else
-                        GetUserDefinedProperties(p, finalSchema);
+                        GetUserDefinedProperties(p, finalSchema, existingTypes);
+
+                    existingTypes.Add(t);
                     return;
                 }
 
@@ -406,7 +418,7 @@ namespace AvroSchemaGenerator
             return p.Namespace != null && ((p.IsClass || p.IsValueType) && !p.Namespace.StartsWith("System"));
         }
 
-        private static void GetUserDefinedProperties(PropertyInfo property, Dictionary<string, object> finalSchema)
+        private static void GetUserDefinedProperties(PropertyInfo property, Dictionary<string, object> finalSchema, List<string> existing)
         {
             var schema = new Dictionary<string, object>
             {
@@ -438,7 +450,7 @@ namespace AvroSchemaGenerator
                         else fieldProperties.Add(GetEnumField(p));
                     }
                     else
-                        PropertyInfo(p, finalSchema);
+                        PropertyInfo(p, finalSchema, existing);
                 }
                 else if (IsFieldListType(p))
                 {
