@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using Avro;
+using Avro.IO;
 using Avro.Reflect;
 using AvroSchemaGenerator.Attributes;
 using Xunit;
@@ -24,6 +26,8 @@ namespace AvroSchemaGenerator.Tests
         {
             var simple = typeof(SimpleFoo).GetSchema();
             _output.WriteLine(simple);
+            var schema = Schema.Parse(simple);
+            var writer = new ReflectWriter<SimpleFoo>(schema);
             Assert.Contains("Age", simple);
         }
 
@@ -32,6 +36,8 @@ namespace AvroSchemaGenerator.Tests
         {
             var simple = typeof(Foo).GetSchema();
             _output.WriteLine(simple);
+            var schema = Schema.Parse(simple);
+            var writer = new ReflectWriter<Foo>(schema);
             Assert.Contains("Age", simple);
         }
         [Fact]
@@ -39,6 +45,8 @@ namespace AvroSchemaGenerator.Tests
         {
             var simplecu = typeof(FooCustom).GetSchema();
             _output.WriteLine(simplecu);
+            var schema = Schema.Parse(simplecu);
+            var writer = new ReflectWriter<FooCustom>(schema);
             Assert.Contains("EntryYear", simplecu);
             Assert.Contains("Level", simplecu);
         }
@@ -48,6 +56,8 @@ namespace AvroSchemaGenerator.Tests
             var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Family\",\"fields\":[{\"name\":\"Members\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Person\",\"fields\":[{\"name\":\"FirstName\",\"type\":\"string\"},{\"name\":\"LastName\",\"type\":\"string\"},{\"name\":\"Schools\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"School\",\"fields\":[{\"name\":\"State\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Year\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Schools\",\"type\":[\"null\",\"School\"],\"default\":null}]}],\"default\":null},{\"name\":\"Books\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Book\",\"fields\":[{\"name\":\"Author\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null}]}}},{\"name\":\"Children\",\"type\":\"Person\"}]}}}]}";
             var actual = typeof(Family).GetSchema();
             _output.WriteLine(actual);
+            var schema = Schema.Parse(actual);
+            var writer = new ReflectWriter<Family>(schema);
 
             Assert.Equal(expectSchema, actual);
         }
@@ -57,6 +67,8 @@ namespace AvroSchemaGenerator.Tests
             var expectSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Dictionary\",\"fields\":[{\"name\":\"Fo\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"SimpleFoo\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"},{\"name\":\"Name\",\"type\":\"string\"},{\"name\":\"FactTime\",\"type\":\"long\"},{\"name\":\"Point\",\"type\":\"double\"},{\"name\":\"Precision\",\"type\":\"float\"},{\"name\":\"Attending\",\"type\":\"boolean\"},{\"name\":\"Id\",\"type\":[\"null\",\"bytes\"],\"default\":null}]}],\"default\":null},{\"name\":\"Courses\",\"type\":{\"type\":\"array\",\"items\":\"string\"}},{\"name\":\"Families\",\"type\":{\"type\":\"map\",\"values\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Family\",\"fields\":[{\"name\":\"Members\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Person\",\"fields\":[{\"name\":\"FirstName\",\"type\":\"string\"},{\"name\":\"LastName\",\"type\":\"string\"},{\"name\":\"Schools\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"School\",\"fields\":[{\"name\":\"State\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Year\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Schools\",\"type\":[\"null\",\"School\"],\"default\":null}]}],\"default\":null},{\"name\":\"Books\",\"type\":{\"type\":\"array\",\"items\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Book\",\"fields\":[{\"name\":\"Author\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null}]}}},{\"name\":\"Children\",\"type\":\"Person\"}]}}}]}}}]}";
             var actual = typeof(Dictionary).GetSchema();
             _output.WriteLine(actual);
+            var schema = Schema.Parse(actual);
+            var writer = new ReflectWriter<Dictionary>(schema);
 
             Assert.Equal(expectSchema, actual);
         }
@@ -71,6 +83,53 @@ namespace AvroSchemaGenerator.Tests
                 //NOTE: dont use same declaring type as list argument
                 var writer = new ReflectWriter<DictionaryRecursive>(schema);
                 _output.WriteLine(actual);
+            }
+            catch(Exception ex)
+            {
+                _output.WriteLine(ex.ToString());
+                Assert.True(false);
+            }
+        }
+        [Fact]
+        public void TestRecursiveSchema()
+        {
+            try
+            {
+                var actual = typeof(Recursive).GetSchema();
+                var schema = Schema.Parse(actual);
+                _output.WriteLine(actual);
+                var recursive = new Recursive
+                {
+                    Fo = new SimpleFoo
+                    {
+                        Age = 67,
+                        Attending = true,
+                        FactTime = 90909099L, 
+                        Id = new byte[0] { }, 
+                        Name = "Ebere", 
+                        Point = 888D, 
+                        Precision = 787F
+                    }, 
+                    Recurse = new Recursive
+                    {
+                        Fo = new SimpleFoo
+                        {
+                            Age = 6,
+                            Attending = false,
+                            FactTime = 90L,
+                            Id = new byte[0] { },
+                            Name = "Ebere Abanonu",
+                            Point = 88D,
+                            Precision = 78F
+                        },
+                    }
+                };
+                var writer = new ReflectWriter<Recursive>(schema);
+                var reader = new ReflectReader<Recursive>(schema, schema);
+                var msgBytes = Write(recursive, writer);
+                using var stream = new MemoryStream((byte[])(object)msgBytes);
+                var msg = Read(stream, reader);
+                Assert.NotNull(msg);
             }
             catch(Exception ex)
             {
@@ -122,6 +181,22 @@ namespace AvroSchemaGenerator.Tests
 
             Assert.Equal(expectSchema, actual);
         }
+
+        private sbyte[] Write<T>(T message, ReflectWriter<T> writer)
+        {
+            var ms = new MemoryStream();
+            Encoder e = new BinaryEncoder(ms);
+            writer.Write(message, e);
+            ms.Flush();
+            ms.Position = 0;
+            var b = ms.ToArray();
+            return (sbyte[])(object)b;
+        }
+        public T Read<T>(Stream stream, ReflectReader<T> reader)
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+            return reader.Read(default, new BinaryDecoder(stream));
+        }
     }
 
     public class SimpleFoo
@@ -168,6 +243,11 @@ namespace AvroSchemaGenerator.Tests
         public SimpleFoo Fo { get; set; }
         public List<Course> Courses { get; set; }
         public Dictionary<string, Lecturers> Departments { get; set; }
+    }
+    public class Recursive
+    {
+        public SimpleFoo Fo { get; set; }
+        public Recursive Recurse { get; set; }
     }
 
     public class Course
