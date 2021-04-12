@@ -195,8 +195,8 @@ namespace AvroSchemaGenerator.Tests
 
         public class NestedSchema
         {
-            public RecTypeNonRecursive Foo { get; set; }
-            public RecTypeNonRecursive Bar { get; set; }
+            public RecType Foo { get; set; }
+            public RecType Bar { get; set; }
         }
         class RecTypeRequired
         {
@@ -216,13 +216,21 @@ namespace AvroSchemaGenerator.Tests
                 var schema = Schema.Parse(simple);
                 var data = new NestedSchema
                 {
-                    Foo = new RecTypeNonRecursive
+                    Foo = new RecType
                     {
-                        Name = "Foo-Name"
+                        Name = "Foo-Name",
+                        Child = new RecType
+                        {
+                            Name = "Foo Grand Child"
+                        }
                     },
-                    Bar = new RecTypeNonRecursive
+                    Bar = new RecType
                     {
-                        Name = "Bar-Name"
+                        Name = "Bar-Name",
+                        Child = new RecType
+                        {
+                            Name = "Bar Grand Child"
+                        }
                     }
                 };
                 var reader = new ReflectReader<NestedSchema>(schema, schema);
