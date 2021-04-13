@@ -100,8 +100,8 @@ class Build : NukeBuild
             DotNetBuild(s => s
                 .SetProjectFile(Solution)
                 .SetConfiguration(Configuration)
-                .SetAssemblyVersion($"1.9.0-beta.{BuildNumber}")
-                .SetFileVersion($"1.9.0-beta.{BuildNumber}")
+                .SetAssemblyVersion($"1.9.0")
+                .SetFileVersion($"1.9.0")
                 .SetInformationalVersion(GitVersion.InformationalVersion)
                 .EnableNoRestore());
         });
