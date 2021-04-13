@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
-using Avro.Util;
 using AvroSchemaGenerator.Attributes;
 
 namespace AvroSchemaGenerator
@@ -112,7 +111,7 @@ namespace AvroSchemaGenerator
                     }
                     else
                     {
-                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } };
+                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name, LogicalKind(p)) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name, LogicalKind(p)) } } } } };
                         if (aliases != null)
                         {
                             var rows = row.ToList();
@@ -152,7 +151,7 @@ namespace AvroSchemaGenerator
                     }
                     else
                     {
-                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } } };
+                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name, LogicalKind(p)) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name, LogicalKind(p)) } } } } };
                         if (aliases != null)
                         {
                             var rows = row.ToList();
@@ -260,7 +259,7 @@ namespace AvroSchemaGenerator
                     }
                     else
                     {
-                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } };
+                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name, LogicalKind(p)) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name, LogicalKind(p)) } } } } };
                         if (aliases != null)
                         {
                             var rows = row.ToList();
@@ -295,7 +294,7 @@ namespace AvroSchemaGenerator
                     }
                     else
                     {
-                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } } };
+                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name, LogicalKind(p)) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name, LogicalKind(p)) } } } } };
                         if (aliases != null)
                         {
                             var rows = row.ToList();
@@ -391,7 +390,7 @@ namespace AvroSchemaGenerator
                     }
                     else
                     {
-                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } };
+                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name, LogicalKind(p)) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name, LogicalKind(p)) } } } } };
                         if (aliases != null)
                         {
                             var rows = row.ToList();
@@ -426,7 +425,7 @@ namespace AvroSchemaGenerator
                     }
                     else
                     {
-                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } } };
+                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name, LogicalKind(p)) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name, LogicalKind(p)) } } } } };
                         if (aliases != null)
                         {
                             var rows = row.ToList();
@@ -492,7 +491,7 @@ namespace AvroSchemaGenerator
                     row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", schema } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", schema } } } } };
                 }
                 else
-                    row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } };
+                    row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name, LogicalKind(p)) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name, LogicalKind(p)) } } } } };
 
                 if (aliases != null)
                 {
@@ -524,7 +523,7 @@ namespace AvroSchemaGenerator
 
                     }
                     else
-                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } } };
+                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name, LogicalKind(p)) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name, LogicalKind(p)) } } } } };
 
                     if (aliases != null)
                     {
@@ -597,7 +596,7 @@ namespace AvroSchemaGenerator
             {
                 dt = (false, p.PropertyType.Name);
             }
-            var dT = ToAvroDataType(dt.name);
+            var dT = ToAvroDataType(dt.name, LogicalKind(p));
             var customAttributes = p.GetSchemaCustomAttributes();
             var aliases = GetAliases(p);
             var field = Field(dT, p.Name, customAttributes.required, customAttributes.hasDefault, customAttributes.defaultValue, dt.isNullable, aliases);
@@ -676,6 +675,11 @@ namespace AvroSchemaGenerator
             var aliases = (AliasesAttribute)property.GetCustomAttribute(typeof(AliasesAttribute));
             return aliases?.Values;
         }
+        private static LogicalTypeKind? LogicalKind(MemberInfo property)
+        {
+            var kind = (LogicalTypeAttribute)property.GetCustomAttribute(typeof(LogicalTypeAttribute));
+            return kind?.Kind;
+        }
         private static bool IsUserDefined(PropertyInfo p)
         {
             return p.PropertyType.Namespace != null && ((p.PropertyType.IsClass || p.PropertyType.IsValueType) &&
@@ -749,7 +753,7 @@ namespace AvroSchemaGenerator
                     }
                     else
                     {
-                        var rw = require ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } };
+                        var rw = require ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name, LogicalKind(p)) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name, LogicalKind(p)) } } } } };
                         fieldProperties.Add(rw);
                     }
                 }
@@ -814,7 +818,7 @@ namespace AvroSchemaGenerator
                         }
                         else
                         {
-                            r = require ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } };
+                            r = require ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name, LogicalKind(p)) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name, LogicalKind(p)) } } } } };
                             
                         }
 
@@ -898,7 +902,7 @@ namespace AvroSchemaGenerator
                     else
                     {
                         var pAliases = GetAliases(p);
-                        var rw = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } };
+                        var rw = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name, LogicalKind(p)) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name, LogicalKind(p)) } } } } };
                         if (pAliases != null)
                         {
                             var rows = rw.ToList();
@@ -930,7 +934,7 @@ namespace AvroSchemaGenerator
                         }
                         else
                         {
-                            row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } } };
+                            row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name, LogicalKind(p)) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name, LogicalKind(p)) } } } } };
                         }
 
                         if (ali != null)
@@ -968,7 +972,7 @@ namespace AvroSchemaGenerator
             var row = new Dictionary<string, object> { { "name", p.Name }, { "type", dp } };
             return row;
         }
-        private static object ToAvroDataType(string type)
+        private static object ToAvroDataType(string type, LogicalTypeKind? kind)
         {
             switch (type)
             {
@@ -988,8 +992,32 @@ namespace AvroSchemaGenerator
                 case "SByte[]":
                     return "bytes";
                 case "DateTime":
-                case "Date":
-                    return new Dictionary<string, object> { { "type", "int"}, { "logicalType", "date"} };                
+                    {
+                        switch(kind)
+                        {
+                            case LogicalTypeKind.Date:
+                                return new Dictionary<string, object> { { "type", "int" }, { "logicalType", "date" } };
+                            case LogicalTypeKind.TimestampMillisecond:
+                                return new Dictionary<string, object> { { "type", "long" }, { "logicalType", "timestamp-millis" } };
+                            case LogicalTypeKind.TimestampMicrosecond:
+                                return new Dictionary<string, object> { { "type", "long" }, { "logicalType", "timestamp-micros" } };
+                            default:
+                                throw new Exception($"Unknown LogicalTypeKind:{kind}");
+                        }
+                    }
+                case "TimeSpan":
+                    {
+                        switch(kind)
+                        {
+                            case LogicalTypeKind.TimeMillisecond:
+                                return new Dictionary<string, object> { { "type", "int" }, { "logicalType", "time-millis" } };
+                            case LogicalTypeKind.TimeMicrosecond:
+                                return new Dictionary<string, object> { { "type", "long" }, { "logicalType", "time-micros" } };
+                            default:
+                                throw new Exception($"Unknown LogicalTypeKind:{kind}");
+                        }
+                    }
+                                    
                 case "Decimal":
                 case "BigInteger":
                 case "AvroDecimal":
