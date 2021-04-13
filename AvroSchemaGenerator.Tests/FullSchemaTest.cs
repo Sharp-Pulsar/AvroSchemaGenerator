@@ -188,15 +188,27 @@ namespace AvroSchemaGenerator.Tests
             public string Name { get; set; }
             public RecType Child { get; set; }
         }
-        public class RecTypeNonRecursive
+        public class RecTypeNestedRecursion
         {
             public string Name { get; set; }
+            public RecType Child { get; set; }
+            public RecTypeRecursive Recursive { get; set; }
+        }
+        public class RecTypeRecursive
+        {
+            public string Name { get; set; }
+            public RecTypeRecursive Child { get; set; }
         }
 
         public class NestedSchema
         {
             public RecType Foo { get; set; }
             public RecType Bar { get; set; }
+        }
+        public class NestedSchemaWithDifferentSchemaButSamePropertyName
+        {
+            public RecTypeNestedRecursion Foo { get; set; }
+            public RecTypeNestedRecursion Bar { get; set; }
         }
         class RecTypeRequired
         {
@@ -206,6 +218,49 @@ namespace AvroSchemaGenerator.Tests
             public RecTypeRequired Child { get; set; }
         }
 
+        [Fact]
+        public void TestNestedSchemaWithDifferentSchemaButSamePropertyName()
+        {
+
+            var simple = typeof(NestedSchemaWithDifferentSchemaButSamePropertyName).GetSchema();
+            _output.WriteLine(simple);
+            var schema = Schema.Parse(simple);
+            var data = new NestedSchemaWithDifferentSchemaButSamePropertyName
+            {
+                Foo = new RecTypeNestedRecursion
+                {
+                    Name = "Foo-Name",
+                    Child = new RecType
+                    {
+                        Name = "Foo Grand Child"
+                    }, 
+                    Recursive = new RecTypeRecursive
+                    {
+                       Name = "Foo Recursive Grand Child"
+                    }
+                },
+                Bar = new RecTypeNestedRecursion
+                {
+                    Name = "Bar-Name",
+                    Child = new RecType
+                    {
+                        Name = "Bar Grand Child"
+                    },
+                    Recursive = new RecTypeRecursive
+                    {
+                        Name = "Bar Recursive Grand Child"
+                    }
+
+                }
+            };
+            var reader = new ReflectReader<NestedSchemaWithDifferentSchemaButSamePropertyName>(schema, schema);
+            var writer = new ReflectWriter<NestedSchemaWithDifferentSchemaButSamePropertyName>(schema);
+            var msgBytes = Write(data, writer);
+            using var stream = new MemoryStream((byte[])(object)msgBytes);
+            var msg = Read(stream, reader);
+            Assert.NotNull(msg);
+            Assert.True(msg.Foo.Name == "Foo-Name");
+        }
         [Fact]
         public void NestedTypesProduceValidAvroSchema()
         {
@@ -262,7 +317,7 @@ namespace AvroSchemaGenerator.Tests
             _output.WriteLine(actual);
             Assert.Equal(expected, actual);
         }
-        private sbyte[] Write(NestedSchema message, ReflectWriter<NestedSchema> writer)
+        private sbyte[] Write<T>(T message, ReflectWriter<T> writer)
         {
             var ms = new MemoryStream();
             Avro.IO.Encoder e = new BinaryEncoder(ms);
@@ -272,10 +327,10 @@ namespace AvroSchemaGenerator.Tests
             var b = ms.ToArray();
             return (sbyte[])(object)b;
         }
-        public NestedSchema Read(Stream stream, ReflectReader<NestedSchema> reader)
+        public T Read<T>(Stream stream, ReflectReader<T> reader)
         {
             stream.Seek(0, SeekOrigin.Begin);
-            return reader.Read(null, new BinaryDecoder(stream));
+            return reader.Read(default, new BinaryDecoder(stream));
         }
     }
 }
