@@ -23,22 +23,52 @@ namespace AvroSchemaGenerator.Tests
         }
 
         [Fact]
-        public void LogicalTypes()
+        public void LogicalDate()
         {
-            SpecificDatumReader<MessageDate> reader;
-            SpecificDatumWriter<MessageDate> writer;
-            var simple = typeof(MessageDate).GetSchema();
+            SpecificDatumReader<MessageDateKind> reader;
+            SpecificDatumWriter<MessageDateKind> writer;
+            var simple = typeof(MessageDateKind).GetSchema();
             _output.WriteLine(simple);
             var schema = (RecordSchema)Schema.Parse(simple);
-            reader = new SpecificDatumReader<MessageDate>(schema, schema);
-            writer = new SpecificDatumWriter<MessageDate>(schema);
-            var msgBytes = Write(new MessageDate {Schema = schema, CreatedTime = DateTime.Now, DayOfWeek = "Saturday", Size = new AvroDecimal(102.65M) }, writer);
+            reader = new SpecificDatumReader<MessageDateKind>(schema, schema);
+            writer = new SpecificDatumWriter<MessageDateKind>(schema);
+            var msgBytes = Write(new MessageDateKind {Schema = schema, CreatedTime = DateTime.Now, DayOfWeek = "Saturday", Size = new AvroDecimal(102.65M) }, writer);
             using var stream = new MemoryStream((byte[])(object)msgBytes);
             var msg = Read(stream, reader);
             Assert.NotNull(msg);
             Assert.True(msg.Size == 102.65M);
         }
-        private sbyte[] Write(MessageDate message, SpecificDatumWriter<MessageDate> writer)
+        [Fact]
+        public void LogicalTime()
+        {
+            SpecificDatumReader<MessageTimeKind> reader;
+            SpecificDatumWriter<MessageTimeKind> writer;
+            var simple = typeof(MessageTimeKind).GetSchema();
+            _output.WriteLine(simple);
+            var schema = (RecordSchema)Schema.Parse(simple);
+            reader = new SpecificDatumReader<MessageTimeKind>(schema, schema);
+            writer = new SpecificDatumWriter<MessageTimeKind>(schema);
+            var msgBytes = Write(new MessageTimeKind { Schema = schema, TimeMicros = TimeSpan.FromSeconds(60), TimeMillis = TimeSpan.FromSeconds(300) }, writer);
+            using var stream = new MemoryStream((byte[])(object)msgBytes);
+            var msg = Read(stream, reader);
+            Assert.NotNull(msg);
+        }
+        [Fact]
+        public void LogicalTimeStamp()
+        {
+            SpecificDatumReader<MessageTimestampKind> reader;
+            SpecificDatumWriter<MessageTimestampKind> writer;
+            var simple = typeof(MessageTimestampKind).GetSchema();
+            _output.WriteLine(simple);
+            var schema = (RecordSchema)Schema.Parse(simple);
+            reader = new SpecificDatumReader<MessageTimestampKind>(schema, schema);
+            writer = new SpecificDatumWriter<MessageTimestampKind>(schema);
+            var msgBytes = Write(new MessageTimestampKind { Schema = schema, StampMicros = DateTime.Now, StampMillis = DateTime.Now.AddDays(20)}, writer);
+            using var stream = new MemoryStream((byte[])(object)msgBytes);
+            var msg = Read(stream, reader);
+            Assert.NotNull(msg);
+        }
+        private sbyte[] Write<T>(T message, SpecificDatumWriter<T> writer)
         {
             var ms = new MemoryStream();
             Encoder e = new BinaryEncoder(ms);
@@ -48,14 +78,77 @@ namespace AvroSchemaGenerator.Tests
             var b = ms.ToArray();
             return (sbyte[])(object)b;
         }
-        public MessageDate Read(Stream stream, SpecificDatumReader<MessageDate> reader)
+        public T Read<T>(Stream stream, SpecificDatumReader<T> reader)
         {
             stream.Seek(0, SeekOrigin.Begin);
-            return reader.Read(null, new BinaryDecoder(stream));
+            return reader.Read(default, new BinaryDecoder(stream));
         }
     }
-    public class MessageDate: ISpecificRecord
+    public class MessageTimeKind: ISpecificRecord
     {
+        [LogicalType(LogicalTypeKind.TimeMicrosecond)]
+        public TimeSpan TimeMicros { get; set; }
+
+        [LogicalType(LogicalTypeKind.TimeMillisecond)]
+        public TimeSpan TimeMillis { get; set; }
+
+        [Ignore]
+        public Schema Schema { get; set; }
+
+        public object Get(int fieldPos)
+        {
+            switch (fieldPos)
+            {
+                case 0: return TimeMicros;
+                case 1: return TimeMillis;
+                default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Get()");
+            };
+        }
+
+        public void Put(int fieldPos, object fieldValue)
+        {
+            switch (fieldPos)
+            {
+                case 0: TimeMicros = (TimeSpan)fieldValue; break;
+                case 1: TimeMillis = (TimeSpan)fieldValue; break;
+                default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
+            };
+        }
+    }
+    public class MessageTimestampKind: ISpecificRecord
+    {
+        [LogicalType(LogicalTypeKind.TimestampMicrosecond)]
+        public DateTime StampMicros { get; set; }
+
+        [LogicalType(LogicalTypeKind.TimestampMillisecond)]
+        public DateTime StampMillis { get; set; }
+
+        [Ignore]
+        public Schema Schema { get; set; }
+
+        public object Get(int fieldPos)
+        {
+            switch (fieldPos)
+            {
+                case 0: return StampMicros;
+                case 1: return StampMillis;
+                default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Get()");
+            };
+        }
+
+        public void Put(int fieldPos, object fieldValue)
+        {
+            switch (fieldPos)
+            {
+                case 0: StampMicros = (DateTime)fieldValue; break;
+                case 1: StampMillis = (DateTime)fieldValue; break;
+                default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
+            };
+        }
+    }
+    public class MessageDateKind: ISpecificRecord
+    {
+        [LogicalType(LogicalTypeKind.Date)]
         public DateTime CreatedTime { get; set; }
         public AvroDecimal Size { get; set; }
         public string DayOfWeek { get; set; }

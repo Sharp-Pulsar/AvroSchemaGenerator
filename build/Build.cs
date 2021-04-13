@@ -44,7 +44,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 [GitHubActions("Publish",
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = true,
-    OnPushBranches = new[] { "master" },
+    OnPushBranches = new[] { "main" },
     InvokedTargets = new[] { nameof(Push) })]
 class Build : NukeBuild
 {
@@ -100,9 +100,9 @@ class Build : NukeBuild
             DotNetBuild(s => s
                 .SetProjectFile(Solution)
                 .SetConfiguration(Configuration)
-                .SetAssemblyVersion($"1.9.0")
-                .SetFileVersion($"1.9.0")
-                .SetInformationalVersion(GitVersion.InformationalVersion)
+                .SetAssemblyVersion("1.9.0")
+                .SetFileVersion("1.9.0")
+                .SetInformationalVersion("1.9.0")
                 .EnableNoRestore());
         });
 
@@ -146,7 +146,7 @@ class Build : NukeBuild
               .EnableNoBuild()
               .EnableNoRestore()
               .SetVersionPrefix("1.9.0")
-              .SetPackageReleaseNotes("Support Avro DateTime and Decimal Logical Types")
+              .SetPackageReleaseNotes("Support Avro DateTime, Decimal Logical Types and Nested Schema")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
               .AddAuthors("Ebere Abanonu (@mestical)")
@@ -165,7 +165,7 @@ class Build : NukeBuild
               .EnableNoBuild()
               .EnableNoRestore()
               .SetVersionPrefix("1.9.0")
-              .SetPackageReleaseNotes("Support Avro DateTime and Decimal Logical Types")
+              .SetPackageReleaseNotes("Support Avro DateTime, Decimal Logical Types and Nested Schema")
               .SetVersionSuffix($"beta.{BuildNumber}")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
