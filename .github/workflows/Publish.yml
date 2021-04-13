@@ -19,7 +19,7 @@ name: Publish
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   ubuntu-latest:
