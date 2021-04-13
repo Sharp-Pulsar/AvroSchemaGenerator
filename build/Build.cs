@@ -102,7 +102,7 @@ class Build : NukeBuild
                 .SetConfiguration(Configuration)
                 .SetAssemblyVersion("1.9.0")
                 .SetFileVersion("1.9.0")
-                .SetInformationalVersion("1.9.0")
+                //.SetInformationalVersion("1.9.0")
                 .EnableNoRestore());
         });
 
