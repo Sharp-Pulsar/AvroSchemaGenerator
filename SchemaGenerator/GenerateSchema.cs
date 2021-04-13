@@ -229,7 +229,138 @@ namespace AvroSchemaGenerator
                         else
                         {
                             existingTypes.Add(t);
-                            return PropertyInfo(p, existingTypes);//throw new Exception($"The limit for user defined property type has been reached: [{dt}] public {p.PropertyType.Name} {p.Name} {{get; set;}}"); 
+                            return PropertyInfo(p);//throw new Exception($"The limit for user defined property type has been reached: [{dt}] public {p.PropertyType.Name} {p.Name} {{get; set;}}"); 
+
+                        }
+
+                    }
+                }
+
+                if (IsFieldListType(p))
+                {
+                    var required = p.GetSchemaCustomAttributes().required;
+                    var v = p.PropertyType.GetGenericArguments()[0];
+                    var dt = p.DeclaringType?.Name;
+                    var recursive = v.Name.Equals(dt);
+                    var aliases = GetAliases(p);
+                    Dictionary<string, object> row;
+                    if (recursive)
+                        return Reuse(p);
+                    else if (IsUserDefined(v))
+                    {
+                        var schema = GetGenericUserDefinedProperties(v, required);
+                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", schema } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", schema } } } } };
+                        if (aliases != null)
+                        {
+                            var rows = row.ToList();
+                            rows.Insert(1, new KeyValuePair<string, object>("aliases", aliases));
+                            row = rows.ToDictionary(x => x.Key, x => x.Value);
+                        }
+                        return row;
+                    }
+                    else
+                    {
+                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "array" }, { "items", ToAvroDataType(p.PropertyType.GetGenericArguments()[0].Name) } } } } };
+                        if (aliases != null)
+                        {
+                            var rows = row.ToList();
+                            rows.Insert(1, new KeyValuePair<string, object>("aliases", aliases));
+                            row = rows.ToDictionary(x => x.Key, x => x.Value);
+                        }
+                        return row;
+                    }
+                }
+
+                if (IsFieldDictionaryType(p))
+                {
+                    var required = p.GetSchemaCustomAttributes().required;
+                    var v = p.PropertyType.GetGenericArguments()[1];
+                    var dt = p.DeclaringType?.Name;
+                    var recursive = v.Name.Equals(dt);
+                    var aliases = GetAliases(p);
+                    Dictionary<string, object> row;
+                    if (recursive)
+                        return Reuse(p, v.Name);
+                    else if (IsUserDefined(v))
+                    {
+                        var schema = GetGenericUserDefinedProperties(v, required);
+                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", schema } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "map" }, { "values", schema } } } } };
+                        if (aliases != null)
+                        {
+                            var rows = row.ToList();
+                            rows.Insert(1, new KeyValuePair<string, object>("aliases", aliases));
+                            row = rows.ToDictionary(x => x.Key, x => x.Value);
+                        }
+                        return row;
+                    }
+                    else
+                    {
+                        row = required ? new Dictionary<string, object> { { "name", p.Name }, { "type", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } } : new Dictionary<string, object> { { "name", p.Name }, { "type", new List<object> { "null", new Dictionary<string, object> { { "type", "map" }, { "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name) } } } } };
+                        if (aliases != null)
+                        {
+                            var rows = row.ToList();
+                            rows.Insert(1, new KeyValuePair<string, object>("aliases", aliases));
+                            row = rows.ToDictionary(x => x.Key, x => x.Value);
+                        }
+                        return row;
+                    }
+                }
+
+                if (p.PropertyType.IsEnum)
+                {
+                    var aliases = GetAliases(p);
+                    var row = GetEnumField(p);
+                    if (aliases != null)
+                    {
+                        var rows = row.ToList();
+                        rows.Insert(1, new KeyValuePair<string, object>("aliases", aliases));
+                        row = rows.ToDictionary(x => x.Key, x => x.Value);
+                    }
+                    return row;
+                }
+
+                return GetField(p);
+
+            }
+        }
+        
+        private static Dictionary<string, object> PropertyInfo(PropertyInfo property)
+        {
+            var p = property;
+            if(p.PropertyType.FullName.StartsWith("Avro."))
+            {
+               return GetField(p);
+            }
+            else
+            {
+                if (IsUserDefined(p))
+                {
+                    if (p.PropertyType.IsEnum)
+                    {
+                        var aliases = GetAliases(p);
+                        var row = GetEnumField(p);
+                        if (aliases != null)
+                        {
+                            var rows = row.ToList();
+                            rows.Insert(1, new KeyValuePair<string, object>("aliases", aliases));
+                            row = rows.ToDictionary(x => x.Key, x => x.Value);
+                        }
+                        return row;
+                    }
+                    else
+                    {
+
+                        var t = p.PropertyType.Name;
+                        var dt = p.DeclaringType?.Name;
+                        var recursive = t.Equals(dt);
+                        if (recursive)
+                        {
+                            return Reuse(p);
+                        }
+                        else
+                        {
+                            //existingTypes.Add(t);
+                            throw new Exception($"[Recursive loop] limit for user defined property type has been reached: [{dt}] public {p.PropertyType.Name} {p.Name} {{get; set;}}"); 
 
                         }
 

@@ -191,7 +191,7 @@ namespace AvroSchemaGenerator.Tests
         public class RecTypeNestedRecursion
         {
             public string Name { get; set; }
-            public RecType Child { get; set; }
+            public RecTypeNestedRecursion Child { get; set; }
             public RecTypeRecursive Recursive { get; set; }
         }
         public class RecTypeRecursive
@@ -216,50 +216,6 @@ namespace AvroSchemaGenerator.Tests
             public string Name { get; set; }
             [Required]
             public RecTypeRequired Child { get; set; }
-        }
-
-        [Fact]
-        public void TestNestedSchemaWithDifferentSchemaButSamePropertyName()
-        {
-
-            var simple = typeof(NestedSchemaWithDifferentSchemaButSamePropertyName).GetSchema();
-            _output.WriteLine(simple);
-            var schema = Schema.Parse(simple);
-            var data = new NestedSchemaWithDifferentSchemaButSamePropertyName
-            {
-                Foo = new RecTypeNestedRecursion
-                {
-                    Name = "Foo-Name",
-                    Child = new RecType
-                    {
-                        Name = "Foo Grand Child"
-                    }, 
-                    Recursive = new RecTypeRecursive
-                    {
-                       Name = "Foo Recursive Grand Child"
-                    }
-                },
-                Bar = new RecTypeNestedRecursion
-                {
-                    Name = "Bar-Name",
-                    Child = new RecType
-                    {
-                        Name = "Bar Grand Child"
-                    },
-                    Recursive = new RecTypeRecursive
-                    {
-                        Name = "Bar Recursive Grand Child"
-                    }
-
-                }
-            };
-            var reader = new ReflectReader<NestedSchemaWithDifferentSchemaButSamePropertyName>(schema, schema);
-            var writer = new ReflectWriter<NestedSchemaWithDifferentSchemaButSamePropertyName>(schema);
-            var msgBytes = Write(data, writer);
-            using var stream = new MemoryStream((byte[])(object)msgBytes);
-            var msg = Read(stream, reader);
-            Assert.NotNull(msg);
-            Assert.True(msg.Foo.Name == "Foo-Name");
         }
         [Fact]
         public void NestedTypesProduceValidAvroSchema()

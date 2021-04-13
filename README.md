@@ -72,3 +72,7 @@ public class Course
     public string NewLevel { get; set; }
 }
 ```
+## NOTE
+- Don't use same declaring type as dictionary value
+- Don't use same declaring type as list argument
+- Dictionary key must be a string type
