@@ -194,12 +194,12 @@ class Build : NukeBuild
                       .SetApiKey(NugetApiKey)
                   );
 
-                  DotNetNuGetPush(s => s
+                  /*DotNetNuGetPush(s => s
                       .SetApiKey(GitHubApiKey)
                       .SetSymbolApiKey(GitHubApiKey)
                       .SetTargetPath(x)
                       .SetSource(GithubSource)
-                      .SetSymbolSource(GithubSource));
+                      .SetSymbolSource(GithubSource));*/
               });
       });
     Target PushBeta => _ => _
@@ -222,12 +222,12 @@ class Build : NukeBuild
                       .SetApiKey(NugetApiKey)
                   );
 
-                  DotNetNuGetPush(s => s
+                  /*DotNetNuGetPush(s => s
                       .SetApiKey(GitHubApiKey)
                       .SetSymbolApiKey(GitHubApiKey)
                       .SetTargetPath(x)
                       .SetSource(GithubSource)
-                      .SetSymbolSource(GithubSource));
+                      .SetSymbolSource(GithubSource));*/
               });
       });
 
