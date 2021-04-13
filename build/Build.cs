@@ -165,7 +165,7 @@ class Build : NukeBuild
               .EnableNoBuild()
               .EnableNoRestore()
               .SetVersionPrefix("1.9.0")
-              .SetPackageReleaseNotes("Support Avro DateTime, Decimal Logical Types and Nested Schema")
+              .SetPackageReleaseNotes("Support Avro DateTime Decimal Logical Types and Nested Schema")
               .SetVersionSuffix($"beta.{BuildNumber}")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
