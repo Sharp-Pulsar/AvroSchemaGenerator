@@ -19,12 +19,16 @@ name: Build
 on:
   push:
     branches:
-      - master
+      - main
       - dev
+    paths-ignore:
+      - 'README.md'
   pull_request:
     branches:
-      - master
+      - main
       - dev
+    paths-ignore:
+      - 'README.md'
 
 jobs:
   windows-latest:
