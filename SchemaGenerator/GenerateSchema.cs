@@ -1002,7 +1002,7 @@ namespace AvroSchemaGenerator
                             case LogicalTypeKind.TimestampMicrosecond:
                                 return new Dictionary<string, object> { { "type", "long" }, { "logicalType", "timestamp-micros" } };
                             default:
-                                throw new Exception($"Unknown LogicalTypeKind:{kind}");
+                                throw new Exception($"[DateTime] Unknown LogicalTypeKind:{kind}. Try TimeSpan instead!");
                         }
                     }
                 case "TimeSpan":
@@ -1014,7 +1014,7 @@ namespace AvroSchemaGenerator
                             case LogicalTypeKind.TimeMicrosecond:
                                 return new Dictionary<string, object> { { "type", "long" }, { "logicalType", "time-micros" } };
                             default:
-                                throw new Exception($"Unknown LogicalTypeKind:{kind}");
+                                throw new Exception($"[TimeSpan] Unknown LogicalTypeKind:{kind}. Try DateTime instead!");
                         }
                     }
                                     
