@@ -72,3 +72,38 @@ public class Course
     public string NewLevel { get; set; }
 }
 ```
+## Logical Types
+```csharp
+public class MessageTimeKind
+{
+    [LogicalType(LogicalTypeKind.TimeMicrosecond)]
+    public TimeSpan TimeMicros { get; set; }
+
+    [LogicalType(LogicalTypeKind.TimeMillisecond)]
+    public TimeSpan TimeMillis { get; set; }
+}
+	
+public class MessageTimestampKind
+{
+    [LogicalType(LogicalTypeKind.TimestampMicrosecond)]
+    public DateTime StampMicros { get; set; }
+
+    [LogicalType(LogicalTypeKind.TimestampMillisecond)]
+    public DateTime StampMillis { get; set; }
+}
+	
+public class MessageDateKind
+{
+    [LogicalType(LogicalTypeKind.Date)]
+    public DateTime CreatedTime { get; set; }
+        
+    public AvroDecimal Size { get; set; }
+        
+	public string DayOfWeek { get; set; }
+}
+```
+
+## NOTE
+- Don't use same declaring type as dictionary value
+- Don't use same declaring type as list argument
+- Dictionary key must be a string type
