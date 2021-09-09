@@ -1089,11 +1089,8 @@ namespace AvroSchemaGenerator
             var required = property.GetSchemaCustomAttributes().required;
             schema["fields"] = fieldProperties;
             var row = required
-                ? new Dictionary<string, object> {{"name", property.Name}, {"type", schema}}
-                : new Dictionary<string, object>
-                {
-                    {"name", property.Name}, {"type", new List<object> {"null", schema}}
-                };
+                ? new Dictionary<string, object> { { "name", property.Name }, { "type", schema } }
+                : SetDefaultValue(property, schema);
             if (aliases != null)
             {
                 var rows = row.ToList();
@@ -1105,7 +1102,22 @@ namespace AvroSchemaGenerator
             field.Add(row);
             finalSchema["fields"] = field;
         }
-
+        //Moved this here so that we can call 'GetSchemaCustomAttributes' only when it is needed
+        private static Dictionary<string, object> SetDefaultValue(PropertyInfo p, Dictionary<string, object> schema)
+        {
+            var customAttributes = p.GetSchemaCustomAttributes();
+            return customAttributes.hasDefault
+                ?
+                new Dictionary<string, object>
+                {
+                    {"name", p.Name}, {"type", new List<object> {"null", schema}}, { "default", customAttributes.defaultValue }
+                }
+                :
+                new Dictionary<string, object>
+                {
+                    {"name", p.Name}, {"type", new List<object> {"null", schema}}
+                };
+        }
         private static Dictionary<string, object> UserDefinedProperties(PropertyInfo property, List<string> existingTypes)
         {
             var schema = new Dictionary<string, object>
