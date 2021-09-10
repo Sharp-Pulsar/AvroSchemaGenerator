@@ -145,8 +145,11 @@ class Build : NukeBuild
               .SetConfiguration(Configuration)
               .EnableNoBuild()
               .EnableNoRestore()
-              .SetVersion("1.9.0")
-              .SetPackageReleaseNotes("Support Avro DateTime Decimal Logical Types and Nested Schema")
+              .SetVersionPrefix("2.0.0")
+              .SetPackageReleaseNotes($"[@AndriiPpoliukhovychIntelcomexpress]{Environment.NewLine}Adds support for recursive dependencies{Environment.NewLine}" +
+              @$"""default"" will be ""null"" only if ""null"" was set specificly{Environment.NewLine}""type"" for the property was moved in the end{Environment.NewLine}GetSchemaObject was added to make comparing by the object possible without deserializing" +
+              $@"Parttial support for Nullable values was added"+
+              $@"""copy"" for PropertyInfo method was removed")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
               .AddAuthors("Ebere Abanonu (@mestical)")
@@ -164,8 +167,11 @@ class Build : NukeBuild
               .SetConfiguration(Configuration)
               .EnableNoBuild()
               .EnableNoRestore()
-              .SetVersionPrefix("1.9.0")
-              .SetPackageReleaseNotes("Support Avro DateTime Decimal Logical Types and Nested Schema")
+              .SetVersionPrefix("2.0.0")
+              .SetPackageReleaseNotes($"[@AndriiPpoliukhovychIntelcomexpress]{Environment.NewLine}Adds support for recursive dependencies{Environment.NewLine}" +
+              @$"""default"" will be ""null"" only if ""null"" was set specificly{Environment.NewLine}""type"" for the property was moved in the end{Environment.NewLine}GetSchemaObject was added to make comparing by the object possible without deserializing" +
+              $@"{Environment.NewLine}Parttial support for Nullable values was added{Environment.NewLine}" +
+              $@"""copy"" for PropertyInfo method was removed")
               .SetVersionSuffix($"beta.{BuildNumber}")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")

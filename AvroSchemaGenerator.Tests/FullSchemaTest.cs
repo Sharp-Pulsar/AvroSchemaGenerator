@@ -37,7 +37,7 @@ namespace AvroSchemaGenerator.Tests
         {
             var actualSchema = typeof(IntTest).GetSchema();
             _output.WriteLine(actualSchema);
-            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}";
+            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
@@ -51,7 +51,7 @@ namespace AvroSchemaGenerator.Tests
         {
             var actualSchema = typeof(IntNullableTest).GetSchema();
             _output.WriteLine(actualSchema);
-            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntNullableTest\",\"fields\":[{\"name\":\"Age\",\"type\":[\"null\",\"int\"],\"default\":null}]}";
+            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntNullableTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":[\"null\",\"int\"]}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
@@ -66,7 +66,7 @@ namespace AvroSchemaGenerator.Tests
         {
             var actualSchema = typeof(IntDefaultTest).GetSchema();
             _output.WriteLine(actualSchema);
-            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntDefaultTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\",\"default\":100}]}";
+            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntDefaultTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\",\"default\":100}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
@@ -80,7 +80,7 @@ namespace AvroSchemaGenerator.Tests
         {
             var actualSchema = typeof(StringTest).GetSchema();
             _output.WriteLine(actualSchema);
-            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StringTest\",\"fields\":[{\"name\":\"Age\",\"type\":[\"null\",\"string\"],\"default\":null}]}";
+            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StringTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":[\"null\",\"string\"]}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
@@ -97,7 +97,7 @@ namespace AvroSchemaGenerator.Tests
         {
             var actualSchema = typeof(StringRequiredTest).GetSchema();
             _output.WriteLine(actualSchema);
-            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StringRequiredTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"string\"}]}";
+            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StringRequiredTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":\"string\"}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
@@ -116,7 +116,7 @@ namespace AvroSchemaGenerator.Tests
         {
             var actualSchema = typeof(StringRequiredDefaultTest).GetSchema();
             _output.WriteLine(actualSchema);
-            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StringRequiredDefaultTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"string\",\"default\":\"100\"}]}";
+            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StringRequiredDefaultTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":\"string\",\"default\":\"100\"}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
@@ -130,12 +130,14 @@ namespace AvroSchemaGenerator.Tests
         {
             var actualSchema = typeof(StructTest).GetSchema();
             _output.WriteLine(actualSchema);
-            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StructTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}";
+            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StructTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
+
         class ClassFieldTest
         {
+            [DefaultValue(null)]
             public IntTest Age { get; set; }
             [Ignore]
             public IntTest AgeIgnore { get; set; }
@@ -146,8 +148,8 @@ namespace AvroSchemaGenerator.Tests
         {
             var actualSchema = typeof(ClassFieldTest).GetSchema();
             _output.WriteLine(actualSchema);
-            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassFieldTest\",\"fields\":[{\"name\":\"Age\",\"type\":[\"null\",{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}],\"default\":null}]}";
-                                //"{"type":"record","namespace":"AvroSchemaGenerator.Tests","name":"ClassFieldTest","fields":[{"name":"Age","type":["null",{"type":"record","namespace":"AvroSchemaGenerator.Tests","name":"Age","fields":[{"name":"Age","type":"int"}]}],"default":null}]}";
+            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassFieldTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":[\"null\",{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}],\"default\":null}]}";
+            //"{"type":"record","namespace":"AvroSchemaGenerator.Tests","name":"ClassFieldTest","fields":[{"name":"Age","type":["null",{"type":"record","namespace":"AvroSchemaGenerator.Tests","name":"Age","fields":[{"name":"Age","type":"int"}]}],"default":null}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
@@ -164,7 +166,7 @@ namespace AvroSchemaGenerator.Tests
         {
             var actualSchema = typeof(ClassFieldRequiredTest).GetSchema();
            _output.WriteLine(actualSchema);
-            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassFieldRequiredTest\",\"fields\":[{\"name\":\"Age\",\"type\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}}]}";
+            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassFieldRequiredTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
@@ -179,7 +181,7 @@ namespace AvroSchemaGenerator.Tests
         {
             var actualSchema = typeof(StructFieldTest).GetSchema();
             _output.WriteLine(actualSchema);
-            var expectedSchema = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StructFieldTest\",\"fields\":[{\"name\":\"Age\",\"type\":{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StructTest\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}}]}";
+            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StructFieldTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StructTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":\"int\"}]}}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
@@ -260,7 +262,7 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestRecType()
         {
-            var expected = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"RecType\",\"fields\":[{\"name\":\"Name\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Child\",\"type\":[\"null\",\"RecType\"],\"default\":null}]}";
+            var expected = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"RecType\",\"type\":\"record\",\"fields\":[{\"name\":\"Name\",\"type\":[\"null\",\"string\"]},{\"name\":\"Child\",\"type\":[\"null\",\"RecType\"]}]}";
             var actual = typeof(RecType).GetSchema();
             _output.WriteLine(actual);
             Assert.Equal(expected, actual);
@@ -268,7 +270,7 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestRecTypeRequired()
         {
-            var expected = "{\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"RecTypeRequired\",\"fields\":[{\"name\":\"Name\",\"type\":\"string\"},{\"name\":\"Child\",\"type\":\"RecTypeRequired\"}]}";
+            var expected = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"RecTypeRequired\",\"type\":\"record\",\"fields\":[{\"name\":\"Name\",\"type\":\"string\"},{\"name\":\"Child\",\"type\":\"RecTypeRequired\"}]}";
             var actual = typeof(RecTypeRequired).GetSchema();
             _output.WriteLine(actual);
             Assert.Equal(expected, actual);
