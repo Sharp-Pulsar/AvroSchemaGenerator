@@ -211,23 +211,11 @@ namespace AvroSchemaGenerator
                     else if (IsUserDefined(v))
                     {
                         var schema = GetGenericUserDefinedProperties(v, required, existingTypes);
-                        row = required
-                            ? new Dictionary<string, object>
+                        row = new Dictionary<string, object>
                             {
                                 {"name", p.Name},
-                                {"type", new Dictionary<string, object> {{"type", "map"}, {"values", schema}}}
-                            }
-                            : new Dictionary<string, object>
-                            {
-                                {"name", p.Name},
-                                {
-                                    "type",
-                                    new List<object>
-                                    {
-                                        "null",
-                                        new Dictionary<string, object> {{"type", "map"}, {"values", schema}}
-                                    }
-                                }
+                                {"type", new Dictionary<string, object> {{"type", "map"}, {"values", schema}}},
+                                { "default", new Dictionary<string, object>() }
                             };
 
                         if (aliases != null)
@@ -243,8 +231,7 @@ namespace AvroSchemaGenerator
                     }
                     else
                     {
-                        row = required
-                            ? new Dictionary<string, object>
+                        row = new Dictionary<string, object>
                             {
                                 {"name", p.Name},
                                 {
@@ -256,25 +243,8 @@ namespace AvroSchemaGenerator
                                                 LogicalKind(p))
                                         }
                                     }
-                                }
-                            }
-                            : new Dictionary<string, object>
-                            {
-                                {"name", p.Name},
-                                {
-                                    "type", new List<object>
-                                    {
-                                        "null",
-                                        new Dictionary<string, object>
-                                        {
-                                            {"type", "map"},
-                                            {
-                                                "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name,
-                                                    LogicalKind(p))
-                                            }
-                                        }
-                                    }
-                                }
+                                },
+                                { "default", new Dictionary<string, object>() }
                             };
                         if (aliases != null)
                         {
@@ -472,23 +442,11 @@ namespace AvroSchemaGenerator
                     else if (IsUserDefined(v))
                     {
                         var schema = GetGenericUserDefinedProperties(v, required, existingTypes);
-                        row = required
-                            ? new Dictionary<string, object>
+                        row = new Dictionary<string, object>
                             {
                                 {"name", p.Name},
-                                {"type", new Dictionary<string, object> {{"type", "map"}, {"values", schema}}}
-                            }
-                            : new Dictionary<string, object>
-                            {
-                                {"name", p.Name},
-                                {
-                                    "type",
-                                    new List<object>
-                                    {
-                                        "null",
-                                        new Dictionary<string, object> {{"type", "map"}, {"values", schema}}
-                                    }
-                                }
+                                {"type", new Dictionary<string, object> {{"type", "map"}, {"values", schema}}},
+                                { "default", new Dictionary<string, object>()}
                             };
                         if (aliases != null)
                         {
@@ -501,8 +459,7 @@ namespace AvroSchemaGenerator
                     }
                     else
                     {
-                        row = required
-                            ? new Dictionary<string, object>
+                        row = new Dictionary<string, object>
                             {
                                 {"name", p.Name},
                                 {
@@ -514,25 +471,8 @@ namespace AvroSchemaGenerator
                                                 LogicalKind(p))
                                         }
                                     }
-                                }
-                            }
-                            : new Dictionary<string, object>
-                            {
-                                {"name", p.Name},
-                                {
-                                    "type", new List<object>
-                                    {
-                                        "null",
-                                        new Dictionary<string, object>
-                                        {
-                                            {"type", "map"},
-                                            {
-                                                "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name,
-                                                    LogicalKind(p))
-                                            }
-                                        }
-                                    }
-                                }
+                                },
+                                { "default", new Dictionary<string, object>() }
                             };
                         if (aliases != null)
                         {
@@ -690,29 +630,15 @@ namespace AvroSchemaGenerator
                         };
 
                         schema["fields"] = GetGenericUserDefinedProperties(v, required, existingTypes);
-                        row = required
-                            ? new Dictionary<string, object>
+                        row = new Dictionary<string, object>
                             {
                                 {"name", p.Name},
-                                {"type", new Dictionary<string, object> {{"type", "map"}, {"values", schema}}}
-                            }
-                            : new Dictionary<string, object>
-                            {
-                                {"name", p.Name},
-                                {
-                                    "type",
-                                    new List<object>
-                                    {
-                                        "null",
-                                        new Dictionary<string, object> {{"type", "map"}, {"values", schema}}
-                                    }
-                                }
+                                {"type", new Dictionary<string, object> {{"type", "map"}, {"values", schema}} },
+                                { "default", new Dictionary<string, object>() }
                             };
-
                     }
                     else
-                        row = required
-                            ? new Dictionary<string, object>
+                        row = new Dictionary<string, object>
                             {
                                 {"name", p.Name},
                                 {
@@ -724,25 +650,8 @@ namespace AvroSchemaGenerator
                                                 LogicalKind(p))
                                         }
                                     }
-                                }
-                            }
-                            : new Dictionary<string, object>
-                            {
-                                {"name", p.Name},
-                                {
-                                    "type", new List<object>
-                                    {
-                                        "null",
-                                        new Dictionary<string, object>
-                                        {
-                                            {"type", "map"},
-                                            {
-                                                "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name,
-                                                    LogicalKind(p))
-                                            }
-                                        }
-                                    }
-                                }
+                                },
+                                { "default", new Dictionary<string, object>() }
                             };
 
                     if (aliases != null)
@@ -1387,32 +1296,16 @@ namespace AvroSchemaGenerator
                         if (IsUserDefined(v))
                         {
                             var schemaD = GetGenericUserDefinedProperties(v, require, existingTypes);
-                            row = required
-                                ? new Dictionary<string, object>
+                            row = new Dictionary<string, object>
                                 {
                                     {"name", p.Name},
-                                    {"type", new Dictionary<string, object> {{"type", "map"}, {"values", schemaD}}}
-                                }
-                                : new Dictionary<string, object>
-                                {
-                                    {"name", p.Name},
-                                    {
-                                        "type",
-                                        new List<object>
-                                        {
-                                            "null",
-                                            new Dictionary<string, object>
-                                            {
-                                                {"type", "map"}, {"values", schemaD}
-                                            }
-                                        }
-                                    }
+                                    {"type", new Dictionary<string, object> {{"type", "map"}, {"values", schemaD}}},
+                                    { "default", new Dictionary<string, object>() }
                                 };
                         }
                         else
                         {
-                            row = required
-                                ? new Dictionary<string, object>
+                            row = new Dictionary<string, object>
                                 {
                                     {"name", p.Name},
                                     {
@@ -1424,26 +1317,8 @@ namespace AvroSchemaGenerator
                                                     LogicalKind(p))
                                             }
                                         }
-                                    }
-                                }
-                                : new Dictionary<string, object>
-                                {
-                                    {"name", p.Name},
-                                    {
-                                        "type", new List<object>
-                                        {
-                                            "null",
-                                            new Dictionary<string, object>
-                                            {
-                                                {"type", "map"},
-                                                {
-                                                    "values", ToAvroDataType(
-                                                        p.PropertyType.GetGenericArguments()[1].Name,
-                                                        LogicalKind(p))
-                                                }
-                                            }
-                                        }
-                                    }
+                                    },
+                                    { "default", new Dictionary<string, object>() }
                                 };
                         }
 
