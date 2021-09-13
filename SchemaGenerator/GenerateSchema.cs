@@ -19,14 +19,23 @@ namespace AvroSchemaGenerator
         {
             var schema = new Dictionary<string, object>
             {
-                {"namespace", type.Namespace}, {"name", type.Name}, {"type", "record"}
+                {"namespace", type.Namespace}, {"name", type.Name}
             };
             var aliases = GetAliases(type);
             if (aliases != null)
             {
                 schema["aliases"] = aliases;
             }
-
+            
+            if (type.IsEnum)
+            {
+                schema["type"] = "enum";
+                schema["symbols"] = GetEnumValues(type);
+                return schema;
+            }
+            
+            // record type
+            schema["type"] = "record";
             schema["fields"] = new List<Dictionary<string, object>>();
             var existingTypes = new List<string>();
             var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);

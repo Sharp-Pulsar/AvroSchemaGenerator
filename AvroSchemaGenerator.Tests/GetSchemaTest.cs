@@ -176,6 +176,17 @@ namespace AvroSchemaGenerator.Tests
 
             Assert.Equal(expectSchema, actual);
         }
+        [Fact]
+        public void TestEnumType()
+        {
+            var expectSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Month\",\"type\":\"enum\",\"symbols\":[\"January\",\"February\",\"March\",\"April\",\"June\",\"July\"]}";
+            var actual = typeof(Month).GetSchema();
+            _output.WriteLine(actual);
+            var schema = Schema.Parse(actual);
+            var writer = new ReflectWriter<Month>(schema);
+
+            Assert.Equal(expectSchema, actual);
+        }
 
         private sbyte[] Write<T>(T message, ReflectWriter<T> writer)
         {
