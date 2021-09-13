@@ -17,16 +17,61 @@ namespace AvroSchemaGenerator
         // ReSharper disable once UnusedMember.Global
         public static Dictionary<string, object> GetSchemaObject(this Type type)
         {
+            if (IsDictionary(type))
+            {
+                var sch = new Dictionary<string, object>
+                {
+                    {"namespace", type.Namespace}, {"type", "map"}
+                };
+                var arg = type.GetGenericArguments()[1];
+                if (IsUserDefined(arg))
+                {
+                    sch["values"] = GetGenericUserDefinedProperties(arg, true, new List<string>());
+                }
+                else
+                {
+                    sch["values"] = ToAvroDataType(arg.Name, null);
+                }
+                sch["default"] = new Dictionary<string, string>();
+                return sch;
+            }
+            if (IsList(type))
+            {
+                var sch = new Dictionary<string, object>
+                {
+                    {"namespace", type.Namespace}, {"type", "array"}
+                };
+                var arg = type.GetGenericArguments()[0];
+                if (IsUserDefined(arg))
+                {
+                    sch["items"] = GetGenericUserDefinedProperties(arg, true, new List<string>());
+                }
+                else
+                {
+                    sch["items"] = ToAvroDataType(arg.Name, null);
+                }
+                sch["default"] = new List<string>();
+                return sch;
+            }
             var schema = new Dictionary<string, object>
             {
-                {"namespace", type.Namespace}, {"name", type.Name}, {"type", "record"}
+                {"namespace", type.Namespace}, {"name", type.Name}
             };
             var aliases = GetAliases(type);
             if (aliases != null)
             {
                 schema["aliases"] = aliases;
             }
-
+            
+            if (type.IsEnum)
+            {
+                schema["type"] = "enum";
+                schema["symbols"] = GetEnumValues(type);
+                return schema;
+            }
+            
+            // record type
+            schema["type"] = "record";
             schema["fields"] = new List<Dictionary<string, object>>();
             var existingTypes = new List<string>();
             var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
@@ -215,7 +260,7 @@ namespace AvroSchemaGenerator
                             {
                                 {"name", p.Name},
                                 {"type", new Dictionary<string, object> {{"type", "map"}, {"values", schema}}},
-                                { "default", new Dictionary<string, object>() }
+                                {"default", new Dictionary<string, object>() }
                             };
 
                         if (aliases != null)
@@ -239,7 +284,7 @@ namespace AvroSchemaGenerator
                                     {
                                         {"type", "map"},
                                         {
-                                            "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name,
+                                            "values", ToAvroDataType(v.Name,
                                                 LogicalKind(p))
                                         }
                                     }
@@ -1348,11 +1393,22 @@ namespace AvroSchemaGenerator
             return p.PropertyType.IsGenericType &&
                    p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
         }
+        private static bool IsList(Type t)
+        {
+            return t.IsGenericType &&
+                   t.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+        }
 
         private static bool IsFieldDictionaryType(PropertyInfo p)
         {
             return p.PropertyType.IsGenericType &&
                    p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
+        }
+
+        private static bool IsDictionary(Type t)
+        {
+            return t.IsGenericType &&
+                   t.GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
         }
 
         private static Dictionary<string, object> GetEnumField(PropertyInfo p)
@@ -1398,35 +1454,49 @@ namespace AvroSchemaGenerator
                     return "bytes";
                 case "DateTime":
                 {
-                    switch (kind)
-                    {
-                        case LogicalTypeKind.Date:
-                            return new Dictionary<string, object> {{"type", "int"}, {"logicalType", "date"}};
-                        case LogicalTypeKind.TimestampMillisecond:
+                        if(kind == null)
+                        {
                             return new Dictionary<string, object>
                             {
                                 {"type", "long"}, {"logicalType", "timestamp-millis"}
                             };
-                        case LogicalTypeKind.TimestampMicrosecond:
-                            return new Dictionary<string, object>
+                        }
+                        switch (kind)
+                        {
+                            case LogicalTypeKind.Date:
+                                return new Dictionary<string, object> { { "type", "int" }, { "logicalType", "date" } };
+                            case LogicalTypeKind.TimestampMillisecond:
+                                return new Dictionary<string, object>
+                            {
+                                {"type", "long"}, {"logicalType", "timestamp-millis"}
+                            };
+                            case LogicalTypeKind.TimestampMicrosecond:
+                                return new Dictionary<string, object>
                             {
                                 {"type", "long"}, {"logicalType", "timestamp-micros"}
                             };
-                        default:
-                            throw new Exception($"[DateTime] Unknown LogicalTypeKind:{kind}. Try TimeSpan instead!");
-                    }
+                            default:
+                                throw new Exception($"[DateTime] Unknown LogicalTypeKind:{kind}. Try TimeSpan instead!");
+                        }
                 }
                 case "TimeSpan":
                 {
-                    switch (kind)
-                    {
-                        case LogicalTypeKind.TimeMillisecond:
-                            return new Dictionary<string, object> {{"type", "int"}, {"logicalType", "time-millis"}};
-                        case LogicalTypeKind.TimeMicrosecond:
-                            return new Dictionary<string, object> {{"type", "long"}, {"logicalType", "time-micros"}};
-                        default:
-                            throw new Exception($"[TimeSpan] Unknown LogicalTypeKind:{kind}. Try DateTime instead!");
-                    }
+                        if (kind == null)
+                        {
+                            return new Dictionary<string, object>
+                            {
+                                {"type", "long"}, {"logicalType", "timestamp-millis"}
+                            };
+                        }
+                        switch (kind)
+                        {
+                            case LogicalTypeKind.TimeMillisecond:
+                                return new Dictionary<string, object> { { "type", "int" }, { "logicalType", "time-millis" } };
+                            case LogicalTypeKind.TimeMicrosecond:
+                                return new Dictionary<string, object> { { "type", "long" }, { "logicalType", "time-micros" } };
+                            default:
+                                throw new Exception($"[TimeSpan] Unknown LogicalTypeKind:{kind}. Try DateTime instead!");
+                        }
                 }
 
                 case "Decimal":
