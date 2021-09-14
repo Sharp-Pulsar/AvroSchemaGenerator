@@ -38,7 +38,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 [GitHubActions("PublishBeta",
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = true,
-    OnPushBranches = new[] { "dev" },
+    OnPushBranches = new[] { "beta_branch" },
     InvokedTargets = new[] { nameof(PushBeta) })]
 
 [GitHubActions("Publish",
@@ -177,6 +177,7 @@ class Build : NukeBuild
 
       });
     Target Push => _ => _
+      .DependsOn(Test)
       .DependsOn(Pack)
       .Requires(() => NugetApiUrl)
       .Requires(() => !NugetApiKey.IsNullOrEmpty())
@@ -205,6 +206,7 @@ class Build : NukeBuild
               });
       });
     Target PushBeta => _ => _
+      .DependsOn(Test)
       .DependsOn(PackBeta)
       .Requires(() => NugetApiUrl)
       .Requires(() => !NugetApiKey.IsNullOrEmpty())
