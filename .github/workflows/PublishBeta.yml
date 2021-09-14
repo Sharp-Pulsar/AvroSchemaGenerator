@@ -19,7 +19,7 @@ name: PublishBeta
 on:
   push:    
     branches:
-      - dev
+      - beta_branch
     paths-ignore:
       - 'README.md'
 
