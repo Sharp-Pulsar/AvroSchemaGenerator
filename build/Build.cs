@@ -38,7 +38,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 [GitHubActions("PublishBeta",
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = true,
-    OnPushBranches = new[] { "dev" },
+    OnPushBranches = new[] { "beta_branch" },
     InvokedTargets = new[] { nameof(PushBeta) })]
 
 [GitHubActions("Publish",
@@ -145,9 +145,9 @@ class Build : NukeBuild
               .SetConfiguration(Configuration)
               .EnableNoBuild()
               .EnableNoRestore()
-              .SetAssemblyVersion("2.2.0")
-              .SetVersionPrefix("2.2.0")
-              .SetPackageReleaseNotes($"[RobertIndie] Add enum type support{Environment.NewLine}Add dictionary(map) type support{Environment.NewLine}Add list(array) type support")
+              .SetAssemblyVersion("2.3.0")
+              .SetVersionPrefix("2.3.0")
+              .SetPackageReleaseNotes($"[@nodece] Ignore the namespace is null")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
               .AddAuthors("Ebere Abanonu (@mestical)")
@@ -165,10 +165,10 @@ class Build : NukeBuild
               .SetConfiguration(Configuration)
               .EnableNoBuild()
               .EnableNoRestore()
-              .SetAssemblyVersion($"2.2.0-beta.{BuildNumber}")
-              .SetVersionPrefix("2.2.0")
-              .SetPackageReleaseNotes($"[RobertIndie] Add enum type support{Environment.NewLine}Add dictionary(map) type support{Environment.NewLine}Add list(array) type support")
-              .SetVersionSuffix($"beta.{BuildNumber}")
+              .SetAssemblyVersion($"2.3.0-beta")
+              .SetVersionPrefix("2.3.0")
+              .SetPackageReleaseNotes($"[@nodece] Ignore the namespace is null")
+              .SetVersionSuffix($"beta")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
               .AddAuthors("Ebere Abanonu (@mestical)")
@@ -177,6 +177,7 @@ class Build : NukeBuild
 
       });
     Target Push => _ => _
+      .DependsOn(Test)
       .DependsOn(Pack)
       .Requires(() => NugetApiUrl)
       .Requires(() => !NugetApiKey.IsNullOrEmpty())
@@ -205,6 +206,7 @@ class Build : NukeBuild
               });
       });
     Target PushBeta => _ => _
+      .DependsOn(Test)
       .DependsOn(PackBeta)
       .Requires(() => NugetApiUrl)
       .Requires(() => !NugetApiKey.IsNullOrEmpty())

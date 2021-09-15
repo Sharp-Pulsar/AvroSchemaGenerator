@@ -21,8 +21,11 @@ namespace AvroSchemaGenerator
             {
                 var sch = new Dictionary<string, object>
                 {
-                    {"namespace", type.Namespace}, {"type", "map"}
+                    {"type", "map"}
                 };
+                if (!string.IsNullOrEmpty(type.Namespace)) {
+                    sch.Add("namespace", type.Namespace);
+                }
                 var arg = type.GetGenericArguments()[1];
                 if (IsUserDefined(arg))
                 {
@@ -39,8 +42,11 @@ namespace AvroSchemaGenerator
             {
                 var sch = new Dictionary<string, object>
                 {
-                    {"namespace", type.Namespace}, {"type", "array"}
+                    {"type", "array"}
                 };
+                if (!string.IsNullOrEmpty(type.Namespace)) {
+                    sch.Add("namespace", type.Namespace);
+                }
                 var arg = type.GetGenericArguments()[0];
                 if (IsUserDefined(arg))
                 {
@@ -55,8 +61,11 @@ namespace AvroSchemaGenerator
             }
             var schema = new Dictionary<string, object>
             {
-                {"namespace", type.Namespace}, {"name", type.Name}
+                {"name", type.Name}
             };
+            if (!string.IsNullOrEmpty(type.Namespace)) {
+                schema.Add("namespace", type.Namespace);
+            }
             var aliases = GetAliases(type);
             if (aliases != null)
             {
@@ -671,9 +680,11 @@ namespace AvroSchemaGenerator
                     {
                         var schema = new Dictionary<string, object>
                         {
-                            {"namespace", v.Namespace}, {"name", v.Name}, {"type", "record"}
+                            {"name", v.Name}, {"type", "record"}
                         };
-
+                        if (!string.IsNullOrEmpty(v.Namespace)) {
+                            schema.Add("namespace", v.Namespace);
+                        }
                         schema["fields"] = GetGenericUserDefinedProperties(v, required, existingTypes);
                         row = new Dictionary<string, object>
                             {
@@ -916,10 +927,12 @@ namespace AvroSchemaGenerator
         {
             var schema = new Dictionary<string, object>
             {
-                {"namespace", property.PropertyType.Namespace},
                 {"name", property.PropertyType.Name},
                 {"type", "record"}
             };
+            if (!string.IsNullOrEmpty(property.PropertyType.Namespace)) {
+                schema.Add("namespace", property.PropertyType.Namespace);
+            }
             var aliases = GetAliases(property);
             var properties = property.PropertyType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
             var fieldProperties = new List<Dictionary<string, object>>();
@@ -1076,10 +1089,12 @@ namespace AvroSchemaGenerator
         {
             var schema = new Dictionary<string, object>
             {
-                {"namespace", property.PropertyType.Namespace},
                 {"name", property.PropertyType.Name},
                 {"type", "record"}
             };
+            if (!string.IsNullOrEmpty(property.PropertyType.Namespace)) {
+                schema.Add("namespace", property.PropertyType.Namespace);
+            }
             var properties = property.PropertyType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
             var fieldProperties = new List<Dictionary<string, object>>();
             foreach (var p in properties)
@@ -1211,8 +1226,11 @@ namespace AvroSchemaGenerator
         {
             var schema = new Dictionary<string, object>
             {
-                {"namespace", property.Namespace}, {"name", property.Name}, {"type", "record"}
+                {"name", property.Name}, {"type", "record"}
             };
+            if (!string.IsNullOrEmpty(property.Namespace)) {
+                schema.Add("namespace", property.Namespace);
+            }
             var aliases = GetAliases(property);
             if (aliases != null)
                 schema["aliases"] = aliases;
@@ -1416,9 +1434,11 @@ namespace AvroSchemaGenerator
             var pt = p.PropertyType.GetSubTypeIfNullable();
             var dp = new Dictionary<string, object>
             {
-                {"type", "enum"}, {"name", pt.Name}, {"namespace", pt.Namespace}, {"symbols", GetEnumValues(pt)}
+                {"type", "enum"}, {"name", pt.Name}, {"symbols", GetEnumValues(pt)}
             };
-
+            if (!string.IsNullOrEmpty(pt.Namespace)) {
+                dp.Add("namespace", pt.Namespace);
+            }
             List<object> lp = null;
             if (p.PropertyType.IsNullable())
             {

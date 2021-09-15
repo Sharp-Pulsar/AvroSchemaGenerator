@@ -7,6 +7,7 @@ using Avro;
 using Avro.IO;
 using Avro.Reflect;
 using AvroSchemaGenerator.Attributes;
+using AvroSchemaGenerator.Tests;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -186,6 +187,35 @@ namespace AvroSchemaGenerator.Tests
             var writer = new ReflectWriter<Month>(schema);
 
             Assert.Equal(expectSchema, actual);
+        }
+        [Fact]
+        public void TestNoNamespaceType()
+        {
+            var expectSchema = "{\"name\":\"ClassWithoutNamespace\",\"type\":\"record\",\"fields\":[{\"name\":\"ForReal\",\"type\":\"boolean\"},{\"name\":\"Comment\",\"type\":[\"null\",\"string\"]},{\"name\":\"Book\",\"type\":[\"null\",{\"name\":\"Book\",\"type\":\"record\",\"namespace\":\"AvroSchemaGenerator.Tests\",\"fields\":[{\"name\":\"Author\",\"type\":[\"null\",\"string\"]},{\"name\":\"Title\",\"type\":[\"null\",\"string\"]}]}]}]}";
+
+            var actual = typeof(ClassWithoutNamespace).GetSchema();
+            _output.WriteLine(actual);
+
+            Assert.Equal(expectSchema, actual);
+            var schema = Schema.Parse(actual);
+            var data = new ClassWithoutNamespace
+            {
+                ForReal = true,
+                Comment = "Harry Pull Requests",
+                Book = new Book
+                {
+                    Author = "Ebere Abanonu",
+                    Title = "How to skin a PR!!!"
+                }
+            };
+            var writer = new ReflectWriter<ClassWithoutNamespace>(schema);
+            var reader = new ReflectReader<ClassWithoutNamespace>(schema, schema);
+            var msgBytes = Write(data, writer);
+            using var stream = new MemoryStream((byte[])(object)msgBytes);
+            var msg = Read(stream, reader);
+            Assert.NotNull(msg);
+            //Assert.True(msg[0] == 10);
+            //Assert.True(msg[1] == 100);
         }
         [Fact]
         public void TestListType()
@@ -491,5 +521,11 @@ namespace AvroSchemaGenerator.Tests
 
         public SimpleWithStaticFields SimpleStaticInner { get; set; }
     }
+}
 
+public class ClassWithoutNamespace
+{
+    public bool ForReal { get; set; }
+    public string Comment { get; set; }
+    public Book Book { get; set; }
 }
