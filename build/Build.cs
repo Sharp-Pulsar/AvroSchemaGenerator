@@ -54,7 +54,7 @@ class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main () => Execute<Build>(x => x.Test);
+    public static int Main () => Execute<Build>(x => x.PackBeta);
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
@@ -100,12 +100,11 @@ class Build : NukeBuild
             DotNetBuild(s => s
                 .SetProjectFile(Solution)
                 .SetConfiguration(Configuration)
-                .SetAssemblyVersion("1.9.0")
-                .SetFileVersion("1.9.0")
+                .SetAssemblyVersion(GetVersion())
+                .SetFileVersion(GetVersion())
                 //.SetInformationalVersion("1.9.0")
                 .EnableNoRestore());
         });
-
     Target Test => _ => _
         .DependsOn(Compile)
         .Executes(() =>
@@ -117,21 +116,14 @@ class Build : NukeBuild
             foreach (var fw in project.GetTargetFrameworks())
             {
                 Information($"Running for {projectName} ({fw}) ...");
-                try
-                {
-                    DotNetTest(c => c
-                        .SetProjectFile(project)
-                        .SetConfiguration(Configuration.ToString())
-                        .SetFramework(fw)
-                        //.SetDiagnosticsFile(TestsDirectory)
-                        //.SetLogger("trx")
-                        .SetVerbosity(verbosity: DotNetVerbosity.Normal)
-                        .EnableNoBuild()); ;
-                }
-                catch (Exception ex)
-                {
-                    Information(ex.Message);
-                }
+                DotNetTest(c => c
+                       .SetProjectFile(project)
+                       .SetConfiguration(Configuration.ToString())
+                       .SetFramework(fw)
+                       //.SetDiagnosticsFile(TestsDirectory)
+                       //.SetLogger("trx")
+                       .SetVerbosity(verbosity: DotNetVerbosity.Normal)
+                       .EnableNoBuild());
             }
         });
 
@@ -144,10 +136,11 @@ class Build : NukeBuild
               .SetProject(project)
               .SetConfiguration(Configuration)
               .EnableNoBuild()
+              
               .EnableNoRestore()
-              .SetAssemblyVersion("2.3.0")
-              .SetVersionPrefix("2.3.0")
-              .SetPackageReleaseNotes($"[@nodece] Ignore the namespace is null")
+              .SetAssemblyVersion(GetVersion())
+              .SetVersion(GetVersion())
+              .SetPackageReleaseNotes($"Fix wrong file version")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
               .AddAuthors("Ebere Abanonu (@mestical)")
@@ -165,10 +158,9 @@ class Build : NukeBuild
               .SetConfiguration(Configuration)
               .EnableNoBuild()
               .EnableNoRestore()
-              .SetAssemblyVersion($"2.3.0-beta")
-              .SetVersionPrefix("2.3.0")
-              .SetPackageReleaseNotes($"[@nodece] Ignore the namespace is null")
-              .SetVersionSuffix($"beta")
+              .SetAssemblyVersion($"{GetVersion()}-beta")
+              .SetVersion($"{GetVersion()}-beta")
+              .SetPackageReleaseNotes($"Fix wrong file version")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
               .AddAuthors("Ebere Abanonu (@mestical)")
@@ -177,7 +169,6 @@ class Build : NukeBuild
 
       });
     Target Push => _ => _
-      .DependsOn(Test)
       .DependsOn(Pack)
       .Requires(() => NugetApiUrl)
       .Requires(() => !NugetApiKey.IsNullOrEmpty())
@@ -206,7 +197,6 @@ class Build : NukeBuild
               });
       });
     Target PushBeta => _ => _
-      .DependsOn(Test)
       .DependsOn(PackBeta)
       .Requires(() => NugetApiUrl)
       .Requires(() => !NugetApiKey.IsNullOrEmpty())
@@ -238,5 +228,9 @@ class Build : NukeBuild
     static void Information(string info)
     {
         Logger.Info(info);
+    }
+    static string GetVersion()
+    {
+        return "2.3.3";
     }
 }

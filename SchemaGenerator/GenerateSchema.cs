@@ -19,13 +19,12 @@ namespace AvroSchemaGenerator
         {
             if (IsDictionary(type))
             {
-                var sch = new Dictionary<string, object>
+                var sch = new Dictionary<string, object>();
+                if (!string.IsNullOrEmpty(type.Namespace))
                 {
-                    {"type", "map"}
-                };
-                if (!string.IsNullOrEmpty(type.Namespace)) {
                     sch.Add("namespace", type.Namespace);
                 }
+                sch["type"] = "map";
                 var arg = type.GetGenericArguments()[1];
                 if (IsUserDefined(arg))
                 {
@@ -40,13 +39,12 @@ namespace AvroSchemaGenerator
             }
             if (IsList(type))
             {
-                var sch = new Dictionary<string, object>
+                var sch = new Dictionary<string, object>();
+                if (!string.IsNullOrEmpty(type.Namespace))
                 {
-                    {"type", "array"}
-                };
-                if (!string.IsNullOrEmpty(type.Namespace)) {
                     sch.Add("namespace", type.Namespace);
                 }
+                sch["type"] = "array";
                 var arg = type.GetGenericArguments()[0];
                 if (IsUserDefined(arg))
                 {
@@ -59,13 +57,12 @@ namespace AvroSchemaGenerator
                 sch["default"] = new List<string>();
                 return sch;
             }
-            var schema = new Dictionary<string, object>
+            var schema = new Dictionary<string, object>();
+            if (!string.IsNullOrEmpty(type.Namespace))
             {
-                {"name", type.Name}
-            };
-            if (!string.IsNullOrEmpty(type.Namespace)) {
                 schema.Add("namespace", type.Namespace);
             }
+            schema["name"] = type.Name;
             var aliases = GetAliases(type);
             if (aliases != null)
             {
@@ -678,13 +675,13 @@ namespace AvroSchemaGenerator
                         return ReuseType(p);
                     if (IsUserDefined(v))
                     {
-                        var schema = new Dictionary<string, object>
+                        var schema = new Dictionary<string, object>();
+                        if (!string.IsNullOrEmpty(v.Namespace))
                         {
-                            {"name", v.Name}, {"type", "record"}
-                        };
-                        if (!string.IsNullOrEmpty(v.Namespace)) {
                             schema.Add("namespace", v.Namespace);
                         }
+                        schema["name"] = v.Name;
+                        schema["type"] = "record";
                         schema["fields"] = GetGenericUserDefinedProperties(v, required, existingTypes);
                         row = new Dictionary<string, object>
                             {
@@ -925,14 +922,14 @@ namespace AvroSchemaGenerator
         private static void GetUserDefinedProperties(PropertyInfo property, Dictionary<string, object> finalSchema,
             List<string> existing)
         {
-            var schema = new Dictionary<string, object>
+            var schema = new Dictionary<string, object>();
+            if (!string.IsNullOrEmpty(property.PropertyType.Namespace))
             {
-                {"name", property.PropertyType.Name},
-                {"type", "record"}
-            };
-            if (!string.IsNullOrEmpty(property.PropertyType.Namespace)) {
                 schema.Add("namespace", property.PropertyType.Namespace);
             }
+            schema["name"] = property.PropertyType.Name;
+            schema["type"] = "record";
+
             var aliases = GetAliases(property);
             var properties = property.PropertyType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
             var fieldProperties = new List<Dictionary<string, object>>();
@@ -1087,14 +1084,13 @@ namespace AvroSchemaGenerator
         }
         private static Dictionary<string, object> UserDefinedProperties(PropertyInfo property, List<string> existingTypes)
         {
-            var schema = new Dictionary<string, object>
+            var schema = new Dictionary<string, object>();
+            if (!string.IsNullOrEmpty(property.PropertyType.Namespace))
             {
-                {"name", property.PropertyType.Name},
-                {"type", "record"}
-            };
-            if (!string.IsNullOrEmpty(property.PropertyType.Namespace)) {
                 schema.Add("namespace", property.PropertyType.Namespace);
             }
+            schema["name"] = property.PropertyType.Name;
+            schema["type"] = "record";
             var properties = property.PropertyType.GetProperties(BindingFlags.Instance | BindingFlags.Public);
             var fieldProperties = new List<Dictionary<string, object>>();
             foreach (var p in properties)
@@ -1224,13 +1220,13 @@ namespace AvroSchemaGenerator
 
         private static Dictionary<string, object> GetGenericUserDefinedProperties(Type property, bool required, List<string> existingTypes)
         {
-            var schema = new Dictionary<string, object>
+            var schema = new Dictionary<string, object>();
+            if (!string.IsNullOrEmpty(property.Namespace))
             {
-                {"name", property.Name}, {"type", "record"}
-            };
-            if (!string.IsNullOrEmpty(property.Namespace)) {
                 schema.Add("namespace", property.Namespace);
             }
+            schema["name"] = property.Name;
+            schema["type"] = "record";
             var aliases = GetAliases(property);
             if (aliases != null)
                 schema["aliases"] = aliases;
@@ -1432,13 +1428,13 @@ namespace AvroSchemaGenerator
         private static Dictionary<string, object> GetEnumField(PropertyInfo p)
         {
             var pt = p.PropertyType.GetSubTypeIfNullable();
-            var dp = new Dictionary<string, object>
-            {
-                {"type", "enum"}, {"name", pt.Name}, {"symbols", GetEnumValues(pt)}
-            };
+            var dp = new Dictionary<string, object>();
             if (!string.IsNullOrEmpty(pt.Namespace)) {
                 dp.Add("namespace", pt.Namespace);
             }
+            dp["type"] = "enum";
+            dp["name"] = pt.Name;
+            dp["symbols"] = GetEnumValues(pt);
             List<object> lp = null;
             if (p.PropertyType.IsNullable())
             {
