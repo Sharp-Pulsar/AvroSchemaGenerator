@@ -54,7 +54,7 @@ class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main () => Execute<Build>(x => x.Pack);
+    public static int Main () => Execute<Build>(x => x.PackBeta);
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
@@ -127,28 +127,6 @@ class Build : NukeBuild
             }
         });
 
-    Target BetaTest => _ => _
-       .DependsOn(Compile)
-       .Executes(() =>
-       {
-           var projectName = "AvroSchemaGenerator.Tests";
-           var project = Solution.GetProjects("*.Tests").First();
-           Information($"Running tests from {projectName}");
-
-           foreach (var fw in project.GetTargetFrameworks())
-           {
-               Information($"Running for {projectName} ({fw}) ...");
-               DotNetTest(c => c
-                      .SetProjectFile(project)
-                      .SetConfiguration(Configuration.ToString())
-                      .SetFramework(fw)
-                      //.SetDiagnosticsFile(TestsDirectory)
-                      //.SetLogger("trx")
-                      .SetVerbosity(verbosity: DotNetVerbosity.Normal)
-                      .EnableNoBuild());
-           }
-       });
-
     Target Pack => _ => _
       .DependsOn(Test)
       .Executes(() =>
@@ -171,7 +149,7 @@ class Build : NukeBuild
 
       });
     Target PackBeta => _ => _
-      .DependsOn(BetaTest)
+      .DependsOn(Test)
       .Executes(() =>
       {
           var project = Solution.GetProject("AvroSchemaGenerator");
@@ -181,9 +159,8 @@ class Build : NukeBuild
               .EnableNoBuild()
               .EnableNoRestore()
               .SetAssemblyVersion($"{GetVersion()}-beta")
-              .SetVersionPrefix(GetVersion())
+              .SetVersion($"{GetVersion()}-beta")
               .SetPackageReleaseNotes($"Fix wrong file version")
-              .SetVersionSuffix($"beta")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
               .AddAuthors("Ebere Abanonu (@mestical)")
