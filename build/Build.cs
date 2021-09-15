@@ -164,7 +164,6 @@ class Build : NukeBuild
               .SetAssemblyVersion($"2.3.2-beta")
               .SetFileVersion($"2.3.2-beta")
               .SetVersionPrefix("2.3.2")
-              .SetPackageId($"2.3.2-beta")
               .SetPackageReleaseNotes($"Fix wrong file version")
               .SetVersionSuffix($"beta")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
