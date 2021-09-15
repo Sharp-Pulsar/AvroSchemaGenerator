@@ -105,18 +105,6 @@ class Build : NukeBuild
                 //.SetInformationalVersion("1.9.0")
                 .EnableNoRestore());
         });
-    Target BetaCompile => _ => _
-        .DependsOn(Restore)
-        .Executes(() =>
-        {
-            DotNetBuild(s => s
-                .SetProjectFile(Solution)
-                .SetConfiguration(Configuration)
-                .SetAssemblyVersion($"{GetVersion()}-beta")
-                .SetFileVersion($"{GetVersion()}-beta")
-                //.SetInformationalVersion("1.9.0")
-                .EnableNoRestore());
-        });
     Target Test => _ => _
         .DependsOn(Compile)
         .Executes(() =>
@@ -140,7 +128,7 @@ class Build : NukeBuild
         });
 
     Target BetaTest => _ => _
-       .DependsOn(BetaCompile)
+       .DependsOn(Compile)
        .Executes(() =>
        {
            var projectName = "AvroSchemaGenerator.Tests";
