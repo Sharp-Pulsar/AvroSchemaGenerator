@@ -54,7 +54,7 @@ class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main () => Execute<Build>(x => x.Test);
+    public static int Main () => Execute<Build>(x => x.Pack);
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
@@ -100,8 +100,9 @@ class Build : NukeBuild
             DotNetBuild(s => s
                 .SetProjectFile(Solution)
                 .SetConfiguration(Configuration)
-                .SetAssemblyVersion("1.9.0")
-                .SetFileVersion("1.9.0")
+                .SetAssemblyVersion("2.3.2")
+                .SetFileVersion("2.3.2")
+                .SetVersion("2.3.2")
                 //.SetInformationalVersion("1.9.0")
                 .EnableNoRestore());
         });
@@ -137,10 +138,12 @@ class Build : NukeBuild
               .SetProject(project)
               .SetConfiguration(Configuration)
               .EnableNoBuild()
+              
               .EnableNoRestore()
-              .SetAssemblyVersion("2.3.1")
-              .SetVersionPrefix("2.3.1")
-              .SetPackageReleaseNotes($"Fix wrong version in nuget")
+              .SetAssemblyVersion("2.3.2")
+              .SetFileVersion("2.3.2")
+              .SetVersion("2.3.2")
+              .SetPackageReleaseNotes($"Fix wrong file version")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
               .AddAuthors("Ebere Abanonu (@mestical)")
@@ -158,9 +161,11 @@ class Build : NukeBuild
               .SetConfiguration(Configuration)
               .EnableNoBuild()
               .EnableNoRestore()
-              .SetAssemblyVersion($"2.3.1-beta")
-              .SetVersionPrefix("2.3.1")
-              .SetPackageReleaseNotes($"Fix wrong version in nuget")
+              .SetAssemblyVersion($"2.3.2-beta")
+              .SetFileVersion($"2.3.2-beta")
+              .SetVersionPrefix("2.3.2")
+              .SetPackageId($"2.3.2-beta")
+              .SetPackageReleaseNotes($"Fix wrong file version")
               .SetVersionSuffix($"beta")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
