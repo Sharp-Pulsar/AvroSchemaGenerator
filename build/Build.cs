@@ -117,21 +117,14 @@ class Build : NukeBuild
             foreach (var fw in project.GetTargetFrameworks())
             {
                 Information($"Running for {projectName} ({fw}) ...");
-                try
-                {
-                    DotNetTest(c => c
-                        .SetProjectFile(project)
-                        .SetConfiguration(Configuration.ToString())
-                        .SetFramework(fw)
-                        //.SetDiagnosticsFile(TestsDirectory)
-                        //.SetLogger("trx")
-                        .SetVerbosity(verbosity: DotNetVerbosity.Normal)
-                        .EnableNoBuild()); ;
-                }
-                catch (Exception ex)
-                {
-                    Information(ex.Message);
-                }
+                DotNetTest(c => c
+                       .SetProjectFile(project)
+                       .SetConfiguration(Configuration.ToString())
+                       .SetFramework(fw)
+                       //.SetDiagnosticsFile(TestsDirectory)
+                       //.SetLogger("trx")
+                       .SetVerbosity(verbosity: DotNetVerbosity.Normal)
+                       .EnableNoBuild());
             }
         });
 
