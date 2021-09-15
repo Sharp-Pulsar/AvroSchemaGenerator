@@ -100,9 +100,8 @@ class Build : NukeBuild
             DotNetBuild(s => s
                 .SetProjectFile(Solution)
                 .SetConfiguration(Configuration)
-                .SetAssemblyVersion("2.3.2")
-                .SetFileVersion("2.3.2")
-                .SetVersion("2.3.2")
+                .SetAssemblyVersion("2.3.3")
+                .SetFileVersion("2.3.3")
                 //.SetInformationalVersion("1.9.0")
                 .EnableNoRestore());
         });
@@ -140,9 +139,8 @@ class Build : NukeBuild
               .EnableNoBuild()
               
               .EnableNoRestore()
-              .SetAssemblyVersion("2.3.2")
-              .SetFileVersion("2.3.2")
-              .SetVersion("2.3.2")
+              .SetAssemblyVersion("2.3.3")
+              .SetVersion("2.3.3")
               .SetPackageReleaseNotes($"Fix wrong file version")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
@@ -161,9 +159,8 @@ class Build : NukeBuild
               .SetConfiguration(Configuration)
               .EnableNoBuild()
               .EnableNoRestore()
-              .SetAssemblyVersion($"2.3.2-beta")
-              .SetFileVersion($"2.3.2-beta")
-              .SetVersionPrefix("2.3.2")
+              .SetAssemblyVersion($"2.3.3-beta")
+              .SetVersionPrefix("2.3.3")
               .SetPackageReleaseNotes($"Fix wrong file version")
               .SetVersionSuffix($"beta")
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
