@@ -51,7 +51,7 @@ namespace AvroSchemaGenerator.Tests
         {
             var actualSchema = typeof(IntNullableTest).GetSchema();
             _output.WriteLine(actualSchema);
-            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntNullableTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":[\"null\",\"int\"]}]}";
+            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"IntNullableTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":[\"null\",\"int\"],\"default\":null}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
@@ -80,7 +80,7 @@ namespace AvroSchemaGenerator.Tests
         {
             var actualSchema = typeof(StringTest).GetSchema();
             _output.WriteLine(actualSchema);
-            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StringTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":[\"null\",\"string\"]}]}";
+            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StringTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":[\"null\",\"string\"],\"default\":null}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
@@ -262,7 +262,7 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestRecType()
         {
-            var expected = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"RecType\",\"type\":\"record\",\"fields\":[{\"name\":\"Name\",\"type\":[\"null\",\"string\"]},{\"name\":\"Child\",\"type\":[\"null\",\"RecType\"]}]}";
+            var expected = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"RecType\",\"type\":\"record\",\"fields\":[{\"name\":\"Name\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Child\",\"type\":[\"null\",\"RecType\"],\"default\":null}]}";
             var actual = typeof(RecType).GetSchema();
             _output.WriteLine(actual);
             Assert.Equal(expected, actual);
