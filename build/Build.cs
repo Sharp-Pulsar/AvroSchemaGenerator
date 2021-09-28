@@ -54,7 +54,7 @@ class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main () => Execute<Build>(x => x.PackBeta);
+    public static int Main () => Execute<Build>(x => x.Pack);
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
@@ -140,7 +140,7 @@ class Build : NukeBuild
               .EnableNoRestore()
               .SetAssemblyVersion(GetVersion())
               .SetVersion(GetVersion())
-              .SetPackageReleaseNotes($"Fix wrong file version")
+              .SetPackageReleaseNotes(GetReleasenote())
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
               .AddAuthors("Ebere Abanonu (@mestical)")
@@ -160,7 +160,7 @@ class Build : NukeBuild
               .EnableNoRestore()
               .SetAssemblyVersion($"{GetVersion()}-beta")
               .SetVersion($"{GetVersion()}-beta")
-              .SetPackageReleaseNotes($"Fix wrong file version")
+              .SetPackageReleaseNotes(GetReleasenote())
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
               .AddAuthors("Ebere Abanonu (@mestical)")
@@ -231,6 +231,10 @@ class Build : NukeBuild
     }
     static string GetVersion()
     {
-        return "2.3.3";
+        return "2.4.0";
+    }
+    static string GetReleasenote()
+    {
+        return "Fix issue with aliased schema";
     }
 }
