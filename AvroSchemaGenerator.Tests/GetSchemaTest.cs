@@ -31,6 +31,15 @@ namespace AvroSchemaGenerator.Tests
             var writer = new ReflectWriter<SimpleFoo>(schema);
             Assert.Contains("Age", simple);
         }
+        [Fact]
+        public void TestSimpleRecord()
+        {
+            var simple = typeof(SimpleRecord).GetSchema();
+            _output.WriteLine(simple);
+            var schema = Schema.Parse(simple);
+            var writer = new ReflectWriter<SimpleRecord>(schema);
+            Assert.Contains("Age", simple);
+        }
 
         [Fact]
         public void TestFoo()
@@ -137,7 +146,7 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestEnums()
         {
-            var expectSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MediaStream\",\"type\":\"record\",\"fields\":[{\"name\":\"Id\",\"type\":[\"null\",\"string\"]},{\"name\":\"Title\",\"type\":[\"null\",\"string\"]},{\"name\":\"Type\",\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"type\":\"enum\",\"name\":\"MediaType\",\"symbols\":[\"Video\",\"Audio\"]}},{\"name\":\"Container\",\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"type\":\"enum\",\"name\":\"MediaContainer\",\"symbols\":[\"Flv\",\"Mp3\",\"Avi\",\"Mp4\"]}},{\"name\":\"Media\",\"type\":[\"null\",\"bytes\"]}]}";
+            var expectSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MediaStream\",\"type\":\"record\",\"fields\":[{\"name\":\"Id\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Type\",\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"type\":\"enum\",\"name\":\"MediaType\",\"symbols\":[\"Video\",\"Audio\"]}},{\"name\":\"Container\",\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"type\":\"enum\",\"name\":\"MediaContainer\",\"symbols\":[\"Flv\",\"Mp3\",\"Avi\",\"Mp4\"]}},{\"name\":\"Media\",\"type\":[\"null\",\"bytes\"],\"default\":null}]}";
             var actual = typeof(MediaStream).GetSchema();
             var schema = Schema.Parse(actual);
             var writer = new ReflectWriter<MediaStream>(schema);
@@ -148,7 +157,7 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestAliasesList()
         {
-            var expectSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassWithAliasesWithList\",\"aliases\":[\"InterLives\",\"CountrySide\"],\"type\":\"record\",\"fields\":[{\"name\":\"City\",\"aliases\":[\"TownHall\",\"Province\"],\"type\":[\"null\",\"string\"]},{\"name\":\"State\",\"type\":[\"null\",\"string\"]},{\"name\":\"Movie\",\"aliases\":[\"PopularMovie\"],\"type\":[\"null\",{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"InnerAliases\",\"type\":\"record\",\"fields\":[{\"name\":\"Container\",\"aliases\":[\"Media\"],\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"type\":\"enum\",\"name\":\"MediaContainer\",\"symbols\":[\"Flv\",\"Mp3\",\"Avi\",\"Mp4\"]}},{\"name\":\"Title\",\"type\":[\"null\",\"string\"]}]}]},{\"name\":\"Popular\",\"aliases\":[\"PopularMediaType\"],\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"type\":\"enum\",\"name\":\"MediaType\",\"symbols\":[\"Video\",\"Audio\"]}},{\"name\":\"Movies\",\"aliases\":[\"MovieCollection\"],\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MovieAliase\",\"type\":\"record\",\"aliases\":[\"Movies_Aliase\"],\"fields\":[{\"name\":\"Dated\",\"aliases\":[\"DateCreated\"],\"type\":\"long\"},{\"name\":\"Year\",\"aliases\":[\"ReleaseYear\"],\"type\":\"int\"},{\"name\":\"Month\",\"aliases\":[\"ReleaseMonth\"],\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"type\":\"enum\",\"name\":\"Month\",\"symbols\":[\"January\",\"February\",\"March\",\"April\",\"June\",\"July\"]}}]}}]}]}";
+            var expectSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassWithAliasesWithList\",\"aliases\":[\"InterLives\",\"CountrySide\"],\"type\":\"record\",\"fields\":[{\"name\":\"City\",\"aliases\":[\"TownHall\",\"Province\"],\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"State\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Movie\",\"aliases\":[\"PopularMovie\"],\"type\":[\"null\",{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"InnerAliases\",\"type\":\"record\",\"fields\":[{\"name\":\"Container\",\"aliases\":[\"Media\"],\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"type\":\"enum\",\"name\":\"MediaContainer\",\"symbols\":[\"Flv\",\"Mp3\",\"Avi\",\"Mp4\"]}},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null}]}]},{\"name\":\"Popular\",\"aliases\":[\"PopularMediaType\"],\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"type\":\"enum\",\"name\":\"MediaType\",\"symbols\":[\"Video\",\"Audio\"]}},{\"name\":\"Movies\",\"aliases\":[\"MovieCollection\"],\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MovieAliase\",\"type\":\"record\",\"aliases\":[\"Movies_Aliase\"],\"fields\":[{\"name\":\"Dated\",\"aliases\":[\"DateCreated\"],\"type\":\"long\"},{\"name\":\"Year\",\"aliases\":[\"ReleaseYear\"],\"type\":\"int\"},{\"name\":\"Month\",\"aliases\":[\"ReleaseMonth\"],\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"type\":\"enum\",\"name\":\"Month\",\"symbols\":[\"January\",\"February\",\"March\",\"April\",\"June\",\"July\"]}}]}}]}]}";
             var actual = typeof(ClassWithAliasesWithList).GetSchema();
             _output.WriteLine(actual);
             var schema = Schema.Parse(actual);
@@ -169,7 +178,7 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestStaticFieldsAreIgnored()
         {
-            var expectSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"SimpleWithStaticFieldsAndNestedClass\",\"type\":\"record\",\"fields\":[{\"name\":\"FactTime\",\"type\":\"long\"},{\"name\":\"SimpleStaticInner\",\"type\":[\"null\",{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"SimpleWithStaticFields\",\"type\":\"record\",\"fields\":[{\"name\":\"Name\",\"type\":[\"null\",\"string\"]}]}]}]}";
+            var expectSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"SimpleWithStaticFieldsAndNestedClass\",\"type\":\"record\",\"fields\":[{\"name\":\"FactTime\",\"type\":\"long\"},{\"name\":\"SimpleStaticInner\",\"type\":[\"null\",{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"SimpleWithStaticFields\",\"type\":\"record\",\"fields\":[{\"name\":\"Name\",\"type\":[\"null\",\"string\"],\"default\":null}]}]}]}";
             var actual = typeof(SimpleWithStaticFieldsAndNestedClass).GetSchema();
             _output.WriteLine(actual);
             var schema = Schema.Parse(actual);
@@ -191,7 +200,7 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestNoNamespaceType()
         {
-            var expectSchema = "{\"name\":\"ClassWithoutNamespace\",\"type\":\"record\",\"fields\":[{\"name\":\"ForReal\",\"type\":\"boolean\"},{\"name\":\"Comment\",\"type\":[\"null\",\"string\"]},{\"name\":\"Book\",\"type\":[\"null\",{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Book\",\"type\":\"record\",\"fields\":[{\"name\":\"Author\",\"type\":[\"null\",\"string\"]},{\"name\":\"Title\",\"type\":[\"null\",\"string\"]}]}]}]}";
+            var expectSchema = "{\"name\":\"ClassWithoutNamespace\",\"type\":\"record\",\"fields\":[{\"name\":\"ForReal\",\"type\":\"boolean\"},{\"name\":\"Comment\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Book\",\"type\":[\"null\",{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Book\",\"type\":\"record\",\"fields\":[{\"name\":\"Author\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null}]}]}]}";
 
             var actual = typeof(ClassWithoutNamespace).GetSchema();
             _output.WriteLine(actual);
@@ -318,12 +327,11 @@ namespace AvroSchemaGenerator.Tests
             return reader.Read(default, new BinaryDecoder(stream));
         }
     }
-
     public class SimpleFoo
     {
         [Required]
         public int Age { get; set; }
-        [Required]
+        [DefaultValue(null)]
         public string Name { get; set; }
         public long FactTime { get; set; }
         public double Point { get; set; }
@@ -520,6 +528,12 @@ namespace AvroSchemaGenerator.Tests
         public long FactTime { get; set; }
 
         public SimpleWithStaticFields SimpleStaticInner { get; set; }
+    }
+
+    public class SimpleRecord
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
     }
 }
 

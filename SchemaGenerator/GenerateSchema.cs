@@ -824,7 +824,7 @@ namespace AvroSchemaGenerator
                 fields = nullable
                     ? new Dictionary<string, object>
                     {
-                        {"name", name}, {"type", new List<object> {"null", type}}
+                        {"name", name}, {"type", new List<object> {"null", type}}, { "default", null }
                     }
                     : RequiredOrNullableField(type, name);
 
@@ -851,7 +851,7 @@ namespace AvroSchemaGenerator
                 default:
                     return new Dictionary<string, object>
                     {
-                        {"name", name}, {"type", new List<object> {"null", type}}
+                        {"name", name}, {"type", new List<object> {"null", type} }, { "default", null}
                     };
             }
         }
