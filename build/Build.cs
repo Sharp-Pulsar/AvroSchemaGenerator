@@ -7,7 +7,6 @@ using Nuke.Common.Execution;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
-using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Utilities;
@@ -231,10 +230,10 @@ class Build : NukeBuild
     }
     static string GetVersion()
     {
-        return "2.4.0";
+        return "2.4.1";
     }
     static string GetReleasenote()
     {
-        return "Fix issue with aliased schema";
+        return "Updated Avro 1.11.0 which has fix for stackoverflow exception";
     }
 }

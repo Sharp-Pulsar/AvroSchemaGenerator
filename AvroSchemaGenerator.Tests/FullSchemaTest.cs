@@ -219,7 +219,7 @@ namespace AvroSchemaGenerator.Tests
             [Required]
             public RecTypeRequired Child { get; set; }
         }
-        [Fact(Skip = "Stack overflow exception in Apache Avro")]
+        [Fact]
         public void NestedTypesProduceValidAvroSchema()
         {
             try
