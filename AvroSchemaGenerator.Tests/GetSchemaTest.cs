@@ -96,7 +96,7 @@ namespace AvroSchemaGenerator.Tests
                 Assert.True(false);
             }
         }
-        [Fact(Skip = "Stack overflow exception in Apache Avro")]
+        [Fact]
         public void TestRecursiveSchema()
         {
             try
