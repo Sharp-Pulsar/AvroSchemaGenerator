@@ -230,10 +230,10 @@ class Build : NukeBuild
     }
     static string GetVersion()
     {
-        return "2.4.1";
+        return "2.5.0";
     }
     static string GetReleasenote()
     {
-        return "Updated Avro 1.11.0 which has fix for stackoverflow exception";
+        return ".NET 6 support";
     }
 }
