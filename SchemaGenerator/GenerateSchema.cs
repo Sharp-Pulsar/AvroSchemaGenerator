@@ -68,14 +68,14 @@ namespace AvroSchemaGenerator
             {
                 schema["aliases"] = aliases;
             }
-            
+
             if (type.IsEnum)
             {
                 schema["type"] = "enum";
                 schema["symbols"] = GetEnumValues(type);
                 return schema;
             }
-            
+
             // record type
             schema["type"] = "record";
             schema["fields"] = new List<Dictionary<string, object>>();
@@ -150,7 +150,7 @@ namespace AvroSchemaGenerator
 
                     if (recursive)
                         AddReuseType(p, finalSchema);
-                    else 
+                    else
                         GetUserDefinedProperties(p, finalSchema, existingTypes);
 
                     existingTypes.Add(t);
@@ -387,7 +387,7 @@ namespace AvroSchemaGenerator
                                 existingTypes.Add(t);
                             }
 
-                            return PropertyInfo(p, existingTypes, init: mentionFirstTime); //throw new Exception($"The limit for user defined property type has been reached: [{dt}] public {p.PropertyType.Name} {p.Name} {{get; set;}}"); 
+                            return PropertyInfo(p, existingTypes, init: mentionFirstTime); //throw new Exception($"The limit for user defined property type has been reached: [{dt}] public {p.PropertyType.Name} {p.Name} {{get; set;}}");
 
                         }
 
@@ -1404,13 +1404,26 @@ namespace AvroSchemaGenerator
 
         private static bool IsFieldListType(PropertyInfo p)
         {
-            return p.PropertyType.IsGenericType &&
-                   p.PropertyType.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+            if (!p.PropertyType.IsGenericType)
+            {
+                return false;
+            }
+
+            var typeDefinition = p.PropertyType.GetGenericTypeDefinition();
+
+            return typeDefinition.IsAssignableFrom(typeof(List<>)) || typeDefinition.IsAssignableFrom(typeof(IEnumerable<>));
         }
+
         private static bool IsList(Type t)
         {
-            return t.IsGenericType &&
-                   t.GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+            if (!t.IsGenericType)
+            {
+                return false;
+            }
+
+            var typeDefinition = t.GetGenericTypeDefinition();
+
+            return typeDefinition.IsAssignableFrom(typeof(List<>)) || typeDefinition.IsAssignableFrom(typeof(IEnumerable<>));
         }
 
         private static bool IsFieldDictionaryType(PropertyInfo p)

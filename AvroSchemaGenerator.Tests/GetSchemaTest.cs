@@ -226,11 +226,13 @@ namespace AvroSchemaGenerator.Tests
             //Assert.True(msg[0] == 10);
             //Assert.True(msg[1] == 100);
         }
-        [Fact]
-        public void TestListType()
+        [Theory]
+        [InlineData(typeof(List<long>))]
+        [InlineData(typeof(IEnumerable<long>))]
+        public void TestListType(Type type)
         {
             var expectSchema = "{\"namespace\":\"System.Collections.Generic\",\"type\":\"array\",\"items\":\"long\",\"default\":[]}";
-            var actual = typeof(List<long>).GetSchema();
+            var actual = type.GetSchema();
             _output.WriteLine(actual);
 
             Assert.Equal(expectSchema, actual);
@@ -344,6 +346,8 @@ namespace AvroSchemaGenerator.Tests
         public SimpleFoo Fo { get; set; }
         [Required]
         public List<string> Courses { get; set; }
+        [Required]
+        public IEnumerable<string> Lessons { get; set; }
         [Required]
         public Dictionary<string, string> Normal { get; set; }
 
@@ -492,9 +496,9 @@ namespace AvroSchemaGenerator.Tests
     {
         January,
         February,
-        March, 
+        March,
         April,
-        June, 
+        June,
         July
     }
 
