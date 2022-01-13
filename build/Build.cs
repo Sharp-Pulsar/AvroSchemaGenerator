@@ -83,6 +83,7 @@ class Build : NukeBuild
         .Before(Restore)
         .Executes(() =>
         {
+
         });
 
     Target Restore => _ => _
@@ -230,10 +231,10 @@ class Build : NukeBuild
     }
     static string GetVersion()
     {
-        return "2.5.0";
+        return "2.5.1";
     }
     static string GetReleasenote()
     {
-        return ".NET 6 support";
+        return "Added README.md with Nuget package";
     }
 }

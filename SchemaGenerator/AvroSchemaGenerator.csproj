@@ -4,6 +4,7 @@
     <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
     <PackageProjectUrl>https://github.com/eaba/SchemaGenerator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/eaba/SchemaGenerator</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageId>AvroSchemaGenerator</PackageId>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageTags>Apache Avro, Avro Schema</PackageTags>
@@ -19,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
     <None Update="avro-schema.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
