@@ -138,7 +138,7 @@ partial class Build : NukeBuild
             DotNetTest(c => c
                    .SetProjectFile(project)
                    .SetConfiguration(Configuration.ToString())
-                   .SetFramework(fw)                   
+                   .SetFramework("net6.0")                   
                    //.SetDiagnosticsFile(TestsDirectory)
                    //.SetLogger("trx")
                    .SetVerbosity(verbosity: DotNetVerbosity.Normal)
