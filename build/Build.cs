@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Nuke.Common;
 using Nuke.Common.CI;
 using Nuke.Common.CI.GitHubActions;
@@ -14,38 +15,55 @@ using Nuke.Common.Utilities.Collections;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
+
 [CheckBuildProjectConfigurations]
 [ShutdownDotNetAfterServerBuild]
-[GitHubActions("Build",
+[GitHubActionsAttribute("Build",
     GitHubActionsImage.WindowsLatest,
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = true,
     OnPushBranches = new[] { "master", "dev" },
     OnPullRequestBranches = new[] { "master", "dev" },
+    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj" },
+    InvokedTargets = new[] { nameof(Compile) },
+    OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
+    PublishArtifacts = true)
+]
 
-    InvokedTargets = new[] { nameof(Compile) })]
-
-[GitHubActions("Tests",
+[GitHubActionsAttribute("Tests",
     GitHubActionsImage.WindowsLatest,
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = true,
     OnPushBranches = new[] { "master", "dev" },
     OnPullRequestBranches = new[] { "master", "dev" },
-    InvokedTargets = new[] { nameof(Test) })]
+    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj" },
+    InvokedTargets = new[] { nameof(Test) },
+    OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
+    PublishArtifacts = true)
+]
 
 
-[GitHubActions("PublishBeta",
+[GitHubActionsAttribute("PublishBeta",
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = true,
     OnPushBranches = new[] { "beta_branch" },
-    InvokedTargets = new[] { nameof(PushBeta) })]
+    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj" },
+    InvokedTargets = new[] { nameof(PushBeta) },
+    OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
+    PublishArtifacts = true,
+    ImportSecrets = new[] { "NUGET_API_KEY", "GITHUB_TOKEN" })]
 
-[GitHubActions("Publish",
+[GitHubActionsAttribute("Publish",
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = true,
     OnPushBranches = new[] { "main" },
-    InvokedTargets = new[] { nameof(Push) })]
-class Build : NukeBuild
+    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj" },
+    InvokedTargets = new[] { nameof(Push) },
+    OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
+    PublishArtifacts = true,
+    ImportSecrets = new[] { "NUGET_API_KEY", "GITHUB_TOKEN" })
+]
+partial class Build : NukeBuild
 {
     /// Support plugins are available for:
     ///   - JetBrains ReSharper        https://nuke.build/resharper
@@ -60,25 +78,24 @@ class Build : NukeBuild
 
     [Solution] readonly Solution Solution;
     [GitRepository] readonly GitRepository GitRepository;
-    [GitVersion(Framework = "net5.0")] readonly GitVersion GitVersion;
+    [GitVersion(Framework = "net6.0")] readonly GitVersion GitVersion;
 
     [Parameter] string NugetApiUrl = "https://api.nuget.org/v3/index.json";
     [Parameter] string GithubSource = "https://nuget.pkg.github.com/OWNER/index.json";
 
     //[Parameter] string NugetApiKey = Environment.GetEnvironmentVariable("SHARP_PULSAR_NUGET_API_KEY");
-    [Parameter("NuGet API Key", Name = "NUGET_API_KEY")]
-    readonly string NugetApiKey;
+    [Parameter] [Secret] string NuGetApiKey;
 
     [Parameter("GitHub Build Number", Name = "BUILD_NUMBER")]
     readonly string BuildNumber;
 
     [Parameter("GitHub Access Token for Packages", Name = "GH_API_KEY")]
-    readonly string GitHubApiKey;
+    readonly string GitHubApiKey; 
     AbsolutePath TestsDirectory => RootDirectory;
     AbsolutePath OutputDirectory => RootDirectory / "output";
     AbsolutePath TestSourceDirectory => RootDirectory / "AvroSchemaGenerator.Tests";
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
-
+    static bool IsRunningOnWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     Target Clean => _ => _
         .Before(Restore)
         .Executes(() =>
@@ -112,19 +129,20 @@ class Build : NukeBuild
             var projectName = "AvroSchemaGenerator.Tests";
             var project = Solution.GetProjects("*.Tests").First();
             Information($"Running tests from {projectName}");
-
-            foreach (var fw in project.GetTargetFrameworks())
+            var fw = "";
+            if (!IsRunningOnWindows)
             {
-                Information($"Running for {projectName} ({fw}) ...");
-                DotNetTest(c => c
-                       .SetProjectFile(project)
-                       .SetConfiguration(Configuration.ToString())
-                       .SetFramework(fw)
-                       //.SetDiagnosticsFile(TestsDirectory)
-                       //.SetLogger("trx")
-                       .SetVerbosity(verbosity: DotNetVerbosity.Normal)
-                       .EnableNoBuild());
+                fw = "net6.0";
             }
+            Information($"Running for {projectName} ({fw}) ...");
+            DotNetTest(c => c
+                   .SetProjectFile(project)
+                   .SetConfiguration(Configuration.ToString())
+                   .SetFramework(fw)                   
+                   //.SetDiagnosticsFile(TestsDirectory)
+                   //.SetLogger("trx")
+                   .SetVerbosity(verbosity: DotNetVerbosity.Normal)
+                   .EnableNoBuild());
         });
 
     Target Pack => _ => _
@@ -171,21 +189,22 @@ class Build : NukeBuild
     Target Push => _ => _
       .DependsOn(Pack)
       .Requires(() => NugetApiUrl)
-      .Requires(() => !NugetApiKey.IsNullOrEmpty())
+      .Requires(() => !NuGetApiKey.IsNullOrEmpty())
       .Requires(() => !GitHubApiKey.IsNullOrEmpty())
-      .Requires(() => !BuildNumber.IsNullOrEmpty())
+      //.Requires(() => !BuildNumber.IsNullOrEmpty())
       .Requires(() => Configuration.Equals(Configuration.Release))
       .Executes(() =>
       {
+          
           GlobFiles(ArtifactsDirectory / "nuget", "*.nupkg")
-              .NotEmpty()
               .Where(x => !x.EndsWith("symbols.nupkg"))
               .ForEach(x =>
               {
+                  Assert.NotNullOrEmpty(x);
                   DotNetNuGetPush(s => s
                       .SetTargetPath(x)
                       .SetSource(NugetApiUrl)
-                      .SetApiKey(NugetApiKey)
+                      .SetApiKey(NuGetApiKey)
                   );
 
                   /*DotNetNuGetPush(s => s
@@ -199,35 +218,28 @@ class Build : NukeBuild
     Target PushBeta => _ => _
       .DependsOn(PackBeta)
       .Requires(() => NugetApiUrl)
-      .Requires(() => !NugetApiKey.IsNullOrEmpty())
+      .Requires(() => !NuGetApiKey.IsNullOrEmpty())
       .Requires(() => !GitHubApiKey.IsNullOrEmpty())
-      .Requires(() => !BuildNumber.IsNullOrEmpty())
+      //.Requires(() => !BuildNumber.IsNullOrEmpty())
       .Requires(() => Configuration.Equals(Configuration.Release))
       .Executes(() =>
       {
           GlobFiles(ArtifactsDirectory / "nuget", "*.nupkg")
-              .NotEmpty()
               .Where(x => !x.EndsWith("symbols.nupkg"))
               .ForEach(x =>
               {
+                  Assert.NotNullOrEmpty(x);
                   DotNetNuGetPush(s => s
                       .SetTargetPath(x)
                       .SetSource(NugetApiUrl)
-                      .SetApiKey(NugetApiKey)
+                      .SetApiKey(NuGetApiKey)
                   );
-
-                  /*DotNetNuGetPush(s => s
-                      .SetApiKey(GitHubApiKey)
-                      .SetSymbolApiKey(GitHubApiKey)
-                      .SetTargetPath(x)
-                      .SetSource(GithubSource)
-                      .SetSymbolSource(GithubSource));*/
               });
       });
 
     static void Information(string info)
     {
-        Logger.Info(info);
+        Serilog.Log.Information(info);  
     }
     static string GetVersion()
     {
