@@ -18,46 +18,46 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 [CheckBuildProjectConfigurations]
 [ShutdownDotNetAfterServerBuild]
-[GitHubActionsAttribute("Build",
+[GitHubActions("Build",
     GitHubActionsImage.WindowsLatest,
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = true,
     OnPushBranches = new[] { "master", "dev" },
     OnPullRequestBranches = new[] { "master", "dev" },
-    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj" },
+    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj", "SchemaGenerator/**/package.json" },
     InvokedTargets = new[] { nameof(Compile) },
     OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
     PublishArtifacts = true)
 ]
 
-[GitHubActionsAttribute("Tests",
+[GitHubActions("Tests",
     GitHubActionsImage.WindowsLatest,
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = true,
     OnPushBranches = new[] { "master", "dev" },
     OnPullRequestBranches = new[] { "master", "dev" },
-    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj" },
+    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj", "SchemaGenerator/**/package.json" },
     InvokedTargets = new[] { nameof(Test) },
     OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
     PublishArtifacts = true)
 ]
 
 
-[GitHubActionsAttribute("PublishBeta",
+[GitHubActions("PublishBeta",
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = true,
     OnPushBranches = new[] { "beta_branch" },
-    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj" },
+    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj", "SchemaGenerator/**/package.json" },
     InvokedTargets = new[] { nameof(PushBeta) },
     OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
     PublishArtifacts = true,
     ImportSecrets = new[] { "NUGET_API_KEY", "GITHUB_TOKEN" })]
 
-[GitHubActionsAttribute("Publish",
+[GitHubActions("Publish",
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = true,
     OnPushBranches = new[] { "main" },
-    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj" },
+    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj", "SchemaGenerator/**/package.json" },
     InvokedTargets = new[] { nameof(Push) },
     OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
     PublishArtifacts = true,
