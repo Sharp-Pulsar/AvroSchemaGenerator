@@ -123,7 +123,7 @@ partial class Build : NukeBuild
                 .EnableNoRestore());
         });
     Target Test => _ => _
-        .DependsOn(Compile)
+        .After(Compile)
         .Executes(() =>
         {
             var projectName = "AvroSchemaGenerator.Tests";
