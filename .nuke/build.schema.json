@@ -6,10 +6,6 @@
     "build": {
       "type": "object",
       "properties": {
-        "BUILD_NUMBER": {
-          "type": "string",
-          "description": "GitHub Build Number"
-        },
         "Configuration": {
           "type": "string",
           "description": "Configuration to build - Default is 'Debug' (local) or 'Release' (server)",
@@ -22,9 +18,9 @@
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
         },
-        "GH_API_KEY": {
+        "GitHubApiKey": {
           "type": "string",
-          "description": "GitHub Access Token for Packages"
+          "default": "Secrets must be entered via 'nuke :secret [profile]'"
         },
         "GithubSource": {
           "type": "string"
