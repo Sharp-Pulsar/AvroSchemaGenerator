@@ -73,6 +73,7 @@ partial class Build : NukeBuild
                 .SetConfiguration(Configuration)
                 .SetAssemblyVersion(GetVersion())
                 .SetFileVersion(GetVersion())
+                .SetVerbosity(verbosity: DotNetVerbosity.Detailed)
                 .EnableNoRestore());
         });
     Target Test => _ => _
