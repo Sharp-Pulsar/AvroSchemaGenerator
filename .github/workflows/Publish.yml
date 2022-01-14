@@ -37,9 +37,10 @@ jobs:
           path: |
             .nuke/temp
             ~/.nuget/packages
-          key: ${{ runner.os }}-${{ hashFiles('global.json', 'SchemaGenerator/*.csproj', 'SchemaGenerator/**/package.json') }}
+          key: ${{ runner.os }}-${{ hashFiles('global.json', 'SchemaGenerator/**/*.csproj') }}
       - name: Run './build.cmd Push'
         run: ./build.cmd Push
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_CONTEXT: ${{ toJSON(github) }}

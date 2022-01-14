@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using Nuke.Common;
 using Nuke.Common.CI;
 using Nuke.Common.CI.GitHubActions;
@@ -15,54 +16,9 @@ using Nuke.Common.Utilities.Collections;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
-
 [CheckBuildProjectConfigurations]
+[DotNetVerbosityMapping]
 [ShutdownDotNetAfterServerBuild]
-[GitHubActions("Build",
-    GitHubActionsImage.WindowsLatest,
-    GitHubActionsImage.UbuntuLatest,
-    AutoGenerate = true,
-    OnPushBranches = new[] { "master", "dev" },
-    OnPullRequestBranches = new[] { "master", "dev" },
-    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj", "SchemaGenerator/**/package.json" },
-    InvokedTargets = new[] { nameof(Compile) },
-    OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
-    PublishArtifacts = true)
-]
-
-[GitHubActions("Tests",
-    GitHubActionsImage.WindowsLatest,
-    GitHubActionsImage.UbuntuLatest,
-    AutoGenerate = true,
-    OnPushBranches = new[] { "master", "dev" },
-    OnPullRequestBranches = new[] { "master", "dev" },
-    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj", "SchemaGenerator/**/package.json" },
-    InvokedTargets = new[] { nameof(Test) },
-    OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
-    PublishArtifacts = true)
-]
-
-
-[GitHubActions("PublishBeta",
-    GitHubActionsImage.UbuntuLatest,
-    AutoGenerate = true,
-    OnPushBranches = new[] { "beta_branch" },
-    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj", "SchemaGenerator/**/package.json" },
-    InvokedTargets = new[] { nameof(PushBeta) },
-    OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
-    PublishArtifacts = true,
-    ImportSecrets = new[] { "NUGET_API_KEY", "GITHUB_TOKEN" })]
-
-[GitHubActions("Publish",
-    GitHubActionsImage.UbuntuLatest,
-    AutoGenerate = true,
-    OnPushBranches = new[] { "main" },
-    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/*.csproj", "SchemaGenerator/**/package.json" },
-    InvokedTargets = new[] { nameof(Push) },
-    OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
-    PublishArtifacts = true,
-    ImportSecrets = new[] { "NUGET_API_KEY", "GITHUB_TOKEN" })
-]
 partial class Build : NukeBuild
 {
     /// Support plugins are available for:
@@ -73,6 +29,8 @@ partial class Build : NukeBuild
 
     public static int Main () => Execute<Build>(x => x.Pack);
 
+    [CI] readonly GitHubActions GitHubActions;
+
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
@@ -80,22 +38,18 @@ partial class Build : NukeBuild
     [GitRepository] readonly GitRepository GitRepository;
     [GitVersion(Framework = "net6.0")] readonly GitVersion GitVersion;
 
+    readonly string _githubContext = EnvironmentInfo.GetVariable<string>("GITHUB_CONTEXT");
+    //readonly string _githubContext = JsonSerializer.Deserialize<JsonElement>(EnvironmentInfo.GetVariable<string>("GITHUB_CONTEXT"));
+    
     [Parameter] string NugetApiUrl = "https://api.nuget.org/v3/index.json";
     [Parameter] string GithubSource = "https://nuget.pkg.github.com/OWNER/index.json";
 
-    //[Parameter] string NugetApiKey = Environment.GetEnvironmentVariable("SHARP_PULSAR_NUGET_API_KEY");
     [Parameter] [Secret] string NuGetApiKey;
-
-    [Parameter("GitHub Build Number", Name = "BUILD_NUMBER")]
-    readonly string BuildNumber;
-
-    [Parameter("GitHub Access Token for Packages", Name = "GH_API_KEY")]
-    readonly string GitHubApiKey; 
+    [Parameter] [Secret] string GitHubApiKey;
     AbsolutePath TestsDirectory => RootDirectory;
     AbsolutePath OutputDirectory => RootDirectory / "output";
     AbsolutePath TestSourceDirectory => RootDirectory / "AvroSchemaGenerator.Tests";
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
-    static bool IsRunningOnWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     Target Clean => _ => _
         .Before(Restore)
         .Executes(() =>
@@ -119,7 +73,6 @@ partial class Build : NukeBuild
                 .SetConfiguration(Configuration)
                 .SetAssemblyVersion(GetVersion())
                 .SetFileVersion(GetVersion())
-                //.SetInformationalVersion("1.9.0")
                 .EnableNoRestore());
         });
     Target Test => _ => _
@@ -129,19 +82,11 @@ partial class Build : NukeBuild
             var projectName = "AvroSchemaGenerator.Tests";
             var project = Solution.GetProjects("*.Tests").First();
             Information($"Running tests from {projectName}");
-            var fw = "";
-            if (!IsRunningOnWindows)
-            {
-                fw = "net6.0";
-            }
-            Information($"Running for {projectName} ({fw}) ...");
             DotNetTest(c => c
                    .SetProjectFile(project)
                    .SetConfiguration(Configuration.ToString())
-                   .SetFramework("net6.0")                   
-                   //.SetDiagnosticsFile(TestsDirectory)
-                   //.SetLogger("trx")
-                   .SetVerbosity(verbosity: DotNetVerbosity.Normal)
+                   .SetFramework("net6.0")   
+                   .SetVerbosity(verbosity: DotNetVerbosity.Detailed)
                    .EnableNoBuild());
         });
 
