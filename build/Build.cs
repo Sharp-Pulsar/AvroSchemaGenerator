@@ -60,12 +60,19 @@ partial class Build : NukeBuild
     Target Restore => _ => _
         .Executes(() =>
         {
-            DotNetRestore(s => s
-                .SetProjectFile(Solution));
+            try
+            {
+                DotNetRestore(s => s
+               .SetProjectFile(Solution));
+            }
+            catch (Exception ex)
+            {
+                Information(ex.ToString());
+            }
         });
 
     Target Compile => _ => _
-        .DependsOn(Restore)
+        .After(Restore)
         .Executes(() =>
         {
             try
