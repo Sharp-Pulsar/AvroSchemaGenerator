@@ -75,20 +75,14 @@ partial class Build : NukeBuild
         .After(Restore)
         .Executes(() =>
         {
-            try
-            {
-                DotNetBuild(s => s
+            DotNetBuild(s => s
                 .SetProjectFile(Solution)
                 .SetConfiguration(Configuration)
                 .SetAssemblyVersion(GetVersion())
+                .SetFramework("net6.0")
                 .SetFileVersion(GetVersion())
                 .SetVerbosity(verbosity: DotNetVerbosity.Detailed)
                 .EnableNoRestore());
-            }
-            catch (Exception ex)
-            {
-                Information(ex.ToString());
-            }   
         });
     Target Test => _ => _
         .After(Compile)
