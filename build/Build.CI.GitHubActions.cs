@@ -2,6 +2,7 @@
 // Distributed under the MIT License.
 // https://github.com/nuke-build/nuke/blob/master/LICENSE
 
+using System;
 using System.Collections.Generic;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.CI.GitHubActions.Configuration;
@@ -54,8 +55,7 @@ using Nuke.Common.Utilities;
     OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
     PublishArtifacts = true,
     EnableGitHubContext = true,    
-    ImportSecrets = new[] { "NUGET_API_KEY", "GITHUB_TOKEN" })
-]
+    ImportSecrets = new[] { "NUGET_API_KEY", "GITHUB_TOKEN" })]
 partial class Build
 {
 }
@@ -69,16 +69,23 @@ class CustomGitHubActionsAttribute : GitHubActionsAttribute
     {
         var job = base.GetJobs(image, relevantTargets);
 
-        var newSteps = new List<GitHubActionsStep>(job.Steps);
-        foreach (var version in new[] { "6.0.*", "5.0.*", "3.1.*", "2.1.*" })
+        try
         {
-            newSteps.Insert(1, new GitHubActionsSetupDotNetStep
+            var newSteps = new List<GitHubActionsStep>(job.Steps);
+            foreach (var version in new[] { "6.0.*", "5.0.*" })
             {
-                Version = version
-            });
-        }
+                newSteps.Insert(1, new GitHubActionsSetupDotNetStep
+                {
+                    Version = version
+                });
+            }
 
-        job.Steps = newSteps.ToArray();
+            job.Steps = newSteps.ToArray();
+        }
+        catch(Exception ex)
+        {
+
+        }
         return job;
     }
 }
@@ -89,15 +96,22 @@ class GitHubActionsSetupDotNetStep : GitHubActionsStep
 
     public override void Write(CustomFileWriter writer)
     {
-        writer.WriteLine("- uses: actions/setup-dotnet@v1");
-
-        using (writer.Indent())
+        try
         {
-            writer.WriteLine("with:");
+            writer.WriteLine("- uses: actions/setup-dotnet@v1");
+
             using (writer.Indent())
             {
-                writer.WriteLine($"dotnet-version: {Version}");
+                writer.WriteLine("with:");
+                using (writer.Indent())
+                {
+                    writer.WriteLine($"dotnet-version: {Version}");
+                }
             }
+        }
+        catch (Exception ex)
+        {
+
         }
     }
 }
