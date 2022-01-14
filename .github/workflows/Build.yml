@@ -42,7 +42,7 @@ jobs:
           path: |
             .nuke/temp
             ~/.nuget/packages
-          key: ${{ runner.os }}-${{ hashFiles('global.json', 'SchemaGenerator/*.csproj') }}
+          key: ${{ runner.os }}-${{ hashFiles('global.json', 'SchemaGenerator/*.csproj', 'SchemaGenerator/**/package.json') }}
       - name: Run './build.cmd Compile'
         run: ./build.cmd Compile
   ubuntu-latest:
@@ -56,6 +56,6 @@ jobs:
           path: |
             .nuke/temp
             ~/.nuget/packages
-          key: ${{ runner.os }}-${{ hashFiles('global.json', 'SchemaGenerator/*.csproj') }}
+          key: ${{ runner.os }}-${{ hashFiles('global.json', 'SchemaGenerator/*.csproj', 'SchemaGenerator/**/package.json') }}
       - name: Run './build.cmd Compile'
         run: ./build.cmd Compile
