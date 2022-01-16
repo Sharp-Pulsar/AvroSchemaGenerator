@@ -88,10 +88,9 @@
               "Clean",
               "Compile",
               "Pack",
-              "PackBeta",
-              "Push",
-              "PushBeta",
+              "Release",
               "Restore",
+              "RunChangelog",
               "Test"
             ]
           }
@@ -109,10 +108,9 @@
               "Clean",
               "Compile",
               "Pack",
-              "PackBeta",
-              "Push",
-              "PushBeta",
+              "Release",
               "Restore",
+              "RunChangelog",
               "Test"
             ]
           }
