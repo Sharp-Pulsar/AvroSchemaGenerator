@@ -37,7 +37,7 @@ using Nuke.Common.Utilities;
 [CustomGitHubActions("Release",
     GitHubActionsImage.WindowsLatest,
     AutoGenerate = true,
-    OnPushBranches = new[] { "main", "dev", "alpha", "beta" },
+    //OnPushBranches = new[] { "main", "dev", "alpha", "beta" },
     CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },
     InvokedTargets = new[] { nameof(Release) },
     OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
