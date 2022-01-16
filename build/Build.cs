@@ -52,6 +52,7 @@ partial class Build : NukeBuild
     [Parameter] string GithubSource = "https://nuget.pkg.github.com/OWNER/index.json";
 
     [Parameter] [Secret] string NuGetApiKey;
+
     [Parameter] [Secret] string GitHubApiKey;
 
     AbsolutePath OutputTests => RootDirectory / "TestResults";
