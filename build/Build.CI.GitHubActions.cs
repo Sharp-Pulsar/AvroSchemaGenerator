@@ -35,7 +35,7 @@ using Nuke.Common.Utilities;
 ]
 
 [CustomGitHubActions("Release",
-    GitHubActionsImage.WindowsLatest,
+    GitHubActionsImage.UbuntuLatest,
     AutoGenerate = true,
     OnPushBranches = new[] { "main", "dev", "alpha", "beta" },
     CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },

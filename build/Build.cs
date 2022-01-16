@@ -22,6 +22,7 @@ using static Nuke.Common.ChangeLog.ChangelogTasks;
 using static Nuke.Common.Tools.Git.GitTasks;
 using Nuke.Common.ChangeLog;
 using System.Collections.Generic;
+using Nuke.Common.Tooling;
 
 [CheckBuildProjectConfigurations]
 [DotNetVerbosityMapping]
@@ -138,8 +139,11 @@ partial class Build : NukeBuild
             DotNetTest(c => c
                    .SetProjectFile(project)
                    .SetConfiguration(Configuration.ToString())
-                   .SetFramework("net6.0")   
-                   .SetVerbosity(verbosity: DotNetVerbosity.Detailed)
+                   .SetFramework("net6.0")
+                   .SetResultsDirectory(OutputTests)
+                   .SetProcessWorkingDirectory(Directory.GetParent(project).FullName)
+                   .SetLoggers("trx")
+                   .SetVerbosity(verbosity: DotNetVerbosity.Normal)
                    .EnableNoBuild());
         });
 
