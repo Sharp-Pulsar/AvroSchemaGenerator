@@ -54,6 +54,7 @@ partial class Build : NukeBuild
     [Parameter] [Secret] string GitHubApiKey;
 
     AbsolutePath OutputTests => RootDirectory / "TestResults";
+
     AbsolutePath OutputPerfTests => RootDirectory / "PerfResults";
     AbsolutePath DocSiteDirectory => RootDirectory / "docs/_site";
     public string ChangelogFile => RootDirectory / "CHANGELOG.md";
