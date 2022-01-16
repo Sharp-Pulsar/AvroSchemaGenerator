@@ -62,6 +62,8 @@ partial class Build : NukeBuild
     public string DocFxDirJson => DocFxDir / "docfx.json";
     AbsolutePath Output => RootDirectory / "output";
     AbsolutePath OutputNuget => Output / "nuget";
+    AbsolutePath SourceDirectoryBin => RootDirectory / "SchemaGenerator/bin";
+    AbsolutePath SourceDirectoryObj => RootDirectory / "SchemaGenerator/obj";
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
     AbsolutePath TestSourceDirectory => RootDirectory / "AvroSchemaGenerator.Tests";
 
@@ -71,11 +73,10 @@ partial class Build : NukeBuild
     public string ReleaseVersion => LatestVersion.Version?.ToString() ?? throw new ArgumentException("Bad Changelog File. Define at least one version");
 
     Target Clean => _ => _
-        .Before(Restore)
         .Executes(() =>
         {
             RootDirectory
-            .GlobDirectories("**/bin", "**/obj", Output, OutputTests, OutputPerfTests, OutputNuget, DocSiteDirectory)
+            .GlobDirectories(SourceDirectoryBin, SourceDirectoryObj, Output, OutputTests, OutputPerfTests, OutputNuget, DocSiteDirectory)
             .ForEach(DeleteDirectory);
             EnsureCleanDirectory(ArtifactsDirectory);
         });
@@ -93,17 +94,11 @@ partial class Build : NukeBuild
         });
 
     Target Restore => _ => _
+        .DependsOn(Clean)
         .Executes(() =>
         {
-            try
-            {
-                DotNetRestore(s => s
-               .SetProjectFile(Solution));
-            }
-            catch (Exception ex)
-            {
-                Information(ex.ToString());
-            }
+            DotNetRestore(s => s
+              .SetProjectFile(Solution));
         });
 
     Target Compile => _ => _
@@ -130,7 +125,7 @@ partial class Build : NukeBuild
                 .EnableNoRestore());
         });
     Target Test => _ => _
-        .After(Compile)
+        .DependsOn(Compile)
         .Executes(() =>
         {
             var projectName = "AvroSchemaGenerator.Tests";

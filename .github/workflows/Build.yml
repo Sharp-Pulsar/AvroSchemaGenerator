@@ -19,13 +19,13 @@ name: Build
 on:
   push:
     branches:
-      - master
+      - main
       - dev
       - alpha
       - beta
   pull_request:
     branches:
-      - master
+      - main
       - dev
       - alpha
       - beta
