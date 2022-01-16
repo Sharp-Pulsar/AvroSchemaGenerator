@@ -18,6 +18,11 @@ name: Release
 
 on:
   push:
+    branches:
+      - main
+      - dev
+      - alpha
+      - beta
     paths:
       - '!docs/**/*'
       - '!package.json'
