@@ -54,6 +54,7 @@ partial class Build : NukeBuild
     [Parameter] [Secret] string GitHubApiKey;
 
     AbsolutePath OutputTests => RootDirectory / "TestResults";
+
     AbsolutePath OutputPerfTests => RootDirectory / "PerfResults";
     AbsolutePath DocSiteDirectory => RootDirectory / "docs/_site";
     public string ChangelogFile => RootDirectory / "CHANGELOG.md";
@@ -175,7 +176,7 @@ partial class Build : NukeBuild
       .Executes(() =>
       {
           
-          GlobFiles(ArtifactsDirectory / "nuget", "*.nupkg")
+          GlobFiles(OutputNuget, "*.nupkg")
               .Where(x => !x.EndsWith("symbols.nupkg"))
               .ForEach(x =>
               {
