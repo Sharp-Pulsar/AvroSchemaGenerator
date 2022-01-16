@@ -142,7 +142,7 @@ partial class Build : NukeBuild
                    .SetFramework("net6.0")
                    .SetResultsDirectory(OutputTests)
                    .SetProcessWorkingDirectory(Directory.GetParent(project).FullName)
-                   .SetLoggers("trx")
+                   //.SetLoggers("trx")
                    .SetVerbosity(verbosity: DotNetVerbosity.Normal)
                    .EnableNoBuild());
         });
@@ -157,8 +157,6 @@ partial class Build : NukeBuild
               .SetProject(project)
               .SetConfiguration(Configuration)
               .EnableNoBuild()
-              
-              .EnableNoRestore()
               .SetAssemblyVersion(version.Version.ToString())
               .SetVersion(version.Version.ToString())
               .SetPackageReleaseNotes(GetNuGetReleaseNotes(ChangelogFile, GitRepository))
