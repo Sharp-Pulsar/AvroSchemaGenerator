@@ -60,8 +60,8 @@ partial class Build : NukeBuild
     public string ChangelogFile => RootDirectory / "CHANGELOG.md";
     public AbsolutePath DocFxDir => RootDirectory / "docs";
     public string DocFxDirJson => DocFxDir / "docfx.json";
-    AbsolutePath OutputNuget => Output / "nuget";
     AbsolutePath Output => RootDirectory / "output";
+    AbsolutePath OutputNuget => Output / "nuget";
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
     AbsolutePath TestSourceDirectory => RootDirectory / "AvroSchemaGenerator.Tests";
 
@@ -140,8 +140,8 @@ partial class Build : NukeBuild
                    .SetProjectFile(project)
                    .SetConfiguration(Configuration.ToString())
                    .SetFramework("net6.0")
-                   .SetResultsDirectory(OutputTests)
-                   .SetProcessWorkingDirectory(Directory.GetParent(project).FullName)
+                   //.SetResultsDirectory(OutputTests)
+                   //.SetProcessWorkingDirectory(Directory.GetParent(project).FullName)
                    //.SetLoggers("trx")
                    .SetVerbosity(verbosity: DotNetVerbosity.Normal)
                    .EnableNoBuild());
@@ -156,7 +156,8 @@ partial class Build : NukeBuild
           DotNetPack(s => s
               .SetProject(project)
               .SetConfiguration(Configuration)
-              .EnableNoBuild()
+              .EnableNoBuild()              
+              .EnableNoRestore()
               .SetAssemblyVersion(version.Version.ToString())
               .SetVersion(version.Version.ToString())
               .SetPackageReleaseNotes(GetNuGetReleaseNotes(ChangelogFile, GitRepository))
