@@ -169,7 +169,7 @@ partial class Build : NukeBuild
       .DependsOn(Pack)
       .Requires(() => NugetApiUrl)
       .Requires(() => !NuGetApiKey.IsNullOrEmpty())
-      .Requires(() => !GitHubApiKey.IsNullOrEmpty())
+      //.Requires(() => !GitHubApiKey.IsNullOrEmpty())
       //.Requires(() => !BuildNumber.IsNullOrEmpty())
       .Requires(() => Configuration.Equals(Configuration.Release))
       .Executes(() =>
