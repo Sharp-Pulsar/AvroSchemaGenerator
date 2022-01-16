@@ -46,11 +46,8 @@ partial class Build : NukeBuild
     [Required][GitVersion(Framework = "net6.0")] readonly GitVersion GitVersion;
 
     readonly string _githubContext = EnvironmentInfo.GetVariable<string>("GITHUB_CONTEXT");
-    //readonly string _githubContext = JsonSerializer.Deserialize<JsonElement>(EnvironmentInfo.GetVariable<string>("GITHUB_CONTEXT"));
-    
-    [Parameter] string NugetApiUrl = "https://api.nuget.org/v3/index.json";
 
-    [Parameter] string GithubSource = "https://nuget.pkg.github.com/OWNER/index.json";
+    [Parameter] string NugetApiUrl = "https://api.nuget.org/v3/index.json";
 
     [Parameter] [Secret] string NuGetApiKey;
 
