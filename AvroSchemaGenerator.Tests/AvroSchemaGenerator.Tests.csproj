@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-      <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+      <TargetFrameworks>net6.0</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -24,5 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SchemaGenerator\AvroSchemaGenerator.csproj" />
   </ItemGroup>
-
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+        <DefineConstants>$(DefineConstants);NETCORE</DefineConstants>
+    </PropertyGroup>
 </Project>
