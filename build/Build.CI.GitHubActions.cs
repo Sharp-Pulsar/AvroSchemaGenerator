@@ -17,7 +17,7 @@ using Nuke.Common.Utilities;
     OnPullRequestBranches = new[] { "master", "dev", "alpha", "beta" },
     CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },
     InvokedTargets = new[] { nameof(Compile) },
-    OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
+    //OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
     PublishArtifacts = false,
     EnableGitHubContext = true)
 ]
@@ -30,7 +30,7 @@ using Nuke.Common.Utilities;
     OnPullRequestBranches = new[] { "master", "dev", "alpha", "beta" },
     CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },
     InvokedTargets = new[] { nameof(Test) },
-    OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
+    //OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
     EnableGitHubContext = true)
 ]
 
@@ -40,7 +40,7 @@ using Nuke.Common.Utilities;
     OnPushBranches = new[] { "main", "dev", "alpha", "beta" },
     CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },
     InvokedTargets = new[] { nameof(Release) },
-    OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
+    //OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
     PublishArtifacts = true,
     EnableGitHubContext = true,    
     ImportSecrets = new[] { "NUGET_API_KEY", "GITHUB_TOKEN" })]
