@@ -34,7 +34,7 @@ partial class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main () => Execute<Build>(x => x.RunChangelog);
+    public static int Main () => Execute<Build>(x => x.Test);
 
     [CI] readonly GitHubActions GitHubActions;
 
