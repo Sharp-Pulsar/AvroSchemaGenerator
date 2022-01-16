@@ -21,6 +21,8 @@ on:
     branches:
       - main
       - dev
+      - alpha
+      - beta
     paths:
       - '!docs/**/*'
       - '!package.json'
@@ -29,6 +31,8 @@ on:
     branches:
       - main
       - dev
+      - alpha
+      - beta
 
 jobs:
   windows-latest:
