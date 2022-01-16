@@ -176,7 +176,7 @@ partial class Build : NukeBuild
       .Executes(() =>
       {
           
-          GlobFiles(ArtifactsDirectory / "nuget", "*.nupkg")
+          GlobFiles(OutputNuget, "*.nupkg")
               .Where(x => !x.EndsWith("symbols.nupkg"))
               .ForEach(x =>
               {
