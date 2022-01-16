@@ -6,10 +6,6 @@
     "build": {
       "type": "object",
       "properties": {
-        "BUILD_NUMBER": {
-          "type": "string",
-          "description": "GitHub Build Number"
-        },
         "Configuration": {
           "type": "string",
           "description": "Configuration to build - Default is 'Debug' (local) or 'Release' (server)",
@@ -22,9 +18,9 @@
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
         },
-        "GH_API_KEY": {
+        "GitHubApiKey": {
           "type": "string",
-          "description": "GitHub Access Token for Packages"
+          "default": "Secrets must be entered via 'nuke :secret [profile]'"
         },
         "GithubSource": {
           "type": "string"
@@ -44,22 +40,29 @@
             "GitHubActions",
             "GitLab",
             "Jenkins",
+            "Rider",
             "SpaceAutomation",
             "TeamCity",
             "Terminal",
-            "TravisCI"
+            "TravisCI",
+            "VisualStudio",
+            "VSCode"
           ]
         },
         "NoLogo": {
           "type": "boolean",
           "description": "Disables displaying the NUKE logo"
         },
-        "NUGET_API_KEY": {
+        "NuGetApiKey": {
           "type": "string",
-          "description": "NuGet API Key"
+          "default": "Secrets must be entered via 'nuke :secret [profile]'"
         },
         "NugetApiUrl": {
           "type": "string"
+        },
+        "Partition": {
+          "type": "string",
+          "description": "Partition to use on CI"
         },
         "Plan": {
           "type": "boolean",
@@ -85,10 +88,9 @@
               "Clean",
               "Compile",
               "Pack",
-              "PackBeta",
-              "Push",
-              "PushBeta",
+              "Release",
               "Restore",
+              "RunChangelog",
               "Test"
             ]
           }
@@ -106,10 +108,9 @@
               "Clean",
               "Compile",
               "Pack",
-              "PackBeta",
-              "Push",
-              "PushBeta",
+              "Release",
               "Restore",
+              "RunChangelog",
               "Test"
             ]
           }
