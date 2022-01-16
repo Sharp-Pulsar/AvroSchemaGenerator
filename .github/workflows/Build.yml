@@ -5,7 +5,7 @@
 #
 #     - To turn off auto-generation set:
 #
-#         [GitHubActions (AutoGenerate = false)]
+#         [CustomGitHubActions (AutoGenerate = false)]
 #
 #     - To trigger manual generation invoke:
 #
@@ -19,57 +19,63 @@ name: Build
 on:
   push:
     branches:
-      - main
+      - master
       - dev
-    paths-ignore:
-      - 'README.md'
+      - alpha
+      - beta
+    paths:
+      - '!docs/**/*'
+      - '!package.json'
+      - '!README.md'
   pull_request:
     branches:
-      - main
+      - master
       - dev
-    paths-ignore:
-      - 'README.md'
+      - alpha
+      - beta
 
 jobs:
   windows-latest:
     name: windows-latest
     runs-on: windows-latest
     steps:
-      - name: Setup SDKs
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: | 
-            5.0.x
-            6.0.x
-
       - uses: actions/checkout@v1
-      - name: Cache .tmp, ~/.nuget/packages
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.*
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.*
+      - name: Cache .nuke/temp, ~/.nuget/packages
         uses: actions/cache@v2
         with:
           path: |
-            .tmp
+            .nuke/temp
             ~/.nuget/packages
-          key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj') }}
+          key: ${{ runner.os }}-${{ hashFiles('global.json', 'SchemaGenerator/**/*.csproj') }}
       - name: Run './build.cmd Compile'
         run: ./build.cmd Compile
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
   ubuntu-latest:
     name: ubuntu-latest
     runs-on: ubuntu-latest
     steps:
-      - name: Setup SDKs
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: | 
-            5.0.x
-            6.0.x
-
       - uses: actions/checkout@v1
-      - name: Cache .tmp, ~/.nuget/packages
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.*
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.*
+      - name: Cache .nuke/temp, ~/.nuget/packages
         uses: actions/cache@v2
         with:
           path: |
-            .tmp
+            .nuke/temp
             ~/.nuget/packages
-          key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj') }}
+          key: ${{ runner.os }}-${{ hashFiles('global.json', 'SchemaGenerator/**/*.csproj') }}
       - name: Run './build.cmd Compile'
         run: ./build.cmd Compile
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
