@@ -19,20 +19,16 @@ name: Tests
 on:
   push:
     branches:
-      - master
+      - main
       - dev
-      - alpha
-      - beta
     paths:
       - '!docs/**/*'
       - '!package.json'
       - '!README.md'
   pull_request:
     branches:
-      - master
+      - main
       - dev
-      - alpha
-      - beta
 
 jobs:
   windows-latest:
