@@ -23,10 +23,6 @@ on:
       - dev
       - alpha
       - beta
-    paths:
-      - '!docs/**/*'
-      - '!package.json'
-      - '!README.md'
 
 jobs:
   windows-latest:
