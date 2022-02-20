@@ -182,7 +182,6 @@ partial class Build : NukeBuild
       .Requires(() => Configuration.Equals(Configuration.Release))
       .Executes(() =>
       {
-
           GlobFiles(OutputNuget, "*.nupkg")
               .Where(x => !x.EndsWith("symbols.nupkg"))
               .ForEach(x =>
