@@ -136,12 +136,16 @@ partial class Build : NukeBuild
             var projectName = "AvroSchemaGenerator.Tests";
             var project = Solution.GetProjects("*.Tests").First();
             Information($"Running tests from {projectName}");
-            DotNetTest(c => c
-                   .SetProjectFile(project)
-                   .SetConfiguration(Configuration.ToString())
-                   .SetFramework("net6.0")   
-                   .SetVerbosity(verbosity: DotNetVerbosity.Detailed)
-                   .EnableNoBuild());
+            foreach(var fw in project.GetTargetFrameworks())
+            {
+                Information($"Running tests from {projectName} framework '{fw}'");
+                DotNetTest(c => c
+                       .SetProjectFile(project)
+                       .SetConfiguration(Configuration.ToString())
+                       .SetFramework(fw)
+                       .SetVerbosity(verbosity: DotNetVerbosity.Normal)
+                       .EnableNoBuild());
+            }
         });
 
     Target Pack => _ => _
