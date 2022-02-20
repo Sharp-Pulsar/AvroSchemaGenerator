@@ -149,7 +149,7 @@ partial class Build : NukeBuild
 
     Target Pack => _ => _
       .DependsOn(Test)
-      .DependsOn(RunChangelog)
+      //.DependsOn(RunChangelog) requires authrntication in github action
       .Executes(() =>
       {
           var version = GitVersion.SemVer;
