@@ -51,8 +51,6 @@ partial class Build : NukeBuild
 
     [Parameter] [Secret] string NuGetApiKey;
 
-    [Parameter] [Secret] string GitHubApiKey;
-
     AbsolutePath OutputTests => RootDirectory / "TestResults";
 
     AbsolutePath OutputPerfTests => RootDirectory / "PerfResults";
@@ -177,8 +175,6 @@ partial class Build : NukeBuild
       .DependsOn(Pack)
       .Requires(() => NugetApiUrl)
       .Requires(() => !NuGetApiKey.IsNullOrEmpty())
-      .Requires(() => !GitHubApiKey.IsNullOrEmpty())
-      //.Requires(() => !BuildNumber.IsNullOrEmpty())
       .Requires(() => Configuration.Equals(Configuration.Release))
       .Executes(() =>
       {
