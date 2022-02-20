@@ -1,4 +1,6 @@
 ## [vNext]
+- Add back support for NET standard 2.0
+- Add `IEnumerabl<>` support - @ThomasHarzer [https://github.com/eaba/AvroSchemaGenerator/commit/38c38308d183ecda416ce5b8b946ebe681c2f171]
 
 ## [2.5.2-Alpha.1] / 2022-01-16
 - Improved `CI`

@@ -21,14 +21,10 @@ on:
     branches:
       - main
       - dev
-      - alpha
-      - beta
   pull_request:
     branches:
       - main
       - dev
-      - alpha
-      - beta
 
 jobs:
   windows-latest:
