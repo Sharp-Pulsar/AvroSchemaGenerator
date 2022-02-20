@@ -7,7 +7,6 @@ branches: # https://gitversion.net/docs/learn/branching-strategies/gitflow/examp
     regex: ^master$|^main$
     mode: ContinuousDelivery
     tag: ''
-    increment: Patch
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false
     tracks-release-branches: false
@@ -29,7 +28,7 @@ branches: # https://gitversion.net/docs/learn/branching-strategies/gitflow/examp
     regex: release?$
     mode:  ContinuousDelivery
     tag: beta
-    increment: None
+    increment: Patch
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false
     tracks-release-branches: false

@@ -34,7 +34,7 @@ partial class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main () => Execute<Build>(x => x.Test);
+    public static int Main() => Execute<Build>(x => x.Test);
 
     [CI] readonly GitHubActions GitHubActions;
 
@@ -43,7 +43,7 @@ partial class Build : NukeBuild
 
     [Solution] readonly Solution Solution;
     [GitRepository] readonly GitRepository GitRepository;
-    [Required][GitVersion(Framework = "net6.0")] readonly GitVersion GitVersion;
+    [Required] [GitVersion(Framework = "net6.0")] readonly GitVersion GitVersion;
 
     readonly string _githubContext = EnvironmentInfo.GetVariable<string>("GITHUB_CONTEXT");
 
@@ -82,6 +82,7 @@ partial class Build : NukeBuild
     IEnumerable<string> ChangelogSectionNotes => ExtractChangelogSectionNotes(ChangelogFile);
 
     Target RunChangelog => _ => _
+        .OnlyWhenDynamic(() => GitVersion.BranchName == "main")
         //.OnlyWhenStatic(() => InvokedTargets.Contains(nameof(RunChangelog)))
         .Executes(() =>
         {
@@ -137,7 +138,7 @@ partial class Build : NukeBuild
             var projectName = "AvroSchemaGenerator.Tests";
             var project = Solution.GetProjects("*.Tests").First();
             Information($"Running tests from {projectName}");
-            foreach(var fw in project.GetTargetFrameworks())
+            foreach (var fw in project.GetTargetFrameworks())
             {
                 Information($"Running tests from {projectName} framework '{fw}'");
                 DotNetTest(c => c
@@ -151,6 +152,7 @@ partial class Build : NukeBuild
 
     Target Pack => _ => _
       .DependsOn(Test)
+      .DependsOn(RunChangelog)
       .Executes(() =>
       {
           var version = GitVersion.SemVer;
@@ -159,7 +161,7 @@ partial class Build : NukeBuild
               .SetProject(project)
               .SetConfiguration(Configuration)
               .EnableNoBuild()
-              
+
               .EnableNoRestore()
               .SetAssemblyVersion(version)
               .SetVersion(version)
@@ -180,7 +182,7 @@ partial class Build : NukeBuild
       .Requires(() => Configuration.Equals(Configuration.Release))
       .Executes(() =>
       {
-          
+
           GlobFiles(OutputNuget, "*.nupkg")
               .Where(x => !x.EndsWith("symbols.nupkg"))
               .ForEach(x =>
@@ -195,6 +197,6 @@ partial class Build : NukeBuild
       });
     static void Information(string info)
     {
-        Serilog.Log.Information(info);  
+        Serilog.Log.Information(info);
     }
 }
