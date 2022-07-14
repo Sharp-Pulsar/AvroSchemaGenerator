@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using System.Text;
+using AvroSchemaGenerator.Attributes;
 
 namespace AvroSchemaGenerator
 {
@@ -24,6 +22,10 @@ namespace AvroSchemaGenerator
         {
             return property.GetCustomAttribute(typeof(RequiredAttribute)) != null;
         }
-        
+
+        public static string GetAvroCustomDefinition(this PropertyInfo property)
+        {
+            return ((AvroSchemaAttribute) property.GetCustomAttribute(typeof(AvroSchemaAttribute)))?.Value;
+        }
     }
 }
