@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Numerics;
 using Avro;
 using Avro.IO;
 using Avro.Reflect;
@@ -311,6 +312,76 @@ namespace AvroSchemaGenerator.Tests
             using var stream = new MemoryStream((byte[])(object)msgBytes);
             var msg = Read(stream, reader);
             Assert.NotNull(msg);
+        }
+
+        public class CustomDefinitionTest
+        {
+            [AvroSchema("{\n" +
+                        "  \"type\": \"bytes\",\n" +
+                        "  \"logicalType\": \"decimal\",\n" +
+                        "  \"precision\": 10,\n" +
+                        "  \"scale\": 6\n" +
+                        "}")]
+            public AvroDecimal DecimalAvro { get; set; }
+        }
+
+        public class NestedCustomDefinitionTest
+        {
+            public InnerClass Inner { get; set; }
+
+            public class InnerClass
+            {
+                [AvroSchema("{\n" +
+                            "  \"type\": \"bytes\",\n" +
+                            "  \"logicalType\": \"decimal\",\n" +
+                            "  \"precision\": 10,\n" +
+                            "  \"scale\": 6\n" +
+                            "}")]
+                public BigInteger BI { get; set; }
+            }
+        }
+
+        public class FailedCustomDefinitionTest
+        {
+            [AvroSchema("\n" +
+                        "  \"type\" \"bytes\",\n" +
+                        "  \"logicalType\": \"decimal\",\n" +
+                        "  \"precision\": 10,\n" +
+                        "  \"scale\": 6\n" +
+                        "}")]
+            public AvroDecimal DecimalAvro { get; set; }
+        }
+
+        [Fact]
+        public void TestCustomDefinition()
+        {
+            var expectSchema =
+                "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"CustomDefinitionTest\",\"type\":\"record\",\"fields\":[{\"name\":\"DecimalAvro\",\"type\":[\"null\",{\"type\":\"bytes\",\"logicalType\":\"decimal\",\"precision\":10,\"scale\":6}],\"default\":null}]}";
+            var actual = typeof(CustomDefinitionTest).GetSchema();
+            _output.WriteLine(actual);
+            var schema = Schema.Parse(actual);
+            var writer = new ReflectWriter<CustomDefinitionTest>(schema);
+
+            Assert.Equal(expectSchema, actual);
+        }
+
+        [Fact]
+        public void TestNestedCustomDefinition()
+        {
+            var expectSchema =
+                "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"NestedCustomDefinitionTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Inner\",\"type\":[\"null\",{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"InnerClass\",\"type\":\"record\",\"fields\":[{\"name\":\"BI\",\"type\":[\"null\",{\"type\":\"bytes\",\"logicalType\":\"decimal\",\"precision\":10,\"scale\":6}],\"default\":null}]}]}]}";
+            var actual = typeof(NestedCustomDefinitionTest).GetSchema();
+            _output.WriteLine(actual);
+            var schema = Schema.Parse(actual);
+            var writer = new ReflectWriter<NestedCustomDefinitionTest>(schema);
+
+            Assert.Equal(expectSchema, actual);
+        }
+
+        [Fact]
+        public void TestFailedCustomDefinition()
+        {
+            Assert.Throws(typeof(ArgumentException), () => typeof(FailedCustomDefinitionTest).GetSchema());
         }
 
         private sbyte[] Write<T>(T message, ReflectWriter<T> writer)

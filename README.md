@@ -103,6 +103,20 @@ public class MessageDateKind
 }
 ```
 
+## Custom Avro Definition
+```csharp
+public class CustomDefinition
+{
+    [AvroSchema("{\n" +
+                "  \"type\": \"bytes\",\n" +
+                "  \"logicalType\": \"decimal\",\n" +
+                "  \"precision\": 10,\n" +
+                "  \"scale\": 6\n" +
+                "}")]
+    public AvroDecimal DecimalAvro { get; set; }
+}
+```
+
 ## NOTE
 - Don't use same declaring type as dictionary value
 - Don't use same declaring type as list argument
