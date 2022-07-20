@@ -19,7 +19,7 @@ using Nuke.Common.Utilities;
     InvokedTargets = new[] { nameof(Compile) },
     OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
     PublishArtifacts = false,
-    EnableGitHubContext = true)
+    EnableGitHubToken = true)
 ]
 
 [CustomGitHubActions("Tests",
@@ -30,7 +30,7 @@ using Nuke.Common.Utilities;
     OnPullRequestBranches = new[] { "main", "dev"},
     CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },
     InvokedTargets = new[] { nameof(Test) },
-    EnableGitHubContext = true)
+    EnableGitHubToken = true)
 ]
 
 [CustomGitHubActions("Release",
@@ -40,8 +40,8 @@ using Nuke.Common.Utilities;
     CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },
     InvokedTargets = new[] { nameof(Release) },
     PublishArtifacts = true,
-    EnableGitHubContext = true,    
-    ImportSecrets = new[] { "NUGET_API_KEY", "GITHUB_TOKEN" })]
+    EnableGitHubToken = true,    
+    ImportSecrets = new[] { "NUGET_API_KEY"})]
 partial class Build
 {
 }
