@@ -101,6 +101,16 @@ namespace AvroSchemaGenerator
             List<string> existingTypes)
         {
             var p = property;
+
+            var customDefinition = CheckAndHandleCustomSchema(p);
+            if (customDefinition != null)
+            {
+                var field = (List<Dictionary<string, object>>) finalSchema["fields"];
+                field.Add(customDefinition);
+                finalSchema["fields"] = field;
+                return;
+            }
+
             if (p.PropertyType.FullName != null && p.PropertyType.FullName.StartsWith("Avro."))
             {
                 AddFields(p, finalSchema);
@@ -773,6 +783,29 @@ namespace AvroSchemaGenerator
             return field;
         }
 
+        private static Dictionary<string, object> CheckAndHandleCustomSchema(PropertyInfo p)
+        {
+            var customDefinition = p.GetAvroCustomDefinition();
+            if (string.IsNullOrEmpty(customDefinition)) return null;
+            Dictionary<string, object> customDict;
+            try
+            {
+                customDict = JsonSerializer.Deserialize<Dictionary<string, object>>(customDefinition);
+            }
+            catch (JsonException jsonException)
+            {
+                throw new ArgumentException(
+                    $"Failed to read the custom avro definition: {customDefinition}. Please check if the definition follows the json format.",
+                    jsonException);
+            }
+
+            var customAttributes = p.GetSchemaCustomAttributes();
+            var aliases = GetAliases(p);
+            var field = Field(customDict, p.Name, customAttributes.required, customAttributes.hasDefault,
+                customAttributes.defaultValue, true, aliases);
+            return field;
+        }
+
         private static Dictionary<string, object> GetField(PropertyInfo p)
         {
             (bool isNullable, string name) dt;
@@ -937,6 +970,14 @@ namespace AvroSchemaGenerator
             {
                 if (ShouldIgnore(p))
                     continue;
+                
+                var customDefinition = CheckAndHandleCustomSchema(p);
+                if (customDefinition != null)
+                {
+                    fieldProperties.Add(customDefinition);
+                    continue;
+                }
+
                 if (IsUserDefined(p))
                 {
                     var t = p.PropertyType.Name;

@@ -32,11 +32,21 @@ namespace AvroSchemaGenerator.Tests
             var schema = (RecordSchema)Schema.Parse(simple);
             reader = new SpecificDatumReader<MessageDateKind>(schema, schema);
             writer = new SpecificDatumWriter<MessageDateKind>(schema);
-            var msgBytes = Write(new MessageDateKind {Schema = schema, CreatedTime = DateTime.Now, DayOfWeek = "Saturday", Size = new AvroDecimal(102.65M) }, writer);
-            using var stream = new MemoryStream((byte[])(object)msgBytes);
+            var msgBytes =
+                Write(
+                    new MessageDateKind
+                    {
+                        Schema = schema,
+                        CreatedTime = DateTime.Now,
+                        DayOfWeek = "Saturday",
+                        Size = new AvroDecimal(102.65M),
+                        CustomDecimal = new AvroDecimal(102.6578M)
+                    }, writer);
+            using var stream = new MemoryStream((byte[]) (object) msgBytes);
             var msg = Read(stream, reader);
             Assert.NotNull(msg);
             Assert.True(msg.Size == 102.65M);
+            Assert.True(msg.CustomDecimal == 102.6578M);
         }
         [Fact]
         public void LogicalTime()
@@ -152,6 +162,13 @@ namespace AvroSchemaGenerator.Tests
         public DateTime CreatedTime { get; set; }
         public AvroDecimal Size { get; set; }
         public string DayOfWeek { get; set; }
+        [AvroSchema("{\n" +
+                    "  \"type\": \"bytes\",\n" +
+                    "  \"logicalType\": \"decimal\",\n" +
+                    "  \"precision\": 8,\n" +
+                    "  \"scale\": 4\n" +
+                    "}")]
+        public AvroDecimal CustomDecimal { get; set; }
 
         [Ignore]
         public Schema Schema { get; set; }
@@ -163,6 +180,7 @@ namespace AvroSchemaGenerator.Tests
                 case 0: return CreatedTime;
                 case 1: return Size;
                 case 2: return DayOfWeek;
+                case 3: return CustomDecimal;
                 default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Get()");
             };
         }
@@ -174,6 +192,7 @@ namespace AvroSchemaGenerator.Tests
                 case 0: CreatedTime = (DateTime)fieldValue; break;
                 case 1: Size = (AvroDecimal)fieldValue; break;
                 case 2: DayOfWeek = (System.String)fieldValue; break;
+                case 3: CustomDecimal = (AvroDecimal) fieldValue; break;
                 default: throw new AvroRuntimeException("Bad index " + fieldPos + " in Put()");
             };
         }

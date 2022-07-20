@@ -22,6 +22,7 @@ using static Nuke.Common.ChangeLog.ChangelogTasks;
 using static Nuke.Common.Tools.Git.GitTasks;
 using Nuke.Common.ChangeLog;
 using System.Collections.Generic;
+using Octokit;
 
 [CheckBuildProjectConfigurations]
 [DotNetVerbosityMapping]
@@ -34,7 +35,7 @@ partial class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main() => Execute<Build>(x => x.Test);
+    public static int Main() => Execute<Build>(x => x.Pack);
 
     [CI] readonly GitHubActions GitHubActions;
 
@@ -44,8 +45,6 @@ partial class Build : NukeBuild
     [Solution] readonly Solution Solution;
     [GitRepository] readonly GitRepository GitRepository;
     [Required] [GitVersion(Framework = "net6.0")] readonly GitVersion GitVersion;
-
-    readonly string _githubContext = EnvironmentInfo.GetVariable<string>("GITHUB_CONTEXT");
 
     [Parameter] string NugetApiUrl = "https://api.nuget.org/v3/index.json";
 
@@ -62,7 +61,7 @@ partial class Build : NukeBuild
     AbsolutePath Output => RootDirectory / "output";
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
     AbsolutePath TestSourceDirectory => RootDirectory / "AvroSchemaGenerator.Tests";
-
+    GitHubClient GitHubClient;
     public ChangeLog Changelog => ReadChangelog(ChangelogFile);
 
     public ReleaseNotes LatestVersion => Changelog.ReleaseNotes.OrderByDescending(s => s.Version).FirstOrDefault() ?? throw new ArgumentException("Bad Changelog File. Version Should Exist");
@@ -152,6 +151,17 @@ partial class Build : NukeBuild
       //.DependsOn(RunChangelog) requires authrntication in github action
       .Executes(() =>
       {
+          var branchName = GitRepository.Branch;
+
+          if (branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
+          && !GitVersion.MajorMinorPatch.Equals(LatestVersion.Version.ToString()))
+          {
+              // Force CHANGELOG.md in case it skipped the mind
+              Assert.Fail($"CHANGELOG.md needs to be update for final release. Current version: '{LatestVersion.Version}'. Next version: {GitVersion.MajorMinorPatch}");
+          }
+          var releaseNotes = branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
+                             ? GetNuGetReleaseNotes(ChangelogFile, GitRepository)
+                             : ParseReleaseNote();
           var version = GitVersion.SemVer;
           var project = Solution.GetProject("AvroSchemaGenerator");
           DotNetPack(s => s
@@ -162,7 +172,7 @@ partial class Build : NukeBuild
               .EnableNoRestore()
               .SetAssemblyVersion(version)
               .SetVersion(version)
-              .SetPackageReleaseNotes(GetNuGetReleaseNotes(ChangelogFile, GitRepository))
+              .SetPackageReleaseNotes(releaseNotes)
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
               .AddAuthors("Ebere Abanonu (@mestical)")
@@ -175,6 +185,7 @@ partial class Build : NukeBuild
       .Requires(() => NugetApiUrl)
       .Requires(() => !NuGetApiKey.IsNullOrEmpty())
       .Requires(() => Configuration.Equals(Configuration.Release))
+      .Triggers(GitHubRelease)
       .Executes(() =>
       {
           GlobFiles(OutputNuget, "*.nupkg")
@@ -189,6 +200,65 @@ partial class Build : NukeBuild
                   );
               });
       });
+
+    Target AuthenticatedGitHubClient => _ => _
+        .Unlisted()
+        .OnlyWhenDynamic(() => !string.IsNullOrWhiteSpace(GitHubActions.Token))
+        .Executes(() =>
+        {
+            GitHubClient = new GitHubClient(new ProductHeaderValue("nuke-build"))
+            {
+                Credentials = new Credentials(GitHubActions.Token, AuthenticationType.Bearer)
+            };
+        });
+    Target GitHubRelease => _ => _
+        .Unlisted()
+        .Description("Creates a GitHub release (or amends existing) and uploads the artifact")
+        .OnlyWhenDynamic(() => !string.IsNullOrWhiteSpace(GitHubActions.Token))
+        .DependsOn(AuthenticatedGitHubClient)
+        .Executes(async () =>
+        {
+            var version = GitVersion.NuGetVersionV2;
+            var releaseNotes = GetNuGetReleaseNotes(ChangelogFile);
+            Release release;
+
+
+            var identifier = GitRepository.Identifier.Split("/");
+            var (gitHubOwner, repoName) = (identifier[0], identifier[1]);
+            try
+            {
+                release = await GitHubClient.Repository.Release.Get(gitHubOwner, repoName, version);
+            }
+            catch (NotFoundException)
+            {
+                var newRelease = new NewRelease(version)
+                {
+                    Body = releaseNotes,
+                    Name = version,
+                    Draft = false,
+                    Prerelease = GitRepository.IsOnReleaseBranch()
+                };
+                release = await GitHubClient.Repository.Release.Create(gitHubOwner, repoName, newRelease);
+            }
+
+            foreach (var existingAsset in release.Assets)
+            {
+                await GitHubClient.Repository.Release.DeleteAsset(gitHubOwner, repoName, existingAsset.Id);
+            }
+
+            Information($"GitHub Release {version}");
+            var packages = OutputNuget.GlobFiles("*.nupkg", "*.symbols.nupkg").NotNull();
+            foreach (var artifact in packages)
+            {
+                var releaseAssetUpload = new ReleaseAssetUpload(artifact.Name, "application/zip", File.OpenRead(artifact), null);
+                var releaseAsset = await GitHubClient.Repository.Release.UploadAsset(release, releaseAssetUpload);
+                Information($"  {releaseAsset.BrowserDownloadUrl}");
+            }
+        });
+    string ParseReleaseNote()
+    {
+        return XmlTasks.XmlPeek(RootDirectory / "Directory.Build.props", "//Project/PropertyGroup/PackageReleaseNotes").FirstOrDefault();
+    }
     static void Information(string info)
     {
         Serilog.Log.Information(info);
