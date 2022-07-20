@@ -29,6 +29,7 @@
             "AppVeyor",
             "AzurePipelines",
             "Bamboo",
+            "Bitbucket",
             "Bitrise",
             "GitHubActions",
             "GitLab",
@@ -48,7 +49,7 @@
         },
         "NuGetApiKey": {
           "type": "string",
-          "default": "Secrets must be entered via 'nuke :secret [profile]'"
+          "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
         "NugetApiUrl": {
           "type": "string"
@@ -78,8 +79,10 @@
           "items": {
             "type": "string",
             "enum": [
+              "AuthenticatedGitHubClient",
               "Clean",
               "Compile",
+              "GitHubRelease",
               "Pack",
               "Release",
               "Restore",
@@ -98,8 +101,10 @@
           "items": {
             "type": "string",
             "enum": [
+              "AuthenticatedGitHubClient",
               "Clean",
               "Compile",
+              "GitHubRelease",
               "Pack",
               "Release",
               "Restore",

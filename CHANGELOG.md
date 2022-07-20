@@ -1,6 +1,4 @@
 ## [vNext]
-
-## [2.7.0-rc.138] / 2022-07-20
 - Add Custom AVRO definition support @RobertIndie [https://github.com/eaba/AvroSchemaGenerator/commit/81272d5e24e63e152369c14b6c564333fc3aa9ac]
  
 ## [2.6.0] / 2022-02-20

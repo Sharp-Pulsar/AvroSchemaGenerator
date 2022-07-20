@@ -35,7 +35,7 @@ partial class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main() => Execute<Build>(x => x.Test);
+    public static int Main() => Execute<Build>(x => x.Pack);
 
     [CI] readonly GitHubActions GitHubActions;
 
@@ -151,6 +151,17 @@ partial class Build : NukeBuild
       //.DependsOn(RunChangelog) requires authrntication in github action
       .Executes(() =>
       {
+          var branchName = GitRepository.Branch;
+
+          if (branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
+          && !GitVersion.MajorMinorPatch.Equals(LatestVersion.Version.ToString()))
+          {
+              // Force CHANGELOG.md in case it skipped the mind
+              Assert.Fail($"CHANGELOG.md needs to be update for final release. Current version: '{LatestVersion.Version}'. Next version: {GitVersion.MajorMinorPatch}");
+          }
+          var releaseNotes = branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
+                             ? GetNuGetReleaseNotes(ChangelogFile, GitRepository)
+                             : ParseReleaseNote();
           var version = GitVersion.SemVer;
           var project = Solution.GetProject("AvroSchemaGenerator");
           DotNetPack(s => s
@@ -161,7 +172,7 @@ partial class Build : NukeBuild
               .EnableNoRestore()
               .SetAssemblyVersion(version)
               .SetVersion(version)
-              .SetPackageReleaseNotes(GetNuGetReleaseNotes(ChangelogFile, GitRepository))
+              .SetPackageReleaseNotes(releaseNotes)
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
               .AddAuthors("Ebere Abanonu (@mestical)")
