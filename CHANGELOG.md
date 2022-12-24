@@ -1,6 +1,4 @@
 ## [vNext]
-
-## [2.8.0] / 2022-12-24
 - [update] .NET 7
 - [fix] Resolves #64 Fixed that the same enum can be used multiple times in the schema @danny-krueger [https://github.com/eaba/AvroSchemaGenerator/pull/74/commits/ba622efc263f89ed8d5bc826493cf8a33637b580]
 
