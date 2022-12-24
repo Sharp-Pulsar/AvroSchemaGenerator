@@ -155,6 +155,31 @@ namespace AvroSchemaGenerator.Tests
 
             Assert.Equal(expectSchema, actual);
         }
+
+        [Fact]
+        public void TestMultipleEnums()
+        {
+            var expectSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MultipleEnums\",\"type\":\"record\",\"fields\":[{\"name\":\"Type\",\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"type\":\"enum\",\"name\":\"MediaType\",\"symbols\":[\"Video\",\"Audio\"]}},{\"name\":\"TypeTo\",\"type\":\"MediaType\"},{\"name\":\"Month\",\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"type\":\"enum\",\"name\":\"Month\",\"symbols\":[\"January\",\"February\",\"March\",\"April\",\"June\",\"July\"]}},{\"name\":\"Container\",\"type\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"type\":\"enum\",\"name\":\"MediaContainer\",\"symbols\":[\"Flv\",\"Mp3\",\"Avi\",\"Mp4\"]}},{\"name\":\"InnerAliases\",\"type\":[\"null\",{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"InnerAliases\",\"type\":\"record\",\"fields\":[{\"name\":\"Container\",\"type\":[\"null\",\"MediaContainer\"]},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null}]}]},{\"name\":\"YearlyMovies\",\"type\":{\"type\":\"map\",\"values\":{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"MovieAliase\",\"type\":\"record\",\"aliases\":[\"Movies_Aliase\"],\"fields\":[{\"name\":\"Dated\",\"aliases\":[\"DateCreated\"],\"type\":\"long\"},{\"name\":\"Year\",\"aliases\":[\"ReleaseYear\"],\"type\":\"int\"},{\"name\":\"Month\",\"aliases\":[\"ReleaseMonth\"],\"type\":\"Month\"}]}},\"default\":{}}]}";
+            var actual = typeof(MultipleEnums).GetSchema();
+            _output.WriteLine(actual);
+            var schema = Schema.Parse(actual);
+
+            Assert.Equal(expectSchema, actual);
+            Assert.NotNull(schema);
+        }
+
+        [Fact]
+        public void TestClassWhichHasFieldsWithSameType()
+        {
+            var expectSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"ClassWhichHasFieldsWithSameType\",\"type\":\"record\",\"fields\":[{\"name\":\"FirstBook\",\"type\":[\"null\",{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"Book\",\"type\":\"record\",\"fields\":[{\"name\":\"Author\",\"type\":[\"null\",\"string\"],\"default\":null},{\"name\":\"Title\",\"type\":[\"null\",\"string\"],\"default\":null}]}]},{\"name\":\"SecondBook\",\"type\":[\"null\",\"Book\"]}]}";
+            var actual = typeof(ClassWhichHasFieldsWithSameType).GetSchema();
+            _output.WriteLine(actual);
+            var schema = Schema.Parse(actual);
+
+            Assert.Equal(expectSchema, actual);
+            Assert.NotNull(schema);
+        }
+
         [Fact]
         public void TestAliasesList()
         {
@@ -503,6 +528,12 @@ namespace AvroSchemaGenerator.Tests
         public List<string> Children { get; set; }
     }
 
+    public class ClassWhichHasFieldsWithSameType
+    {
+        public Book FirstBook { get; set; }
+        public Book SecondBook { get; set; }
+    }
+
     [Aliases("InterLives", "CountrySide")]
     public sealed class ClassWithAliasesWithList
     {
@@ -560,7 +591,16 @@ namespace AvroSchemaGenerator.Tests
         public MediaType Type { get; set; }
         public MediaContainer Container { get; set; }
         public byte[] Media { get; set; }
+    }
 
+    public class MultipleEnums
+    {
+        public MediaType Type { get; set; }
+        public MediaType TypeTo { get; set; }
+        public Month Month { get; set; }
+        public MediaContainer Container { get; set; }
+        public InnerAliases InnerAliases { get; set; }
+        public Dictionary<string, MovieAliase> YearlyMovies { get; set; }
     }
 
     public enum Month

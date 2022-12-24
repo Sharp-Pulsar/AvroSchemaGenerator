@@ -122,7 +122,7 @@ namespace AvroSchemaGenerator
                     if (p.PropertyType.GetSubTypeIfNullable().IsEnum)
                     {
                         var aliases = GetAliases(p);
-                        var row = GetEnumField(p);
+                        var row = GetEnumField(p, existingTypes);
                         if (aliases != null)
                         {
                             var rows = row.ToList();
@@ -325,7 +325,7 @@ namespace AvroSchemaGenerator
                 if (p.PropertyType.IsEnum)
                 {
                     var aliases = GetAliases(p);
-                    var row = GetEnumField(p);
+                    var row = GetEnumField(p, existingTypes);
                     if (aliases != null)
                     {
                         var rows = row.ToList();
@@ -358,7 +358,7 @@ namespace AvroSchemaGenerator
                     if (p.PropertyType.IsEnum)
                     {
                         var aliases = GetAliases(p);
-                        var row = GetEnumField(p);
+                        var row = GetEnumField(p, existingTypes);
                         if (aliases != null)
                         {
                             var rows = row.ToList();
@@ -549,7 +549,7 @@ namespace AvroSchemaGenerator
                 if (p.PropertyType.IsEnum)
                 {
                     var aliases = GetAliases(p);
-                    var row = GetEnumField(p);
+                    var row = GetEnumField(p, existingTypes);
                     if (aliases != null)
                     {
                         var rows = row.ToList();
@@ -574,7 +574,7 @@ namespace AvroSchemaGenerator
             {
                 if (p.PropertyType.GetSubTypeIfNullable().IsEnum)
                 {
-                    row = GetEnumField(p);
+                    row = GetEnumField(p, existingTypes);
                     if (aliases != null)
                     {
                         var rows = row.ToList();
@@ -953,7 +953,7 @@ namespace AvroSchemaGenerator
         }
 
         private static void GetUserDefinedProperties(PropertyInfo property, Dictionary<string, object> finalSchema,
-            List<string> existing)
+            List<string> existingTypes)
         {
             var schema = new Dictionary<string, object>();
             if (!string.IsNullOrEmpty(property.PropertyType.Namespace))
@@ -970,7 +970,7 @@ namespace AvroSchemaGenerator
             {
                 if (ShouldIgnore(p))
                     continue;
-                
+
                 var customDefinition = CheckAndHandleCustomSchema(p);
                 if (customDefinition != null)
                 {
@@ -983,7 +983,7 @@ namespace AvroSchemaGenerator
                     var t = p.PropertyType.Name;
                     var dt = p.DeclaringType?.Name;
                     var recursive = t.Equals(dt);
-                    if (existing.Contains(t))
+                    if (existingTypes.Contains(t))
                     {
                         var pRequired = p.GetSchemaCustomAttributes().required;
                         var rw = pRequired
@@ -993,7 +993,7 @@ namespace AvroSchemaGenerator
                     }
                     else if (recursive)
                     {
-                        existing.Add(t);
+                        existingTypes.Add(t);
                         fieldProperties.Add(Reuse(p));
                     }
                     else if (p.PropertyType.IsEnum)
@@ -1001,18 +1001,18 @@ namespace AvroSchemaGenerator
                         var pAli = GetAliases(p);
                         if (aliases != null)
                         {
-                            var rows = GetEnumField(p).ToList();
+                            var rows = GetEnumField(p, existingTypes).ToList();
                             rows.Insert(1, new KeyValuePair<string, object>("aliases", pAli));
                             fieldProperties.Add(rows.ToDictionary(x => x.Key, x => x.Value));
                         }
-                        else fieldProperties.Add(GetEnumField(p));
+                        else fieldProperties.Add(GetEnumField(p, existingTypes));
 
-                        existing.Add(t);
+                        existingTypes.Add(t);
                     }
                     else
                     {
                         //existing.Add(t);
-                        var rows = PropertyInfo(p, existing, !existing.Contains(t));
+                        var rows = PropertyInfo(p, existingTypes, !existingTypes.Contains(t));
                         fieldProperties.Add(rows);
                     }
                 }
@@ -1026,7 +1026,7 @@ namespace AvroSchemaGenerator
                         AddReuseType(p, finalSchema);
                     else if (IsUserDefined(v))
                     {
-                        var schem = GetGenericUserDefinedProperties(v, require, existing);
+                        var schem = GetGenericUserDefinedProperties(v, require, existingTypes);
                         var row1 = require
                             ? new Dictionary<string, object>
                             {
@@ -1479,8 +1479,25 @@ namespace AvroSchemaGenerator
                    t.GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
         }
 
-        private static Dictionary<string, object> GetEnumField(PropertyInfo p)
+        private static Dictionary<string, object> GetEnumField(PropertyInfo p, ICollection<string> existingTypes)
         {
+            var propertyTypeName = p.PropertyType.Name;
+            if (existingTypes.Contains(propertyTypeName))
+            {
+                List<object> lt = null;
+                if (p.PropertyType.IsNullable())
+                {
+                    lt = new List<object>() {"null", propertyTypeName};
+                }
+
+                return new Dictionary<string, object>
+                {
+                    {"name", p.Name}, {"type", lt == null ? propertyTypeName : (object) lt}
+                };
+            }
+
+            existingTypes.Add(propertyTypeName);
+
             var pt = p.PropertyType.GetSubTypeIfNullable();
             var dp = new Dictionary<string, object>();
             if (!string.IsNullOrEmpty(pt.Namespace)) {
