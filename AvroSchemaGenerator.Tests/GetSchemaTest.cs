@@ -406,7 +406,7 @@ namespace AvroSchemaGenerator.Tests
         [Fact]
         public void TestFailedCustomDefinition()
         {
-            Assert.Throws(typeof(ArgumentException), () => typeof(FailedCustomDefinitionTest).GetSchema());
+            Assert.Throws<ArgumentException>(() => typeof(FailedCustomDefinitionTest).GetSchema());
         }
 
         private sbyte[] Write<T>(T message, ReflectWriter<T> writer)
