@@ -1,4 +1,6 @@
 ## [vNext]
+- [update] .NET 7
+- [fix] Resolves #64 Fixed that the same enum can be used multiple times in the schema @danny-krueger [https://github.com/eaba/AvroSchemaGenerator/pull/74/commits/ba622efc263f89ed8d5bc826493cf8a33637b580]
 
 ## [2.7.0] / 2022-07-20
 - Add Custom AVRO definition support @RobertIndie [https://github.com/eaba/AvroSchemaGenerator/commit/81272d5e24e63e152369c14b6c564333fc3aa9ac]
