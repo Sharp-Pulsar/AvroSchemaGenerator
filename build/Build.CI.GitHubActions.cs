@@ -28,8 +28,8 @@ using Nuke.Common.Utilities;
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = true,
     FetchDepth = 0,
-    OnPushBranches = new[] { "main", "dev"},
-    OnPullRequestBranches = new[] { "main", "dev"},
+    OnPushBranches = new[] { "main", "dev" },
+    OnPullRequestBranches = new[] { "main", "dev" },
     CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },
     InvokedTargets = new[] { nameof(Test) },
     EnableGitHubToken = true)
@@ -43,8 +43,8 @@ using Nuke.Common.Utilities;
     CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },
     InvokedTargets = new[] { nameof(Release) },
     PublishArtifacts = true,
-    EnableGitHubToken = true,    
-    ImportSecrets = new[] { "NUGET_API_KEY"})]
+    EnableGitHubToken = true,
+    ImportSecrets = new[] { "NUGET_API_KEY" })]
 partial class Build
 {
 }
@@ -71,7 +71,7 @@ class CustomGitHubActionsAttribute : GitHubActionsAttribute
 
             job.Steps = newSteps.ToArray();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
 
         }
