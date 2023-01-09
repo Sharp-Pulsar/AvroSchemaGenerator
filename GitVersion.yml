@@ -12,14 +12,12 @@ branches: # https://gitversion.net/docs/learn/branching-strategies/gitflow/examp
     tracks-release-branches: false
     is-release-branch: false
     is-mainline: true
-    source-branches:
-    - develop
-    - hotfix
-    pre-release-weight: 55000  
+    pre-release-weight: 55000
   develop:
     regex: ^dev(elop)?(ment)?$
     mode: ContinuousDeployment
-    tag: ''
+    tag: rc
+    increment: Minor
     prevent-increment-of-merged-branch-version: false
     track-merge-target: true
     tracks-release-branches: true
@@ -44,38 +42,6 @@ branches: # https://gitversion.net/docs/learn/branching-strategies/gitflow/examp
     increment: Inherit
     prevent-increment-of-merged-branch-version: false
     track-merge-target: false
-    tracks-release-branches: false
-    is-release-branch: false
-    is-mainline: false
-    pre-release-weight: 30000
-  hotfix:
-    mode: ContinuousDelivery
-    tag: 'rc'
-    increment: Patch
-    prevent-increment-of-merged-branch-version: false
-    track-merge-target: false
-    regex: ^hotfix(es)?[/-]
-    source-branches:
-       - develop
-    tracks-release-branches: false
-    is-release-branch: false
-    is-mainline: false
-    pre-release-weight: 30000
-  pull-request:
-    mode: ContinuousDelivery
-    tag: PullRequest
-    increment: Inherit
-    prevent-increment-of-merged-branch-version: false
-    tag-number-pattern: '[/-](?<number>\d+)'
-    track-merge-target: false
-    regex: ^(pull|pull\-requests|pr)[/-]
-    source-branches:
-    - develop
-    - main
-    - release
-    - feature
-    - support
-    - hotfix
     tracks-release-branches: false
     is-release-branch: false
     is-mainline: false
