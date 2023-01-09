@@ -39,12 +39,23 @@ using Nuke.Common.Utilities;
     GitHubActionsImage.WindowsLatest,
     AutoGenerate = true,
     FetchDepth = 0,
-    OnPushBranches = new[] { "main", "dev" },
+    OnPushBranches = new[] { "main" },
     CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },
     InvokedTargets = new[] { nameof(Release) },
     PublishArtifacts = true,
     EnableGitHubToken = true,    
     ImportSecrets = new[] { "NUGET_API_KEY"})]
+
+[CustomGitHubActions("rc",
+    GitHubActionsImage.WindowsLatest,
+    AutoGenerate = true,
+    FetchDepth = 0,
+    OnPushBranches = new[] { "hotfix" },
+    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },
+    InvokedTargets = new[] { nameof(Release) },
+    PublishArtifacts = true,
+    EnableGitHubToken = true,
+    ImportSecrets = new[] { "NUGET_API_KEY" })]
 partial class Build
 {
 }
