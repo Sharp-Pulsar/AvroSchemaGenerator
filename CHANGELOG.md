@@ -1,4 +1,5 @@
 ## [vNext]
+- [fixed] breaking change
 
 ## [2.8.0] / 2022-12-24
 - [update] .NET 7
