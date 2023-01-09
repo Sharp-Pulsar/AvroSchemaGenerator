@@ -106,17 +106,16 @@ partial class Build : NukeBuild
     Target Compile => _ => _
         .DependsOn(Restore)
         .Executes(() =>
-        {
-            var version = "2.8.1";
+        {            
             DotNetBuild(s => s
                 .SetProjectFile(Solution)
                 .SetFileVersion(GitVersion.MajorMinorPatch)
                 //.SetVersion(version)
                 .SetConfiguration(Configuration)
-                .SetAssemblyVersion(version)
-                .SetFileVersion(version)
-                .SetInformationalVersion(version)
-                .SetVersion(version)
+                .SetAssemblyVersion(GitVersion.AssemblySemVer)
+                .SetFileVersion(GitVersion.AssemblySemFileVer)
+                .SetInformationalVersion(GitVersion.InformationalVersion)
+                .SetVersion(GitVersion.NuGetVersionV2)
                 .EnableNoRestore());
         });
     Target Test => _ => _
@@ -143,7 +142,6 @@ partial class Build : NukeBuild
       //.DependsOn(RunChangelog) requires authrntication in github action
       .Executes(() =>
       {
-          var versio = "2.8.1";
           var branchName = GitRepository.Branch;
 
           if (branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
@@ -155,7 +153,7 @@ partial class Build : NukeBuild
           var releaseNotes = branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
                              ? GetNuGetReleaseNotes(ChangelogFile, GitRepository)
                              : ParseReleaseNote();
-          var version = versio;
+          var version = GitVersion.SemVer;
           var project = Solution.GetProject("AvroSchemaGenerator");
           DotNetPack(s => s
               .SetProject(project)
