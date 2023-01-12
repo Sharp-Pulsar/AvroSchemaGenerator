@@ -79,6 +79,7 @@
           "items": {
             "type": "string",
             "enum": [
+              "All",
               "AuthenticatedGitHubClient",
               "Clean",
               "Compile",
@@ -101,6 +102,7 @@
           "items": {
             "type": "string",
             "enum": [
+              "All",
               "AuthenticatedGitHubClient",
               "Clean",
               "Compile",

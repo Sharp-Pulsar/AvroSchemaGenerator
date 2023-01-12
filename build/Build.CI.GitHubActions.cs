@@ -9,38 +9,25 @@ using Nuke.Common.CI.GitHubActions.Configuration;
 using Nuke.Common.Execution;
 using Nuke.Common.Utilities;
 
-[CustomGitHubActions("Build",
+[CustomGitHubActions("pr_validation",
     GitHubActionsImage.WindowsLatest,
     GitHubActionsImage.UbuntuLatest,
     AutoGenerate = true,
     FetchDepth = 0,
     OnPushBranches = new[] { "main", "dev", "alpha", "beta" },
     OnPullRequestBranches = new[] { "main", "dev", "alpha", "beta" },
+    InvokedTargets = new[] { nameof(All) },
     CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },
-    InvokedTargets = new[] { nameof(Compile) },
-    OnPushExcludePaths = new[] { "docs/**/*", "package.json", "README.md" },
-    PublishArtifacts = false,
-    EnableGitHubToken = true)
+    EnableGitHubToken = true,
+    PublishArtifacts = true)
 ]
 
-[CustomGitHubActions("Tests",
-    GitHubActionsImage.WindowsLatest,
-    GitHubActionsImage.UbuntuLatest,
-    AutoGenerate = true,
-    FetchDepth = 0,
-    OnPushBranches = new[] { "main", "dev" },
-    OnPullRequestBranches = new[] { "main", "dev" },
-    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },
-    InvokedTargets = new[] { nameof(Test) },
-    EnableGitHubToken = true)
-]
 
 [CustomGitHubActions("Release",
     GitHubActionsImage.WindowsLatest,
     AutoGenerate = true,
     FetchDepth = 0,
-    OnPushBranches = new[] { "main", "dev" },
-    CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },
+    OnPushTags = new[] { "*" },
     InvokedTargets = new[] { nameof(Release) },
     PublishArtifacts = true,
     EnableGitHubToken = true,

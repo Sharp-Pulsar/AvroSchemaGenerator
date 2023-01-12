@@ -24,7 +24,6 @@ using Nuke.Common.ChangeLog;
 using System.Collections.Generic;
 using Octokit;
 
-[CheckBuildProjectConfigurations]
 [DotNetVerbosityMapping]
 [ShutdownDotNetAfterServerBuild]
 partial class Build : NukeBuild
@@ -35,7 +34,7 @@ partial class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main() => Execute<Build>(x => x.Pack);
+    public static int Main() => Execute<Build>(x => x.All);
 
     [CI] readonly GitHubActions GitHubActions;
 
@@ -44,7 +43,7 @@ partial class Build : NukeBuild
 
     [Solution] readonly Solution Solution;
     [GitRepository] readonly GitRepository GitRepository;
-    [Required] [GitVersion(Framework = "net6.0")] readonly GitVersion GitVersion;
+    [GitVersion(Framework = "net6.0", NoFetch = true)] readonly GitVersion GitVersion;
 
     [Parameter] string NugetApiUrl = "https://api.nuget.org/v3/index.json";
 
@@ -109,13 +108,11 @@ partial class Build : NukeBuild
         {            
             DotNetBuild(s => s
                 .SetProjectFile(Solution)
-                .SetFileVersion(GitVersion.MajorMinorPatch)
                 //.SetVersion(version)
                 .SetConfiguration(Configuration)
                 .SetAssemblyVersion(GitVersion.AssemblySemVer)
                 .SetFileVersion(GitVersion.AssemblySemFileVer)
                 .SetInformationalVersion(GitVersion.InformationalVersion)
-                .SetVersion(GitVersion.NuGetVersionV2)
                 .EnableNoRestore());
         });
     Target Test => _ => _
@@ -136,33 +133,24 @@ partial class Build : NukeBuild
                        .EnableNoBuild());
             }
         });
-
+    Target All => _ => _
+     .Description("Executes NBench, Tests and Nuget targets/commands")
+     .DependsOn(Compile, Test, Pack);
     Target Pack => _ => _
-      .DependsOn(Test)
+      .DependsOn(Compile)
+      .Unlisted()
       //.DependsOn(RunChangelog) requires authrntication in github action
       .Executes(() =>
       {
-          var branchName = GitRepository.Branch;
-
-          if (branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
-          && !GitVersion.MajorMinorPatch.Equals(LatestVersion.Version.ToString()))
-          {
-              // Force CHANGELOG.md in case it skipped the mind
-              Assert.Fail($"CHANGELOG.md needs to be update for final release. Current version: '{LatestVersion.Version}'. Next version: {GitVersion.MajorMinorPatch}");
-          }
-          var releaseNotes = branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
-                             ? GetNuGetReleaseNotes(ChangelogFile, GitRepository)
-                             : ParseReleaseNote();
-          var version = GitVersion.SemVer;
+          
+          var releaseNotes = GetNuGetReleaseNotes(ChangelogFile, GitRepository);
+          
           var project = Solution.GetProject("AvroSchemaGenerator");
           DotNetPack(s => s
               .SetProject(project)
               .SetConfiguration(Configuration)
               .EnableNoBuild()
-
-              .EnableNoRestore()
-              .SetAssemblyVersion(version)
-              .SetVersion(version)
+              .SetVersion(GitVersion.NuGetVersionV2)
               .SetPackageReleaseNotes(releaseNotes)
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
