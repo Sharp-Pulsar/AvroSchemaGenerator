@@ -275,6 +275,21 @@ namespace AvroSchemaGenerator.Tests
             _output.WriteLine(actual);
             Assert.Equal(expected, actual);
         }
+
+        class WithGuidType
+        {
+            [Required]
+            public Guid Id { get; set; }
+        }
+        [Fact]
+        public void TestGuidType() 
+        {
+            var expected = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"WithGuidType\",\"type\":\"record\",\"fields\":[{\"name\":\"Id\",\"type\":{\"type\":\"string\",\"logicalType\":\"uuid\"}}]}";
+            var actual = typeof(WithGuidType).GetSchema();
+            _output.WriteLine(actual);
+            Assert.Equal(expected, actual);
+
+        }
         private sbyte[] Write<T>(T message, ReflectWriter<T> writer)
         {
             var ms = new MemoryStream();
