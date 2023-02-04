@@ -1,14 +1,11 @@
 ﻿using Avro;
 using Avro.IO;
 using Avro.Reflect;
-using Avro.Specific;
 using AvroSchemaGenerator.Attributes;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Text;
 using Xunit;
 using Xunit.Abstractions;
 
