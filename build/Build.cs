@@ -151,7 +151,7 @@ partial class Build : NukeBuild
           var releaseNotes = branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
                              ? GetNuGetReleaseNotes(ChangelogFile, GitRepository)
                              : ParseReleaseNote();
-          var version = GitVersion.MajorMinorPatch;
+          var version = branchName.Equals("main", StringComparison.OrdinalIgnoreCase)? GitVersion.MajorMinorPatch : GitVersion.SemVer;
           var project = Solution.GetProject("AvroSchemaGenerator");
           DotNetPack(s => s
               .SetProject(project)
