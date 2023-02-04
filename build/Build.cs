@@ -24,7 +24,7 @@ using Nuke.Common.ChangeLog;
 using System.Collections.Generic;
 using Octokit;
 
-[CheckBuildProjectConfigurations]
+
 [DotNetVerbosityMapping]
 [ShutdownDotNetAfterServerBuild]
 partial class Build : NukeBuild
@@ -84,9 +84,9 @@ partial class Build : NukeBuild
         .Executes(() =>
         {
             FinalizeChangelog(ChangelogFile, GitVersion.SemVer, GitRepository);
-            Git($"add {ChangelogFile}");
-            Git($"commit -m S \"Finalize {Path.GetFileName(ChangelogFile)} for {GitVersion.SemVer}.\"");
-            Git($"tag -f {GitVersion.SemVer}");
+            //Git($"add {ChangelogFile}");
+            //Git($"commit -m S \"Finalize {Path.GetFileName(ChangelogFile)} for {GitVersion.SemVer}.\"");
+           // Git($"tag -f {GitVersion.SemVer}");
         });
 
     Target Restore => _ => _
@@ -139,7 +139,7 @@ partial class Build : NukeBuild
 
     Target Pack => _ => _
       .DependsOn(Test)
-      //.DependsOn(RunChangelog) requires authrntication in github action
+      .DependsOn(RunChangelog)// requires authrntication in github action
       .Executes(() =>
       {
           var branchName = GitRepository.Branch;
