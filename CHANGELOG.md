@@ -1,4 +1,6 @@
 ## [vNext]
+
+## [2.9.0] / 2023-02-04
 - The Guid type in .NET logically maps the the AVRO UUID type @addisonj [https://github.com/eaba/AvroSchemaGenerator/commit/a4cd2255306531fbf24064947377789dc730f2c6]
 
 ## [2.8.0] / 2022-12-24
@@ -18,7 +20,9 @@
 ## [2.5.1] / 2022-01-14
 - Add `.NET 6` support
 
-[vNext]: https://github.com/eaba/AvroSchemaGenerator/compare/2.7.0...HEAD
+[vNext]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.0-rc.40...HEAD
+[2.9.0-rc.40]: https://github.com/eaba/AvroSchemaGenerator/compare/2.8.0...2.9.0-rc.40
+[2.8.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.7.0...2.8.0
 [2.7.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.6.0...2.7.0
 [2.6.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.2-Alpha.1...2.6.0
 [2.5.2-Alpha.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.1...2.5.2-Alpha.1
