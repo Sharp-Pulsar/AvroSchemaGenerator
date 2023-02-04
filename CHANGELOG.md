@@ -20,8 +20,8 @@
 ## [2.5.1] / 2022-01-14
 - Add `.NET 6` support
 
-[vNext]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.0-rc.40...HEAD
-[2.9.0-rc.40]: https://github.com/eaba/AvroSchemaGenerator/compare/2.8.0...2.9.0-rc.40
+[vNext]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.0...HEAD
+[2.9.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.8.0...2.9.0
 [2.8.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.7.0...2.8.0
 [2.7.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.6.0...2.7.0
 [2.6.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.2-Alpha.1...2.6.0

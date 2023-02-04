@@ -80,7 +80,7 @@ partial class Build : NukeBuild
         //.OnlyWhenStatic(() => InvokedTargets.Contains(nameof(RunChangelog)))
         .Executes(() =>
         {
-            FinalizeChangelog(ChangelogFile, GitVersion.SemVer, GitRepository);
+            FinalizeChangelog(ChangelogFile, GitVersion.MajorMinorPatch, GitRepository);
             Information("Please review CHANGELOG.md and press any key to continue ...");
             //Git($"add {ChangelogFile}");
             //Git($"commit -m \"Finalize {Path.GetFileName(ChangelogFile)} for {GitVersion.SemVer}.\"");
@@ -151,7 +151,7 @@ partial class Build : NukeBuild
           var releaseNotes = branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
                              ? GetNuGetReleaseNotes(ChangelogFile, GitRepository)
                              : ParseReleaseNote();
-          var version = GitVersion.SemVer;
+          var version = GitVersion.MajorMinorPatch;
           var project = Solution.GetProject("AvroSchemaGenerator");
           DotNetPack(s => s
               .SetProject(project)
