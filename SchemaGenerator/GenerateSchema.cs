@@ -1593,6 +1593,12 @@ namespace AvroSchemaGenerator
                     {
                         {"type", "bytes"}, {"logicalType", "decimal"}, {"precision", 4}, {"scale", 2}
                     };
+                case "Guid":
+                    return new Dictionary<string, object>
+                    {
+                        {"type", "string"}, {"logicalType", "uuid"}
+                    };
+
                 default:
                     throw new ArgumentException($"{type} not supported");
             }

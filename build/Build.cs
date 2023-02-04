@@ -1,12 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text.Json;
 using Nuke.Common;
 using Nuke.Common.CI;
 using Nuke.Common.CI.GitHubActions;
-using Nuke.Common.Execution;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
@@ -17,14 +14,13 @@ using Nuke.Common.Utilities.Collections;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.Common.IO.FileSystemTasks;
-using static Nuke.Common.Tools.DocFX.DocFXTasks;
 using static Nuke.Common.ChangeLog.ChangelogTasks;
 using static Nuke.Common.Tools.Git.GitTasks;
 using Nuke.Common.ChangeLog;
 using System.Collections.Generic;
 using Octokit;
+using JetBrains.Annotations;
 
-[CheckBuildProjectConfigurations]
 [DotNetVerbosityMapping]
 [ShutdownDotNetAfterServerBuild]
 partial class Build : NukeBuild
@@ -79,14 +75,16 @@ partial class Build : NukeBuild
     IEnumerable<string> ChangelogSectionNotes => ExtractChangelogSectionNotes(ChangelogFile);
 
     Target RunChangelog => _ => _
+        .Unlisted()
         .OnlyWhenDynamic(() => GitVersion.BranchName == "main")
         //.OnlyWhenStatic(() => InvokedTargets.Contains(nameof(RunChangelog)))
         .Executes(() =>
         {
             FinalizeChangelog(ChangelogFile, GitVersion.SemVer, GitRepository);
+            Information("Please review CHANGELOG.md and press any key to continue ...");
             Git($"add {ChangelogFile}");
-            Git($"commit -m S \"Finalize {Path.GetFileName(ChangelogFile)} for {GitVersion.SemVer}.\"");
-            Git($"tag -f {GitVersion.SemVer}");
+            Git($"commit -m \"Finalize {Path.GetFileName(ChangelogFile)} for {GitVersion.SemVer}.\"");
+           // Git($"tag -f {GitVersion.SemVer}");
         });
 
     Target Restore => _ => _
@@ -139,7 +137,7 @@ partial class Build : NukeBuild
 
     Target Pack => _ => _
       .DependsOn(Test)
-      //.DependsOn(RunChangelog) requires authrntication in github action
+      //.DependsOn(RunChangelog)// requires authrntication in github action
       .Executes(() =>
       {
           var branchName = GitRepository.Branch;
@@ -171,7 +169,10 @@ partial class Build : NukeBuild
               .SetOutputDirectory(OutputNuget));
 
       });
+
+    [UsedImplicitly]
     Target Release => _ => _
+      .DependsOn(RunChangelog)
       .DependsOn(Pack)
       .Requires(() => NugetApiUrl)
       .Requires(() => !NuGetApiKey.IsNullOrEmpty())

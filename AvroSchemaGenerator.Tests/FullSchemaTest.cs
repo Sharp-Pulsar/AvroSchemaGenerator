@@ -1,14 +1,11 @@
 ﻿using Avro;
 using Avro.IO;
 using Avro.Reflect;
-using Avro.Specific;
 using AvroSchemaGenerator.Attributes;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Text;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -274,6 +271,21 @@ namespace AvroSchemaGenerator.Tests
             var actual = typeof(RecTypeRequired).GetSchema();
             _output.WriteLine(actual);
             Assert.Equal(expected, actual);
+        }
+
+        class WithGuidType
+        {
+            [Required]
+            public Guid Id { get; set; }
+        }
+        [Fact]
+        public void TestGuidType() 
+        {
+            var expected = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"WithGuidType\",\"type\":\"record\",\"fields\":[{\"name\":\"Id\",\"type\":{\"type\":\"string\",\"logicalType\":\"uuid\"}}]}";
+            var actual = typeof(WithGuidType).GetSchema();
+            _output.WriteLine(actual);
+            Assert.Equal(expected, actual);
+
         }
         private sbyte[] Write<T>(T message, ReflectWriter<T> writer)
         {

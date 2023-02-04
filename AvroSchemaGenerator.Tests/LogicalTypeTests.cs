@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
 using Avro;
-using Avro.Generic;
 using Avro.IO;
-using Avro.Reflect;
 using Avro.Specific;
 using Avro.Util;
 using AvroSchemaGenerator.Attributes;
