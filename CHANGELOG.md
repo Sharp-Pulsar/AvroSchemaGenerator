@@ -1,5 +1,5 @@
 ## [vNext]
-- [fixed] breaking change
+- The Guid type in .NET logically maps the the AVRO UUID type @addisonj [https://github.com/eaba/AvroSchemaGenerator/commit/a4cd2255306531fbf24064947377789dc730f2c6]
 
 ## [2.8.0] / 2022-12-24
 - [update] .NET 7
