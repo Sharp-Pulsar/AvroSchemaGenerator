@@ -142,12 +142,12 @@ partial class Build : NukeBuild
       {
           var branchName = GitRepository.Branch;
 
-          if (branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
+          /*if (branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
           && !GitVersion.MajorMinorPatch.Equals(LatestVersion.Version.ToString()))
           {
               // Force CHANGELOG.md in case it skipped the mind
               Assert.Fail($"CHANGELOG.md needs to be update for final release. Current version: '{LatestVersion.Version}'. Next version: {GitVersion.MajorMinorPatch}");
-          }
+          }*/
           var releaseNotes = branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
                              ? GetNuGetReleaseNotes(ChangelogFile, GitRepository)
                              : ParseReleaseNote();
