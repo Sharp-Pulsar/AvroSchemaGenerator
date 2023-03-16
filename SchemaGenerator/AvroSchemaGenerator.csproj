@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <TargetFramework>net7.0</TargetFramework>
     <PackageProjectUrl>https://github.com/eaba/SchemaGenerator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/eaba/SchemaGenerator</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>

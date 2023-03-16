@@ -104,16 +104,10 @@ partial class Build : NukeBuild
     Target Compile => _ => _
         .DependsOn(Restore)
         .Executes(() =>
-        {            
+        {
             DotNetBuild(s => s
                 .SetProjectFile(Solution)
-                .SetFileVersion(GitVersion.MajorMinorPatch)
-                //.SetVersion(version)
                 .SetConfiguration(Configuration)
-                .SetAssemblyVersion(GitVersion.AssemblySemVer)
-                .SetFileVersion(GitVersion.AssemblySemFileVer)
-                .SetInformationalVersion(GitVersion.InformationalVersion)
-                .SetVersion(GitVersion.NuGetVersionV2)
                 .EnableNoRestore());
         });
     Target Test => _ => _

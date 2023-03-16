@@ -121,3 +121,7 @@ public class CustomDefinition
 - Don't use same declaring type as dictionary value
 - Don't use same declaring type as list argument
 - Dictionary key must be a string type
+
+## License
+
+This project is licensed under the Apache License Version 2.0 - see the [LICENSE](LICENSE) file for details.
