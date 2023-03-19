@@ -76,7 +76,7 @@ partial class Build : NukeBuild
 
     Target RunChangelog => _ => _
         .Unlisted()
-        .OnlyWhenDynamic(() => GitVersion.BranchName == "main")
+        //.OnlyWhenDynamic(() => GitVersion.BranchName == "main")
         //.OnlyWhenStatic(() => InvokedTargets.Contains(nameof(RunChangelog)))
         .Executes(() =>
         {
@@ -84,7 +84,11 @@ partial class Build : NukeBuild
             Information("Please review CHANGELOG.md and press any key to continue ...");
             //Git($"add {ChangelogFile}");
             //Git($"commit -m \"Finalize {Path.GetFileName(ChangelogFile)} for {GitVersion.SemVer}.\"");
-           // Git($"tag -f {GitVersion.SemVer}");
+            //Git($"tag -f {GitVersion.SemVer}");
+            //git push --atomic origin <branch name> <tag>
+            //https://gist.github.com/danielestevez/2044589
+            //https://www.atlassian.com/git/tutorials/merging-vs-rebasing
+            Information("Please review CHANGELOG.md and press any key to continue ...");
         });
 
     Target Restore => _ => _
