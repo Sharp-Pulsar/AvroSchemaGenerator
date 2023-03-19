@@ -62,7 +62,27 @@ partial class Build : NukeBuild
 
     public ReleaseNotes LatestVersion => Changelog.ReleaseNotes.OrderByDescending(s => s.Version).FirstOrDefault() ?? throw new ArgumentException("Bad Changelog File. Version Should Exist");
     public string ReleaseVersion => LatestVersion.Version?.ToString() ?? throw new ArgumentException("Bad Changelog File. Define at least one version");
+    string TagVersion => GitRepository.Tags.SingleOrDefault()?[1..];
 
+    bool IsTaggedBuild => !string.IsNullOrWhiteSpace(TagVersion);
+
+    string VersionSuffix;
+    protected override void OnBuildInitialized()
+    {
+        VersionSuffix = !IsTaggedBuild
+            ? $"dev-{DateTime.UtcNow:yyyyMMdd-HHmm}"
+            : "";
+
+        if (IsLocalBuild)
+        {
+            VersionSuffix = $"dev-{DateTime.UtcNow:yyyyMMdd-HHmm}";
+        }
+
+        Information("BUILD SETUP");
+        Information($"Configuration:\t{Configuration}");
+        Information($"Version suffix:\t{VersionSuffix}");
+        Information($"Tagged build:\t{IsTaggedBuild}");
+    }
     Target Clean => _ => _
         .Before(Restore)
         .Executes(() =>
@@ -82,11 +102,6 @@ partial class Build : NukeBuild
         {
             FinalizeChangelog(ChangelogFile, GitVersion.MajorMinorPatch, GitRepository);
             Git($"add {ChangelogFile}");
-            //Git($"commit -m \"Finalize {Path.GetFileName(ChangelogFile)} for {GitVersion.SemVer}.\"");
-            //Git($"tag -f {GitVersion.SemVer}");
-
-            Information("Please review CHANGELOG.md and press any key to continue ...");
-            //Git($"add {ChangelogFile}");
             //Git($"commit -m \"Finalize {Path.GetFileName(ChangelogFile)} for {GitVersion.SemVer}.\"");
             //Git($"tag -f {GitVersion.SemVer}");
             //git push --atomic origin <branch name> <tag>
@@ -143,17 +158,8 @@ partial class Build : NukeBuild
       .Executes(() =>
       {
           var branchName = GitRepository.Branch;
-
-          if (branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
-          && !GitVersion.MajorMinorPatch.Equals(LatestVersion.Version.ToString()))
-          {
-              // Force CHANGELOG.md in case it skipped the mind
-              Assert.Fail($"CHANGELOG.md needs to be update for final release. Current version: '{LatestVersion.Version}'. Next version: {GitVersion.MajorMinorPatch}");
-          }
-          var releaseNotes = branchName.Equals("main", StringComparison.OrdinalIgnoreCase)
-                             ? GetNuGetReleaseNotes(ChangelogFile, GitRepository)
-                             : ParseReleaseNote();
-          var version = branchName.Equals("main", StringComparison.OrdinalIgnoreCase)? GitVersion.MajorMinorPatch : GitVersion.SemVer;
+          var releaseNotes =  GetNuGetReleaseNotes(ChangelogFile, GitRepository);
+          
           var project = Solution.GetProject("AvroSchemaGenerator");
           DotNetPack(s => s
               .SetProject(project)
@@ -161,8 +167,10 @@ partial class Build : NukeBuild
               .EnableNoBuild()
 
               .EnableNoRestore()
-              .SetAssemblyVersion(version)
-              .SetVersion(version)
+              .SetAssemblyVersion(TagVersion)
+              .SetFileVersion(TagVersion)
+              .SetInformationalVersion(TagVersion)
+              .SetVersionSuffix(VersionSuffix)
               .SetPackageReleaseNotes(releaseNotes)
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")
@@ -212,7 +220,7 @@ partial class Build : NukeBuild
         .DependsOn(AuthenticatedGitHubClient)
         .Executes(async () =>
         {
-            var version = GitVersion.NuGetVersionV2;
+            var version = TagVersion;
             var releaseNotes = GetNuGetReleaseNotes(ChangelogFile);
             Release release;
 
