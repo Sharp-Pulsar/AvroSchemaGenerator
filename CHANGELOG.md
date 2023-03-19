@@ -1,4 +1,6 @@
 ## [vNext]
+
+## [2.9.1] / 2023-03-19
 - Package License
 
 ## [2.9.0] / 2023-02-04
@@ -21,7 +23,8 @@
 ## [2.5.1] / 2022-01-14
 - Add `.NET 6` support
 
-[vNext]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.0...HEAD
+[vNext]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.1...HEAD
+[2.9.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.0...2.9.1
 [2.9.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.8.0...2.9.0
 [2.8.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.7.0...2.8.0
 [2.7.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.6.0...2.7.0

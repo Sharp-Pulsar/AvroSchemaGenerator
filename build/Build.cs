@@ -31,7 +31,7 @@ partial class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main() => Execute<Build>(x => x.Pack);
+    public static int Main() => Execute<Build>(x => x.Test);
 
     [CI] readonly GitHubActions GitHubActions;
 
@@ -81,6 +81,10 @@ partial class Build : NukeBuild
         .Executes(() =>
         {
             FinalizeChangelog(ChangelogFile, GitVersion.MajorMinorPatch, GitRepository);
+            Git($"add {ChangelogFile}");
+            //Git($"commit -m \"Finalize {Path.GetFileName(ChangelogFile)} for {GitVersion.SemVer}.\"");
+            //Git($"tag -f {GitVersion.SemVer}");
+
             Information("Please review CHANGELOG.md and press any key to continue ...");
             //Git($"add {ChangelogFile}");
             //Git($"commit -m \"Finalize {Path.GetFileName(ChangelogFile)} for {GitVersion.SemVer}.\"");
