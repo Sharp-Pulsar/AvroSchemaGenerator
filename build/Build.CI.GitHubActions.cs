@@ -39,7 +39,7 @@ using Nuke.Common.Utilities;
     GitHubActionsImage.WindowsLatest,
     AutoGenerate = true,
     FetchDepth = 0,
-    OnPushTags = new[] { "main", "dev" },
+    OnPushTags = new[] { "*" },
     CacheKeyFiles = new[] { "global.json", "SchemaGenerator/**/*.csproj" },
     InvokedTargets = new[] { nameof(Release) },
     PublishArtifacts = true,

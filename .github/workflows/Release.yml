@@ -19,8 +19,7 @@ name: Release
 on:
   push:
     tags:
-      - main
-      - dev
+      - '*'
 
 jobs:
   windows-latest:
