@@ -138,7 +138,7 @@ partial class Build : NukeBuild
         .Executes(() =>
         {
             var projectName = "AvroSchemaGenerator.Tests";
-            var project = Solution.GetProjects("*.Tests").First();
+            var project = Solution.GetProject(projectName).NotNull("project != null");
             Information($"Running tests from {projectName}");
             foreach (var fw in project.GetTargetFrameworks())
             {
@@ -190,8 +190,8 @@ partial class Build : NukeBuild
       .Triggers(GitHubRelease)
       .Executes(() =>
       {
-          GlobFiles(OutputNuget, "*.nupkg")
-              .Where(x => !x.EndsWith("symbols.nupkg"))
+          OutputNuget.GlobFiles("*.nupkg", "*.symbols.nupkg")
+          .NotNull()
               .ForEach(x =>
               {
                   Assert.NotNullOrEmpty(x);
