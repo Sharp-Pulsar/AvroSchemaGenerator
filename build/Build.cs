@@ -11,9 +11,7 @@ using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Utilities;
 using Nuke.Common.Utilities.Collections;
-using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
-using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.ChangeLog.ChangelogTasks;
 using static Nuke.Common.Tools.Git.GitTasks;
 using Nuke.Common.ChangeLog;
@@ -62,7 +60,7 @@ partial class Build : NukeBuild
 
     public ReleaseNotes LatestVersion => Changelog.ReleaseNotes.OrderByDescending(s => s.Version).FirstOrDefault() ?? throw new ArgumentException("Bad Changelog File. Version Should Exist");
     public string ReleaseVersion => LatestVersion.Version?.ToString() ?? throw new ArgumentException("Bad Changelog File. Define at least one version");
-    string TagVersion => GitRepository.Tags.SingleOrDefault()?[1..];
+    string TagVersion => GitVersion.MajorMinorPatch;
 
     bool IsTaggedBuild => !string.IsNullOrWhiteSpace(TagVersion);
 
@@ -100,7 +98,7 @@ partial class Build : NukeBuild
         //.OnlyWhenStatic(() => InvokedTargets.Contains(nameof(RunChangelog)))
         .Executes(() =>
         {
-            FinalizeChangelog(ChangelogFile, GitVersion.MajorMinorPatch, GitRepository);
+            FinalizeChangelog(ChangelogFile, TagVersion, GitRepository);
             Git($"add {ChangelogFile}");
             //Git($"commit -m \"Finalize {Path.GetFileName(ChangelogFile)} for {GitVersion.SemVer}.\"");
             //Git($"tag -f {GitVersion.SemVer}");
@@ -153,7 +151,7 @@ partial class Build : NukeBuild
         });
 
     Target Pack => _ => _
-      .DependsOn(Test)
+      .DependsOn(Compile)
       //.DependsOn(RunChangelog)// requires authrntication in github action
       .Executes(() =>
       {
@@ -164,13 +162,13 @@ partial class Build : NukeBuild
           DotNetPack(s => s
               .SetProject(project)
               .SetConfiguration(Configuration)
-              .EnableNoBuild()
-
+              //.EnableNoBuild()
+              .SetVersion(TagVersion)
               .EnableNoRestore()
               .SetAssemblyVersion(TagVersion)
               .SetFileVersion(TagVersion)
               .SetInformationalVersion(TagVersion)
-              .SetVersionSuffix(VersionSuffix)
+              //.SetVersionSuffix(VersionSuffix)
               .SetPackageReleaseNotes(releaseNotes)
               .SetDescription("Generate Avro Schema with support for RECURSIVE SCHEMA")
               .SetPackageTags("Avro", "Schema Generator")

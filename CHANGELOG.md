@@ -56,3 +56,23 @@
 [2.6.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.2-Alpha.1...2.6.0
 [2.5.2-Alpha.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.1...2.5.2-Alpha.1
 [2.5.1]: https://github.com/eaba/AvroSchemaGenerator/tree/2.5.1
+
+[vNext]: https://github.com/eaba/AvroSchemaGenerator/compare/2.10.0...HEAD
+[2.10.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.1...2.10.0
+[2.9.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.0...2.9.1
+[2.9.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.8.0...2.9.0
+[2.8.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.7.0...2.8.0
+[2.7.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.6.0...2.7.0
+[2.6.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.2-Alpha.1...2.6.0
+[2.5.2-Alpha.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.1...2.5.2-Alpha.1
+[2.5.1]: https://github.com/eaba/AvroSchemaGenerator/tree/2.5.1
+
+[vNext]: https://github.com/eaba/AvroSchemaGenerator/compare/2.10.0...HEAD
+[2.10.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.1...2.10.0
+[2.9.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.0...2.9.1
+[2.9.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.8.0...2.9.0
+[2.8.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.7.0...2.8.0
+[2.7.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.6.0...2.7.0
+[2.6.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.2-Alpha.1...2.6.0
+[2.5.2-Alpha.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.1...2.5.2-Alpha.1
+[2.5.1]: https://github.com/eaba/AvroSchemaGenerator/tree/2.5.1
