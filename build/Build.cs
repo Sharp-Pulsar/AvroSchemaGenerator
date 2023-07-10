@@ -89,8 +89,8 @@ partial class Build : NukeBuild
         {
             RootDirectory
             .GlobDirectories("**/bin", "**/obj", Output, OutputTests, OutputPerfTests, OutputNuget, DocSiteDirectory)
-            .ForEach(DeleteDirectory);
-            EnsureCleanDirectory(ArtifactsDirectory);
+            .ForEach(AbsolutePathExtensions.DeleteDirectory);
+            AbsolutePathExtensions.CreateOrCleanDirectory(ArtifactsDirectory);
         });
     IEnumerable<string> ChangelogSectionNotes => ExtractChangelogSectionNotes(ChangelogFile);
 

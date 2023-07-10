@@ -1,6 +1,4 @@
 ## [vNext]
-
-## [2.9.2] / 2023-07-10
 - Add `netstandard2.0`
 - [update] NUKE 7.0.2
 
