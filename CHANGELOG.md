@@ -1,5 +1,10 @@
 ## [vNext]
 
+## [2.10.0] / 2023-12-16
+- [Add] `net8.0`
+- [update] NUKE 7.0.6
+- [Added] `CODE OF CONDUCT`
+
 ## [2.9.2] / 2023-07-10
 - Add `netstandard2.0`
 - [update] NUKE 7.0.2
@@ -27,48 +32,9 @@
 ## [2.5.1] / 2022-01-14
 - Add `.NET 6` support
 
-[vNext]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.1...HEAD
-[2.9.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.0...2.9.1
-[2.9.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.8.0...2.9.0
-[2.8.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.7.0...2.8.0
-[2.7.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.6.0...2.7.0
-[2.6.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.2-Alpha.1...2.6.0
-[2.5.2-Alpha.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.1...2.5.2-Alpha.1
-[2.5.1]: https://github.com/eaba/AvroSchemaGenerator/tree/2.5.1
-
-
 [vNext]: https://github.com/eaba/AvroSchemaGenerator/compare/2.10.0...HEAD
-[2.10.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.1...2.10.0
-[2.9.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.0...2.9.1
-[2.9.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.8.0...2.9.0
-[2.8.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.7.0...2.8.0
-[2.7.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.6.0...2.7.0
-[2.6.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.2-Alpha.1...2.6.0
-[2.5.2-Alpha.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.1...2.5.2-Alpha.1
-[2.5.1]: https://github.com/eaba/AvroSchemaGenerator/tree/2.5.1
-
-[vNext]: https://github.com/eaba/AvroSchemaGenerator/compare/2.10.0...HEAD
-[2.10.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.1...2.10.0
-[2.9.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.0...2.9.1
-[2.9.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.8.0...2.9.0
-[2.8.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.7.0...2.8.0
-[2.7.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.6.0...2.7.0
-[2.6.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.2-Alpha.1...2.6.0
-[2.5.2-Alpha.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.1...2.5.2-Alpha.1
-[2.5.1]: https://github.com/eaba/AvroSchemaGenerator/tree/2.5.1
-
-[vNext]: https://github.com/eaba/AvroSchemaGenerator/compare/2.10.0...HEAD
-[2.10.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.1...2.10.0
-[2.9.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.0...2.9.1
-[2.9.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.8.0...2.9.0
-[2.8.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.7.0...2.8.0
-[2.7.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.6.0...2.7.0
-[2.6.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.2-Alpha.1...2.6.0
-[2.5.2-Alpha.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.5.1...2.5.2-Alpha.1
-[2.5.1]: https://github.com/eaba/AvroSchemaGenerator/tree/2.5.1
-
-[vNext]: https://github.com/eaba/AvroSchemaGenerator/compare/2.10.0...HEAD
-[2.10.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.1...2.10.0
+[2.10.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.2...2.10.0
+[2.9.2]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.1...2.9.2
 [2.9.1]: https://github.com/eaba/AvroSchemaGenerator/compare/2.9.0...2.9.1
 [2.9.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.8.0...2.9.0
 [2.8.0]: https://github.com/eaba/AvroSchemaGenerator/compare/2.7.0...2.8.0
