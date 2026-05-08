@@ -272,19 +272,7 @@ namespace AvroSchemaGenerator
                     else if (IsUserDefined(v))
                     {
                         var schema = GetGenericUserDefinedProperties(v, required, existingTypes);
-                        row = new Dictionary<string, object>
-                            {
-                                {"name", p.Name},
-                                {"type", new Dictionary<string, object> {{"type", "map"}, {"values", schema}}},
-                                {"default", new Dictionary<string, object>() }
-                            };
-
-                        if (aliases != null)
-                        {
-                            var rows = row.ToList();
-                            rows.Insert(1, new KeyValuePair<string, object>("aliases", aliases));
-                            row = rows.ToDictionary(x => x.Key, x => x.Value);
-                        }
+                        row = DictionaryField(p.Name, schema, required, aliases);
 
                         var field = (List<Dictionary<string, object>>) finalSchema["fields"];
                         field.Add(row);
@@ -292,27 +280,7 @@ namespace AvroSchemaGenerator
                     }
                     else
                     {
-                        row = new Dictionary<string, object>
-                            {
-                                {"name", p.Name},
-                                {
-                                    "type", new Dictionary<string, object>
-                                    {
-                                        {"type", "map"},
-                                        {
-                                            "values", ToAvroDataType(v.Name,
-                                                LogicalKind(p))
-                                        }
-                                    }
-                                },
-                                { "default", new Dictionary<string, object>() }
-                            };
-                        if (aliases != null)
-                        {
-                            var rows = row.ToList();
-                            rows.Insert(1, new KeyValuePair<string, object>("aliases", aliases));
-                            row = rows.ToDictionary(x => x.Key, x => x.Value);
-                        }
+                        row = DictionaryField(p.Name, ToAvroDataType(v.Name, LogicalKind(p)), required, aliases);
 
                         var fd = (List<Dictionary<string, object>>) finalSchema["fields"];
                         fd.Add(row);
@@ -503,44 +471,15 @@ namespace AvroSchemaGenerator
                     else if (IsUserDefined(v))
                     {
                         var schema = GetGenericUserDefinedProperties(v, required, existingTypes);
-                        row = new Dictionary<string, object>
-                            {
-                                {"name", p.Name},
-                                {"type", new Dictionary<string, object> {{"type", "map"}, {"values", schema}}},
-                                { "default", new Dictionary<string, object>()}
-                            };
-                        if (aliases != null)
-                        {
-                            var rows = row.ToList();
-                            rows.Insert(1, new KeyValuePair<string, object>("aliases", aliases));
-                            row = rows.ToDictionary(x => x.Key, x => x.Value);
-                        }
+                        row = DictionaryField(p.Name, schema, required, aliases);
 
                         return row;
                     }
                     else
                     {
-                        row = new Dictionary<string, object>
-                            {
-                                {"name", p.Name},
-                                {
-                                    "type", new Dictionary<string, object>
-                                    {
-                                        {"type", "map"},
-                                        {
-                                            "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name,
-                                                LogicalKind(p))
-                                        }
-                                    }
-                                },
-                                { "default", new Dictionary<string, object>() }
-                            };
-                        if (aliases != null)
-                        {
-                            var rows = row.ToList();
-                            rows.Insert(1, new KeyValuePair<string, object>("aliases", aliases));
-                            row = rows.ToDictionary(x => x.Key, x => x.Value);
-                        }
+                        row = DictionaryField(p.Name,
+                            ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name, LogicalKind(p)), required,
+                            aliases);
 
                         return row;
                     }
@@ -693,36 +632,12 @@ namespace AvroSchemaGenerator
                         schema["name"] = v.Name;
                         schema["type"] = "record";
                         schema["fields"] = GetGenericUserDefinedProperties(v, required, existingTypes);
-                        row = new Dictionary<string, object>
-                            {
-                                {"name", p.Name},
-                                {"type", new Dictionary<string, object> {{"type", "map"}, {"values", schema}} },
-                                { "default", new Dictionary<string, object>() }
-                            };
+                        row = DictionaryField(p.Name, schema, required, aliases);
                     }
                     else
-                        row = new Dictionary<string, object>
-                            {
-                                {"name", p.Name},
-                                {
-                                    "type", new Dictionary<string, object>
-                                    {
-                                        {"type", "map"},
-                                        {
-                                            "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name,
-                                                LogicalKind(p))
-                                        }
-                                    }
-                                },
-                                { "default", new Dictionary<string, object>() }
-                            };
-
-                    if (aliases != null)
-                    {
-                        var rows = row.ToList();
-                        rows.Insert(1, new KeyValuePair<string, object>("aliases", aliases));
-                        return rows.ToDictionary(x => x.Key, x => x.Value);
-                    }
+                        row = DictionaryField(p.Name,
+                            ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name, LogicalKind(p)), required,
+                            aliases);
 
                     return row;
                 }
@@ -860,6 +775,27 @@ namespace AvroSchemaGenerator
                         {"name", name}, {"type", new List<object> {"null", type}}, { "default", null }
                     }
                     : RequiredOrNullableField(type, name);
+
+            if (aliases != null)
+            {
+                var rows = fields.ToList();
+                rows.Insert(1, new KeyValuePair<string, object>("aliases", aliases));
+                return rows.ToDictionary(x => x.Key, x => x.Value);
+            }
+
+            return fields;
+        }
+
+        private static Dictionary<string, object> DictionaryField(string name, object values, bool required, List<string> aliases)
+        {
+            var map = new Dictionary<string, object> { { "type", "map" }, { "values", values } };
+            var type = required ? (object)map : new List<object> { map, "null" };
+            var fields = new Dictionary<string, object>
+            {
+                { "name", name },
+                { "type", type },
+                { "default", new Dictionary<string, object>() }
+            };
 
             if (aliases != null)
             {
@@ -1396,40 +1332,16 @@ namespace AvroSchemaGenerator
                         if (IsUserDefined(v))
                         {
                             var schemaD = GetGenericUserDefinedProperties(v, require, existingTypes);
-                            row = new Dictionary<string, object>
-                                {
-                                    {"name", p.Name},
-                                    {"type", new Dictionary<string, object> {{"type", "map"}, {"values", schemaD}}},
-                                    { "default", new Dictionary<string, object>() }
-                                };
+                            row = DictionaryField(p.Name, schemaD, require, ali);
                         }
                         else
                         {
-                            row = new Dictionary<string, object>
-                                {
-                                    {"name", p.Name},
-                                    {
-                                        "type", new Dictionary<string, object>
-                                        {
-                                            {"type", "map"},
-                                            {
-                                                "values", ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name,
-                                                    LogicalKind(p))
-                                            }
-                                        }
-                                    },
-                                    { "default", new Dictionary<string, object>() }
-                                };
+                            row = DictionaryField(p.Name,
+                                ToAvroDataType(p.PropertyType.GetGenericArguments()[1].Name, LogicalKind(p)), require,
+                                ali);
                         }
 
-                        if (ali != null)
-                        {
-                            var rows = row.ToList();
-                            rows.Insert(1, new KeyValuePair<string, object>("aliases", ali));
-                            row = rows.ToDictionary(x => x.Key, x => x.Value);
-                            fieldProperties.Add(row);
-                        }
-                        else fieldProperties.Add(row);
+                        fieldProperties.Add(row);
                     }
                 }
                 else
