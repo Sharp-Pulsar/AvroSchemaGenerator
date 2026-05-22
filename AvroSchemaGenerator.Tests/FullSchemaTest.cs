@@ -3,6 +3,7 @@ using Avro.IO;
 using Avro.Reflect;
 using AvroSchemaGenerator.Attributes;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
@@ -114,6 +115,35 @@ namespace AvroSchemaGenerator.Tests
             var actualSchema = typeof(StringRequiredDefaultTest).GetSchema();
             _output.WriteLine(actualSchema);
             var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"StringRequiredDefaultTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Age\",\"type\":\"string\",\"default\":\"100\"}]}";
+            Assert.Equal(expectedSchema, actualSchema);
+        }
+
+        class DictionaryFieldTest
+        {
+            public Dictionary<string, string> Metadata { get; set; }
+        }
+
+        class DictionaryFieldRequiredTest
+        {
+            [Required]
+            public Dictionary<string, string> Metadata { get; set; }
+        }
+
+        [Fact]
+        public void TestDictionaryFieldIsNullableByDefault()
+        {
+            var actualSchema = typeof(DictionaryFieldTest).GetSchema();
+            _output.WriteLine(actualSchema);
+            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"DictionaryFieldTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Metadata\",\"type\":[{\"type\":\"map\",\"values\":\"string\"},\"null\"],\"default\":{}}]}";
+            Assert.Equal(expectedSchema, actualSchema);
+        }
+
+        [Fact]
+        public void TestDictionaryFieldRequiredIsNotNullable()
+        {
+            var actualSchema = typeof(DictionaryFieldRequiredTest).GetSchema();
+            _output.WriteLine(actualSchema);
+            var expectedSchema = "{\"namespace\":\"AvroSchemaGenerator.Tests\",\"name\":\"DictionaryFieldRequiredTest\",\"type\":\"record\",\"fields\":[{\"name\":\"Metadata\",\"type\":{\"type\":\"map\",\"values\":\"string\"},\"default\":{}}]}";
             Assert.Equal(expectedSchema, actualSchema);
         }
 
